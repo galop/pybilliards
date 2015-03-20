@@ -40,6 +40,20 @@ def stick(block_size, stickList): # This will print our stick of finite length :
     for each in stickList:
         pygame.draw.rect(gameDisplay, blue, [each[0], each[1], block_size, block_size])
 
+def get_points(x1,y1,x2,y2,curr_dist,m,choice):
+    # choice = 0 for start point , 
+    #        = 1 for end point :D
+
+    if (y2 > y1) ^ choice:
+    # y2 = y2-1
+        y1 = y1-curr_dist
+    else:
+    # y2 = y2+1
+        y1 = y1+curr_dist
+
+    x1 = x2 + round(m*(y1-y2))  # From (x2,y2) and y1 selected, x1 will be found out :D
+
+    return (x1,y1)
 
 def gameLoop():
     lead_x = dispWidth/2
@@ -176,9 +190,10 @@ def gameLoop():
                 m2 = float(x2-x1)/(y2-y1)
                 print "in x", m2
 
-            curr_dist = 0   # This is current distance achieved :D
-            while (x1 > 0) & (x1 < dispWidth) & (y1 > 0) & (y1 < dispHeight) & (curr_dist < move_dist):
-                hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
+            curr_dist = 1   # This is current distance achieved :D
+
+            while (start_point[0] > 0) & (start_point[0] < dispWidth) & (start_point[1] > 0) & (start_point[1] < dispHeight) & (curr_dist < move_dist):
+                # hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
                 
 
                 if (y2-y1)!=0:
@@ -186,62 +201,25 @@ def gameLoop():
                                 #                (x-x1) =  ------- * (y-y1)                                      
                                            #               (y2-y1)                     
                     m = m2
-                    # Fixing the y2 and y1
-                    # and then finding the x2 and x1 :D
-
-                    # if y2 > y1:
-                    #     y2 = y2-1
-                    #     # y1 = y1-1
-                    # else:
-                    #     y2 = y2+1
-                    #     # y1 = y1+1
                     
-                    # x2 = x1 + round(m*(y2-y1)) # From selected y2, x2 will be found out
 
-                    if y2 > y1:
-                        # y2 = y2-1
-                        y1 = y1-1
-                    else:
-                        # y2 = y2+1
-                        y1 = y1+1
-                    
-                    x1 = x2 + round(m*(y1-y2))  # From (x2,y2) and y1 selected, x1 will be found out :D
                 elif (x2-x1)!=0:
                                                 #          (y2-y1)
                                 #                (y-y1) =  ------- * (x-x1)                                      
                                            #               (x2-x1) 
                     m = m1
-                    # Fixing the x2 and x1
-                    # and then finding the y2 and y1 :D
 
-                    # if x2 > x1:
-                    #     x2 = x2-1
-                    #     # x1 = x1-1
-                    # else:
-                    #     x2 = x2+1
-                    #     # x1 = x1+1
-                    
-                    # y2 = y1 + round(m*(x2-x1)) # From selected x2, y2 will be found out
 
-                    if x2 > x1:
-                        # x2 = x2-1
-                        x1 = x1-1
-                    else:
-                        # x2 = x2+1
-                        x1 = x1+1
-                    
-                    y1 = y2 + round(m*(x1-x2))  # From (x2,y2) and x1 selected, y1 will be found out :Dq
-                # if x2 > x1:
-                #     x2 = x2-1
-                #     x1 = x1-1
-                # else:
-                #     x2 = x2+1
-                #     x1 = x1+1
+
+
+                # -------------------------
+                # Note down the ordering of elements :D
+                start_point = get_points(x1,y1,x2,y2,curr_dist,m,0)         # choice = 0, for start point
+                end_point = get_points(x2,y2,x1,y1,curr_dist,m,1)           # choice = 1, for end point
 
                 curr_dist += 1
 
-                end_point = (x2,y2)    
-                start_point = (x1,y1)  # Modified start point and end points :D
+                
 
                 
                 # Last parameter is for the width of the line :D
