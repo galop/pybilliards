@@ -21,8 +21,8 @@ black = (0, 0, 0)
 blue = (0, 0, 255)
 red = (255, 0, 0)
 FPS = 80
-dispHeight = 600
-dispWidth = 800
+dispHeight = 800
+dispWidth = 1000
 font = pygame.font.SysFont(None, 25)
 
 # gameDisplay = pygame.display.set_mode((dispHeight,dispWidth))
@@ -176,20 +176,17 @@ def get_points(x1,y1,x2,y2,curr_dist,m,choice):
     return (x,y)
 
 def new_get_slope(x1,y1,x2,y2):
-    p = dispWidth/4
-    q = 3*dispHeight/4
-    s = "x1, y1, x2, y2: " + str(x1) + ":" + str(x1) + ":" + str(y1) + ":" + str(x2) + ":" + str(y2)
-    if (x2-x1)!=0:
-                                    #          (y2-y1)
-                    #                (y-y1) =  ------- * (x-x1)                                      
-                               #               (x2-x1) 
-        m1 = float(y2-y1)/(x2-x1)
-        m = m1
-        s = "you are is m111111111"
-        # return m1
+    # p = dispWidth/4
+    # q = 3*dispHeight/4
+    # s = "x1, y1, x2, y2: " + str(x1) + ":" + str(x1) + ":" + str(y1) + ":" + str(x2) + ":" + str(y2)
 
+    if (y2-y1)!=0:
+        m = float(x2-x1)/(y2-y1)
     else:
         m = 10**6   # I am returing a high value, equivalent to infinity :D
+        if y1 > y2:
+            m = m * -1
+        
     return m
 
 def get_slope(x1,y1,x2,y2):
@@ -407,7 +404,7 @@ def get_boundary_point(trace_point, m): # This function will be called only if t
     a,b = trace_point
 
 
-def new_trace_the_shot(start_point, end_point, m, mouse_pos):
+def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
     a,b = end_point
     c,d = mouse_pos
     e,f = start_point
@@ -419,9 +416,9 @@ def new_trace_the_shot(start_point, end_point, m, mouse_pos):
     ball_point = Balls(start_point, 3, color=(255,0,0))
     
     # kkk = 2*pi/2
-    kkk = 3*pi/2
-    slope_angle = atan(m)
-    trace_angle = kkk + (slope_angle)
+    kkk = pi
+    slope_angle = elevation
+    trace_angle = kkk - (slope_angle)
 
     # Ball.move(self,dist, angle, speed)
     ball_point.move_smear(move_dist, trace_angle, speed = 1.5)
@@ -429,8 +426,9 @@ def new_trace_the_shot(start_point, end_point, m, mouse_pos):
     p = dispWidth/4
     q = 3*dispHeight/4
     # s = "tracing the shot....at angle : " + str(trace_angle*180/pi)
-    s = "tracing the shot....at angle : " + str(slope_angle*180/pi)
-    msg2screen(s,p,q)
+    # s = "tracing the shot....at angle : " + str(slope_angle*180/pi)
+    # print s
+    # msg2screen(s,p,q)
     pygame.display.update()
 
 def gameLoop():
@@ -636,14 +634,25 @@ def gameLoop():
 
             if (mouse_dist > stickLength):
                 
-
-                new_m = new_get_slope(x1,y1,x2,y2)  # Calculating this slope :D
-                        
+                a,b = start_point
+                c,d = mouse_pos
+                new_m = new_get_slope(a,b,c,d)  # Calculating this slope :D
+                
+                if new_m > 0:   # First and Third quadrant
+                    if b < d:
+                        elevation = pi + atan(new_m)
+                    else:
+                        elevation = atan(new_m)
+                else:           # Second and Fourth quadrant
+                    if b < d:
+                        elevation = pi + atan(new_m)
+                    else:
+                        elevation = 2*pi + atan(new_m)
                 # if abs(m)>1:
                 #     m = 1/m
 
-                new_trace_the_shot(start_point, end_point, new_m, mouse_pos)
-
+                new_trace_the_shot(start_point, end_point, elevation, mouse_pos)
+                print "elevation is :-------------------- (" + str(elevation*180/pi) + ")"
 
             if mouse_butt[2] == 1 : # & mouse_butt[0] == 0:
                 
