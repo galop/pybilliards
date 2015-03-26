@@ -23,14 +23,15 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 blue = (0, 0, 255)
 red = (255, 0, 0)
-FPS = 80
+GREEN = (0,255,0)
+FPS = 40
 dispHeight = 600
 dispWidth = 800
 font = pygame.font.SysFont(None, 25)
 
 # gameDisplay = pygame.display.set_mode((dispHeight,dispWidth))
 gameDisplay = pygame.display.set_mode((dispWidth, dispHeight))
-pygame.display.set_caption('theVault')
+pygame.display.set_caption('pyBilliard')
 clock = pygame.time.Clock()
 
 # pygame.display.update()
@@ -100,7 +101,7 @@ class Balls:
         while dist > 0:
             # s = "current distance of movement is " + str(dist)
             # msg2screen(s,self.x - 100, self.y + 200)
-            gameDisplay.fill(white)
+            gameDisplay.fill(GREEN)
 
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
@@ -150,7 +151,7 @@ class Balls:
         while self.dist > 0:
             # s = "current distance of movement is " + str(dist)
             # msg2screen(s,self.x - 100, self.y + 200)
-            gameDisplay.fill(white)
+            gameDisplay.fill(GREEN)
 
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
@@ -259,7 +260,7 @@ def get_points(x1,y1,x2,y2,curr_dist,m,choice):
             y = y1 + curr_dist
 
         x = x2 + round(m*(y - y2))  # From (x2,y2) and y selected, x will be found out :D
-        s = "<<--------Inside y------->>  " + str(m)
+        # s = "<<--------Inside y------->>  " + str(m)
     else:
         if (x2 >= x1) ^ choice:
             x = x1 - curr_dist
@@ -267,9 +268,9 @@ def get_points(x1,y1,x2,y2,curr_dist,m,choice):
             x = x1 + curr_dist
 
         y = y2 + round(m*(x - x2))  # From (x2,y2) and y selected, x will be found out :D
-        s = "<<--------Inside x------->>  " + str(m)
+        # s = "<<--------Inside x------->>  " + str(m)
 
-    msg2screen(s,a,b)
+    # msg2screen(s,a,b)
     return (x,y)
 
 def new_get_slope(x1,y1,x2,y2):
@@ -501,8 +502,8 @@ def in_boundary(trace_point):
     else:
         return 1
 
-def get_boundary_point(trace_point, m): # This function will be called only if the point is out of boundary :D
-    a,b = trace_point
+# def get_boundary_point(trace_point, m): # This function will be called only if the point is out of boundary :D
+#     a,b = trace_point
 
 
 def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
@@ -589,9 +590,9 @@ def gameLoop():
     print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
     # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
     while not gameExit:
-        print "General loop :D"
+        # print "General loop :D"
         while gameOver:
-            gameDisplay.fill(white)
+            gameDisplay.fill(GREEN)
             msg2screen("Game over, press Q to quit or C to continue.")
             pygame.display.update()
             for event in pygame.event.get():
@@ -639,7 +640,7 @@ def gameLoop():
         pygame.display.update()
         #------------------
 
-        gameDisplay.fill(white)
+        gameDisplay.fill(GREEN)
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -846,8 +847,8 @@ def gameLoop():
                     #     print "in x", m2
 
                     curr_dist = 1   # This is current distance achieved :D
-                    out_msg = "Moving distance is "  + str(move_dist)
-                    msg2screen(out_msg,dispWidth/4,dispHeight/4)
+                    # out_msg = "Moving distance is "  + str(move_dist)
+                    # msg2screen(out_msg,dispWidth/4,dispHeight/4)
 
                     while (start_point[0] > 0) & (start_point[0] < dispWidth) & (start_point[1] > 0) & (start_point[1] < dispHeight) & (curr_dist < move_dist):
                         # hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
@@ -872,7 +873,7 @@ def gameLoop():
 
                         
                         # Last parameter is for the width of the line :D
-                        gameDisplay.fill(white)
+                        gameDisplay.fill(GREEN)
                         pygame.draw.line(gameDisplay, (255, 0, 0), start_point, end_point,20)           # This pretty bad line, no smppthness
                         pygame.display.update()
                         #---------
@@ -917,8 +918,8 @@ def gameLoop():
         
         
         clock.tick(FPS)
-        s = "Length of stick_loc is: "+ str(len(stick_loc))
-        msg2screen(s)
+        # s = "Length of stick_loc is: "+ str(len(stick_loc))
+        # msg2screen(s)
         pygame.display.update()
 
     pygame.quit()
