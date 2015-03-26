@@ -7,7 +7,10 @@
 # Press right button of mouse to hit the stick :D
 # Ball will move in appropriate direction :D
 # 
-# Ray tracing added :D
+# Working billiards game, 
+# Balls will disappear after being pocketed :D
+# 6 pockets are added :D
+# After all balls are pocketed, then game will stop, you can quit or continue the game :D
 # ----------------------------------------------------------------------------------------------------------
 import pygame
 
@@ -21,8 +24,8 @@ black = (0, 0, 0)
 blue = (0, 0, 255)
 red = (255, 0, 0)
 FPS = 80
-dispHeight = 800
-dispWidth = 1000
+dispHeight = 600
+dispWidth = 800
 font = pygame.font.SysFont(None, 25)
 
 # gameDisplay = pygame.display.set_mode((dispHeight,dispWidth))
@@ -44,6 +47,7 @@ class Balls:
         self.color = color
         self.speed = 1
         self.angle = 0 # This is in radian :D
+        self.pocketed = self.is_pocketed()
 
     def disp(self):
         pygame.draw.circle(gameDisplay, self.color, (self.x, self.y), self.size, self.thickness)
@@ -120,6 +124,91 @@ class Balls:
             dist -= 1 # Movement of these units only :D
         # s = "current distance of movement is " + str(dist)
         # msg2screen(s,self.x - 100, self.y + 200)
+    def move_with_collision_correction(self,dist=None, angle = None, speed=3, list_of_ball_objects =[]):
+        
+        if dist != None:
+            self.dist = dist
+
+        if angle != None:
+            self.angle = angle
+
+        if list_of_ball_objects == []:
+            list_of_ball_objects.append(self)
+
+        
+        self.speed = speed
+
+
+
+        # Adding boundary function :D
+
+
+
+
+        # s = "current distance of movement is " + str(dist)
+        # msg2screen(s,self.x - 100, self.y + 200)
+        while self.dist > 0:
+            # s = "current distance of movement is " + str(dist)
+            # msg2screen(s,self.x - 100, self.y + 200)
+            gameDisplay.fill(white)
+
+            self.x += int(round(sin(self.angle) * self.speed))
+            self.y -= int(round(cos(self.angle) * self.speed))
+
+            #---------
+            self.collision(list_of_ball_objects, self.dist)
+            self.is_pocketed()
+            self.boundary()
+            #---------
+            self.disp()
+            # pygame.display.update()
+            self.dist -= 1 # Movement of these units only :D
+
+        
+
+    def is_clicked(self, a, b):
+        if hypot(self.x-a, self.y-b) <= self.size:
+            return 1                                # If the point (a,b) is inside the ball then return 1 :D
+        else:
+            return 0                                # Else return 0 :D
+
+    def collision(self, all_balls, dist):
+        all_other_except_me = [my_ball for my_ball in all_balls if (my_ball != self) & (my_ball.pocketed == 0)]
+        # This is list of all balls except me, which are not pocketed :D
+
+        for my_ball in all_other_except_me:
+            dx = my_ball.x  - self.x
+            dy = my_ball.y  - self.y
+
+            dist_of_separation = hypot(dx,dy)
+
+            if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
+                print "Bang Bang !!"
+                
+                tangent = atan2(dy, dx)
+                self.angle      = 2*tangent - self.angle
+                self.dist       = self.dist/2
+
+                my_ball.angle   = 2*tangent - my_ball.angle
+                my_ball.dist    = self.dist             # This is modified distance, which 1/2 of the previous :D
+
+                # list_for_my_ball = [temp_ball for temp_ball in all_balls if temp_ball != my_ball]
+
+                my_ball.move_with_collision_correction(list_of_ball_objects = all_balls)
+
+    def is_pocketed(self):
+        x_limits = (0, dispWidth/2, dispWidth)
+        y_limits = (0, dispHeight)
+
+        for i in x_limits:
+            for j in y_limits:
+                ball_dist = hypot(self.x - i, self.y -j)
+                if ball_dist < 3*self.size:
+                    self.pocketed = 1
+                    self.dist = 0           # So that the ball will not move any further :D
+                    return 1
+
+        return 0
 
 def create_rand_Ball(size):
     x = random.randint(size, dispWidth-size)
@@ -130,7 +219,15 @@ def msg2screen(msg, x_loc=dispWidth/4, y_loc=dispHeight/2, color=black):
     screen_text = font.render(msg, True, color)
     gameDisplay.blit(screen_text, [x_loc,  y_loc])
 
+def show_pockets(pocket_size):
+    a = (0, dispWidth/2, dispWidth)
+    b = (0, dispHeight)
 
+    for i in a:
+        for j in b:
+            pygame.draw.circle(gameDisplay, (0,0,0), (i,j), pocket_size, 0)
+            pygame.display.update()
+            
 def stick(block_size, stickList): # This will print our stick of finite length :D
     for each in stickList:
         pygame.draw.rect(gameDisplay, blue, [each[0], each[1], block_size, block_size])
@@ -183,8 +280,10 @@ def new_get_slope(x1,y1,x2,y2):
     if (y2-y1)!=0:
         m = float(x2-x1)/(y2-y1)
     else:
-        m = 10**6   # I am returing a high value, equivalent to infinity :D
-        if y1 > y2:
+        m = abs(x2-x1)*10**2   # I am returing a high value, equivalent to infinity :D
+        # if y1 > y2:
+        #     m = m * -1
+        if x2 > x1:
             m = m * -1
         
     return m
@@ -193,38 +292,40 @@ def get_slope(x1,y1,x2,y2):
     p = dispWidth/4
     q = 3*dispHeight/4
     s = "x1, y1, x2, y2: " + str(x1) + ":" + str(x1) + ":" + str(y1) + ":" + str(x2) + ":" + str(y2)
-    if (x2-x1)!=0:
-                                    #          (y2-y1)
-                    #                (y-y1) =  ------- * (x-x1)                                      
-                               #               (x2-x1) 
-        m1 = float(y2-y1)/(x2-x1)
-        m = m1
-        s = "you are is m111111111"
-        # return m1
+    # if (x2-x1)!=0:
+    #                                 #          (y2-y1)
+    #                 #                (y-y1) =  ------- * (x-x1)                                      
+    #                            #               (x2-x1) 
+    #     m1 = float(y2-y1)/(x2-x1)
+    #     m = m1
+    #     s = "you are is m111111111"
+    #     # return m1
 
-    elif (y2-y1)!=0:
-                                    #          (x2-x1)
-                    #                (x-x1) =  ------- * (y-y1)                                      
-                               #               (y2-y1)                     
-        m2 = float(x2-x1)/(y2-y1)
-        m = m2
-        s = "you are is m222222222"
-        # return m2
-    # msg2screen(s,p,q)
+    # elif (y2-y1)!=0:
+    #                                 #          (x2-x1)
+    #                 #                (x-x1) =  ------- * (y-y1)                                      
+    #                            #               (y2-y1)                     
+    #     m2 = float(x2-x1)/(y2-y1)
+    #     m = m2
+    #     s = "you are is m222222222"
+    #     # return m2
+    # # msg2screen(s,p,q)
+    y_diff = (y2-y1)
+    x_diff = (x2-x1)
+
+    m = tan(atan2(y_diff,x_diff))
     return m
 
 def get_angle(point_loc, Ball_obj):
     temp1 = point_loc[0] - Ball_obj.x
     temp2 = -1* (point_loc[1] - Ball_obj.y) # This -ve sign is to incorporate the inverted y-axis :D
 
-    if temp2 == 0:
-        move_angle = (pi/2) * (temp1/abs(temp1)) # This is for the sign of than angle also :D
-    else:
-        move_angle = atan(float(temp1)/temp2)
+    # if temp2 == 0:
+    #     move_angle = (pi/2) * (temp1/abs(temp1)) # This is for the sign of than angle also :D
+    # else:
+    #     move_angle = atan(float(temp1)/temp2)
 
-
-    if point_loc[1] > Ball_obj.y:
-        move_angle += pi
+    move_angle = atan2(temp1, temp2)
 
     return move_angle
 
@@ -421,15 +522,35 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
     trace_angle = kkk - (slope_angle)
 
     # Ball.move(self,dist, angle, speed)
-    ball_point.move_smear(move_dist, trace_angle, speed = 1.5)
+    ball_point.move_smear(move_dist, trace_angle, speed = 8)
 
     p = dispWidth/4
     q = 3*dispHeight/4
     # s = "tracing the shot....at angle : " + str(trace_angle*180/pi)
-    # s = "tracing the shot....at angle : " + str(slope_angle*180/pi)
-    # print s
+    s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
+    print s
     # msg2screen(s,p,q)
     pygame.display.update()
+
+# def new_stick_show(start_point, end_point, elevation):
+#     a,b = end_point
+#     e,f = start_point
+
+    
+#     move_dist       = sqrt((a-e)**2 + (b-f)**2)
+
+#     # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
+#     stick_ball_point = Balls(end_point, 5, color=(0,0,255))
+    
+#     # kkk = 2*pi/2
+#     kkk = pi
+#     slope_angle = elevation
+#     trace_angle = kkk - (slope_angle)
+
+#     # Ball.move(self,dist, angle, speed)
+#     stick_ball_point.move_smear(move_dist, trace_angle, speed = 1.01)
+
+#     pygame.display.update()
 
 def gameLoop():
     lead_x = dispWidth/2
@@ -439,16 +560,30 @@ def gameLoop():
     block_size = 10
     gameExit = False
     gameOver = False
-    stickLength = 200
+    stickLength = 100
     stickList = []
     prev_key = 0        # This is initialisation before the using in program :D
     once = 0
 
-    randAppleX = round(random.randrange(0, dispWidth - block_size)/10.0)*10
-    randAppleY = round(random.randrange(0, dispHeight - block_size)/10.0)*10
-
+    
     stick_loc = []
-    Ball_1 = Balls((320,400),15)            # Fixed location ball
+    no_of_balls = 3
+    my_ball_size = 15
+    all_balls = []              # List of my balls :D
+
+    
+
+    for i in xrange(no_of_balls):
+        x = random.randint(my_ball_size, dispWidth - my_ball_size)
+        y = random.randint(my_ball_size, dispHeight - my_ball_size)
+
+        c1 = random.randint(0,255)
+        c2 = random.randint(0,255)
+        c3 = random.randint(0,255)
+
+        all_balls.append(Balls((x,y), size = my_ball_size, color = (c1,c2,c3)))
+
+    # Ball_1 = Balls((320,400),15)            # Fixed location ball
                                             # Initialising the ball here :D
 
     print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -493,7 +628,13 @@ def gameLoop():
         #------------------
         # Ball_1 = Balls((320,400),15)            # Fixed location ball
         Ball_2 = create_rand_Ball(40)           # Random location ball :D  # NOTE: This ball is not being usd currently :D
-        Ball_1.disp()
+        # Ball_1.disp()
+
+        show_pockets(2*my_ball_size)
+
+        for my_ball in all_balls:       # Showing all my balls :D
+            my_ball.disp()
+
         #Ball_2.disp()
         pygame.display.update()
         #------------------
@@ -526,13 +667,16 @@ def gameLoop():
             #     move_angle += pi
             #     pass
 
-            move_angle = get_angle(mouse_pos, Ball_1)
+            for my_ball in all_balls:
 
-            s = "Movement angle is " + str(move_angle*180/pi) + " in degrees " #:D
-            msg2screen(s,Ball_1.x - 100, Ball_1.y + 100)
-            Ball_1.move(50, move_angle,3)
-            # Ball_1.move(50, pi/2, 1)
-            pygame.display.update()
+                move_angle = get_angle(mouse_pos, my_ball)
+
+                # s = "Movement angle is " + str(move_angle*180/pi) + " in degrees " #:D
+                # msg2screen(s,my_ball.x - 100, my_ball.y + 100)
+
+                my_ball.move(50, move_angle,3)
+                # Ball_1.move(50, pi/2, 1)
+                pygame.display.update()
         #---------------
         # if mouse_butt[0] == 1:
         #     s = "left and right clicked "
@@ -555,175 +699,216 @@ def gameLoop():
             # This logic is for saving the start point of stick :D
             # Otherwise its not possible to store the initial value of mouse_position :D
             temp = pygame.mouse.get_pos()
-            stick_loc.append(temp)
+            mouse_pos = temp
+
+            s,t = mouse_pos
+
+            this_ball_status = 0
+            # clicked_ball = []              #list of all balls which are clicked
+
+            for my_ball in all_balls:
+                this_ball_status = my_ball.is_clicked(s,t)
+                
+                if this_ball_status == 1:
+                    clicked_ball = my_ball
+                    break                           # Why breaking? Only single ball will be clicked, beacuase balls don't overlap :D
+
+            if this_ball_status != 0:              # If mouse has left clicked on some ball then :D
+                # def move(self,dist, angle, speed):
+                move_angle  = get_angle(mouse_pos, clicked_ball)
+                move_dist   = hypot(clicked_ball.x - mouse_pos[0], clicked_ball.y - mouse_pos[1])
+                move_speed  = 3
+                # clicked_ball.move(move_dist, move_angle, move_speed)
+                clicked_ball.x = s
+                clicked_ball.y = t
+
+            else:                               # No ball is selected, hence continue your stick drawing :D
+                stick_loc.append(temp)
+
+                
+                # if mouse_butt[2]==0:
+                #     pass
+                #--------------------------------------------------------------------
+                mouse_pos = pygame.mouse.get_pos()
+                
+                x2 = mouse_pos[0] # First coordinate is x-cordinate :D
+                y2 = mouse_pos[1]
+
+                start_point = stick_loc[0]   # Here I am getting the start point value :D
+
+                x1 = start_point[0]
+                y1 = start_point[1]
+
+                # slope of the line
+                # m = float((y2-y1))/(x2-x1)              #          (y2-y1)
+                                        #                (y-y1) =  ------- * (x-x1)                                      
+                                                   #               (x2-x1) 
+                # c = y1 - m*x1 # This is constant 
+
+                # This checking for the distance between the two points greater than or less than the stickLength :D
+                hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
+                while (hamming_dist > stickLength):
+                    if abs(y2-y1) > abs(x2-x1):             # If the y side distnace is greater :D, so I will find point in that direction :D
+                        if y2 > y1:
+                            y2 = y2-1
+                        else:
+                            y2 = y2+1
+                    else:
+                        if x2 > x1:
+                            x2 = x2-1
+                        else:
+                            x2 = x2+1
+
+                    hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2) 
+
+                end_point = (x2,y2)    # This is point that has been founf out successfully :D
+                # (x,0) is start point and mouse_pos is end point :D
+                # Last parameter is for the width of the line :D
+                pygame.draw.line(gameDisplay, (0, 0, 0), start_point, end_point,10)           # This pretty bad line, no smppthness
+                # pygame.draw.aaline(gameDisplay, (0, 0, 0), start_point, end_point,30)
+                
+                # pygame.draw.arc(gameDisplay, (255, 0, 0), ((100, 100), (200, 200)), 0, pi, 1)              
+                mouse_butt = pygame.mouse.get_pressed()
+                # print "mouse status", mouse_butt
+
+                # This will move the stick if first button i.e. left is clicked
+                # Distance of movement of stick will be given by the location of mouse from end of stick
+                # Why?
+                # This is kind of velocity thing
+                # Farther the mouse more distance the stick will cover :D
+                # NOTE: Stick will not cross the boundary of pool table :D
+                pygame.display.update()                 
+                #--------------------------------------------------------------------
+            # Thought:
+            # left click:       Fix the stick start point
+            # middle click:     undo of left click and hang there freely
+            # right click:      Hit the stick :D, and hang there freely
 
             
-            # if mouse_butt[2]==0:
-            #     pass
-            #--------------------------------------------------------------------
-            mouse_pos = pygame.mouse.get_pos()
-            
-            x2 = mouse_pos[0] # First coordinate is x-cordinate :D
-            y2 = mouse_pos[1]
+            # if mouse_butt[0] == 1:
+            #     s = "only left"
+            #     while (True):
+            #         mouse_butt = pygame.mouse.get_pressed()
+            #         if mouse_butt[1] == 1:
+            #             s = "left -> middle"
+            #             break
+            #         elif mouse_butt[2] == 1:
+            #             s = "left -> right"
+            #             break
+            #         break
+                # ----------------------------------------------------------------------
+                # Adding the ray tracing :D
+                mouse_dist = sqrt((mouse_pos[0] - x1)**2 + (mouse_pos[1] - y1)**2)
 
-            start_point = stick_loc[0]   # Here I am getting the start point value :D
-
-            x1 = start_point[0]
-            y1 = start_point[1]
-
-            # slope of the line
-            # m = float((y2-y1))/(x2-x1)              #          (y2-y1)
-                                    #                (y-y1) =  ------- * (x-x1)                                      
-                                               #               (x2-x1) 
-            # c = y1 - m*x1 # This is constant 
-
-            # This checking for the distance between the two points greater than or less than the stickLength :D
-            hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
-            while (hamming_dist > stickLength):
-                if abs(y2-y1) > abs(x2-x1):             # If the y side distnace is greater :D, so I will find point in that direction :D
-                    if y2 > y1:
-                        y2 = y2-1
-                    else:
-                        y2 = y2+1
-                else:
-                    if x2 > x1:
-                        x2 = x2-1
-                    else:
-                        x2 = x2+1
-
-                hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2) 
-
-            end_point = (x2,y2)    # This is point that has been founf out successfully :D
-            # (x,0) is start point and mouse_pos is end point :D
-            # Last parameter is for the width of the line :D
-            pygame.draw.line(gameDisplay, (0, 0, 0), start_point, end_point,10)           # This pretty bad line, no smppthness
-            # pygame.draw.aaline(gameDisplay, (0, 0, 0), start_point, end_point,30)
-            
-            pygame.draw.arc(gameDisplay, (255, 0, 0), ((100, 100), (200, 200)), 0, pi, 1)              
-            mouse_butt = pygame.mouse.get_pressed()
-            print "mouse status", mouse_butt
-
-            # This will move the stick if first button i.e. left is clicked
-            # Distance of movement of stick will be given by the location of mouse from end of stick
-            # Why?
-            # This is kind of velocity thing
-            # Farther the mouse more distance the stick will cover :D
-            # NOTE: Stick will not cross the boundary of pool table :D
-            pygame.display.update()                 
-            #--------------------------------------------------------------------
-        # Thought:
-        # left click:       Fix the stick start point
-        # middle click:     undo of left click and hang there freely
-        # right click:      Hit the stick :D, and hang there freely
-
-        
-        # if mouse_butt[0] == 1:
-        #     s = "only left"
-        #     while (True):
-        #         mouse_butt = pygame.mouse.get_pressed()
-        #         if mouse_butt[1] == 1:
-        #             s = "left -> middle"
-        #             break
-        #         elif mouse_butt[2] == 1:
-        #             s = "left -> right"
-        #             break
-        #         break
-            # ----------------------------------------------------------------------
-            # Adding the ray tracing :D
-            mouse_dist = sqrt((mouse_pos[0] - x1)**2 + (mouse_pos[1] - y1)**2)
-
-            if (mouse_dist > stickLength):
-                
-                a,b = start_point
-                c,d = mouse_pos
-                new_m = new_get_slope(a,b,c,d)  # Calculating this slope :D
-                
-                if new_m > 0:   # First and Third quadrant
-                    if b < d:
-                        elevation = pi + atan(new_m)
-                    else:
-                        elevation = atan(new_m)
-                else:           # Second and Fourth quadrant
-                    if b < d:
-                        elevation = pi + atan(new_m)
-                    else:
-                        elevation = 2*pi + atan(new_m)
-                # if abs(m)>1:
-                #     m = 1/m
-
-                new_trace_the_shot(start_point, end_point, elevation, mouse_pos)
-                print "elevation is :-------------------- (" + str(elevation*180/pi) + ")"
-
-            if mouse_butt[2] == 1 : # & mouse_butt[0] == 0:
-                
-                x3 = mouse_pos[0] # First coordinate is x-cordinate :D
-                y3 = mouse_pos[1]
-
-                # x2,y2 are endpoint co-ordinates :D
-
-                # Movement distance :D
-                move_dist = sqrt((y2-y3)**2+(x2-x3)**2)
-
-                # if (x2-x1)!=0:
-                #     m1 = float(y2-y1)/(x2-x1)
-                #     print "in y", m1
-
-                # if (y2-y1)!=0:
-                #     m2 = float(x2-x1)/(y2-y1)
-                #     print "in x", m2
-
-                curr_dist = 1   # This is current distance achieved :D
-                out_msg = "Moving distance is "  + str(move_dist)
-                msg2screen(out_msg,dispWidth/4,dispHeight/4)
-
-                while (start_point[0] > 0) & (start_point[0] < dispWidth) & (start_point[1] > 0) & (start_point[1] < dispHeight) & (curr_dist < move_dist):
-                    # hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
+                if (mouse_dist > stickLength):
                     
-
+                    a,b = start_point
+                    c,d = end_point
+                    new_m = new_get_slope(a,b,c,d)  # Calculating this slope :D
                     
+                    if new_m > 0:   # First and Third quadrant
+                        if b < d:
+                            elevation = pi + atan(new_m)
+                        else:
+                            elevation = atan(new_m)
+                    else:           # Second and Fourth quadrant
+                        if b < d:
+                            elevation = pi + atan(new_m)
+                        else:
+                            elevation = 2*pi + atan(new_m)
+                    # if abs(m)>1:
+                    #     m = 1/m
+                    for my_ball in all_balls:
+                        my_ball.disp()
+                        # Ball_1.disp()
+
+                    # new_stick_show(start_point, end_point, elevation)
+
+                    new_trace_the_shot(start_point, end_point, elevation, mouse_pos)
+                    # print "elevation is :-------------------- (" + str(elevation*180/pi) + ")"
+
+                if mouse_butt[2] == 1 : # & mouse_butt[0] == 0:
+                    
+                    x3 = mouse_pos[0] # First coordinate is x-cordinate :D
+                    y3 = mouse_pos[1]
+
+                    # x2,y2 are endpoint co-ordinates :D
+
+                    # Movement distance :D
+                    move_dist = sqrt((y2-y3)**2+(x2-x3)**2)
+
+                    # if (x2-x1)!=0:
+                    #     m1 = float(y2-y1)/(x2-x1)
+                    #     print "in y", m1
+
+                    # if (y2-y1)!=0:
+                    #     m2 = float(x2-x1)/(y2-y1)
+                    #     print "in x", m2
+
+                    curr_dist = 1   # This is current distance achieved :D
+                    out_msg = "Moving distance is "  + str(move_dist)
+                    msg2screen(out_msg,dispWidth/4,dispHeight/4)
+
+                    while (start_point[0] > 0) & (start_point[0] < dispWidth) & (start_point[1] > 0) & (start_point[1] < dispHeight) & (curr_dist < move_dist):
+                        # hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
                         
 
-                    m = get_slope(x1,y1,x2,y2)
-                    
-                    if abs(m)>1:
-                        m = 1/m
+                        
+                            
 
-                    # -------------------------
-                    # Note down the ordering of elements :D
-                    start_point = get_points(x1,y1,x2,y2,curr_dist,m,0)         # choice = 0, for start point
-                    end_point = get_points(x2,y2,x1,y1,curr_dist,m,1)           # choice = 1, for end point
+                        m = get_slope(x1,y1,x2,y2)
+                        
+                        if abs(m)>1:
+                            m = 1/m
 
-                    curr_dist += 1
+                        # -------------------------
+                        # Note down the ordering of elements :D
+                        start_point = get_points(x1,y1,x2,y2,curr_dist,m,0)         # choice = 0, for start point
+                        end_point = get_points(x2,y2,x1,y1,curr_dist,m,1)           # choice = 1, for end point
 
-                    
+                        curr_dist += 1
 
-                    
-                    # Last parameter is for the width of the line :D
-                    gameDisplay.fill(white)
-                    pygame.draw.line(gameDisplay, (255, 0, 0), start_point, end_point,20)           # This pretty bad line, no smppthness
+                        
 
-                    #---------
-                    # If this moving stick hits a ball then, break from this loop (to stop stick movement)
-                    # and move the ball :D
-                    # Ball will moved by the "remaining" distance with which the stick was supposed to move :D
-                    # That remaining distance is "move_dist-curr_dist"
-
-                    # condition for checking the stick hits the ball
-                    # if start_point == (Ball_1.x, Ball_1.y):
-
-                    if ball_got_hit(start_point, Ball_1):
-                        ball_move_dist = move_dist - curr_dist
-
-                        temp_angle = get_angle(end_point, Ball_1)   # Passing the end point and Ball object to get the movement angle
-                        move_angle = temp_angle + pi                # Why this??? Ball should move in opposite direction from where it is being hit :D
-                        move_speed = 3                              # You can choose more high speed :D
-
-                        Ball_1.move(ball_move_dist, move_angle, move_speed)
+                        
+                        # Last parameter is for the width of the line :D
+                        gameDisplay.fill(white)
+                        pygame.draw.line(gameDisplay, (255, 0, 0), start_point, end_point,20)           # This pretty bad line, no smppthness
                         pygame.display.update()
-                        break
-                        # move(self,dist, angle, speed):
-                    #----------
-                    pygame.display.update()
+                        #---------
+                        # If this moving stick hits a ball then, break from this loop (to stop stick movement)
+                        # and move the ball :D
+                        # Ball will moved by the "remaining" distance with which the stick was supposed to move :D
+                        # That remaining distance is "move_dist-curr_dist"
+
+                        # condition for checking the stick hits the ball
+                        # if start_point == (Ball_1.x, Ball_1.y):
+
+                        
+
+                        for my_ball in all_balls:
+
+                            if ball_got_hit(start_point, my_ball):
+                                ball_move_dist = move_dist - curr_dist
+
+                                temp_angle = get_angle(end_point, my_ball)   # Passing the end point and Ball object to get the movement angle
+                                move_angle = temp_angle + pi                # Why this??? Ball should move in opposite direction from where it is being hit :D
+                                move_speed = 3                              # You can choose more high speed :D
+
+                                my_ball.move_with_collision_correction(dist = ball_move_dist, angle = move_angle, speed = move_speed, list_of_ball_objects = all_balls)
+                                # move_with_collision_correction(self,dist=None, angle = None, speed=3, list_of_ball_objects =[]):
+                                pygame.display.update()
+                                break
+                                # move(self,dist, angle, speed):
+                            #----------
+                        temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
+                        all_balls = temp_all_balls
+                        # After looping out of the list, I must reassign it, with removing
+                                                            # the pocketed balls :D
+                        if all_balls == []: # If all balls are pocketed then, quit the game :D
+                            gameOver = True
+                        
+                        pygame.display.update()
         
         else:
             # This is like whenever I am not holding the stick to initialise,
