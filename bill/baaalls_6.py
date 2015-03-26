@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 #
 # How to use it ??
 # Ball is placed on screen, click left button of mouse to have a stick on screen
@@ -7,12 +6,10 @@
 # Press right button of mouse to hit the stick :D
 # Ball will move in appropriate direction :D
 # 
-# Multiple balls added,
-# Movement is fine :D
-# New feature added: You can now move a ball, by clicking (left mouse button) and dragging it desired location :D
-#
-# Whats not there?
-# Balls collision with each other, to be done in future :D
+# Working billiards game, 
+# Balls will disappear after being pocketed :D
+# 6 pockets are added :D
+# After all balls are pocketed, then game will stop, you can quit or continue the game :D
 # ----------------------------------------------------------------------------------------------------------
 import pygame
 
@@ -25,24 +22,22 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 blue = (0, 0, 255)
 red = (255, 0, 0)
-FPS = 30
-dispHeight = 600
+GREEN = (0,140,0)
+FPS = 40
+dispHeight = 500
 dispWidth = 800
 font = pygame.font.SysFont(None, 25)
-tableImage = 'assets/table.png'
 
 # gameDisplay = pygame.display.set_mode((dispHeight,dispWidth))
 gameDisplay = pygame.display.set_mode((dispWidth, dispHeight))
-pygame.display.set_caption('pyBilliards')
+pygame.display.set_caption('pyBilliard')
 clock = pygame.time.Clock()
-background = pygame.image.load(tableImage).convert()
-# pygame.display.update()
-pygame.display.flip()
 
-
+pygame.display.update()
+# pygame.display.flip()
 
 class Balls:
-    def __init__(self,(x,y),size, thickness=0, color=(0,0,255)):
+    def __init__(self, (x,y), size, thickness=0, color=(0,0,255)):
         self.x = x
         self.y = y
         self.size = size
@@ -50,6 +45,7 @@ class Balls:
         self.color = color
         self.speed = 1
         self.angle = 0 # This is in radian :D
+        self.pocketed = self.is_pocketed()
 
     def disp(self):
         pygame.draw.circle(gameDisplay, self.color, (self.x, self.y), self.size, self.thickness)
@@ -72,37 +68,19 @@ class Balls:
             self.y = 2*self.size - self.y
             self.angle = pi - self.angle
 
-    def move_smear(self,dist, angle, speed):
+
+    def move(self, dist, angle, speed, smear=False):
         self.angle = angle
         self.speed = speed
-
-        while dist > 0:
-            self.x += int(round(sin(self.angle) * self.speed))
-            self.y -= int(round(cos(self.angle) * self.speed))
-
-            self.boundary()
-            self.disp()
-            
-            dist -= 1 # Movement of these units only :D
-        
-
-    def move(self,dist, angle, speed):
-        self.angle = angle
-        self.speed = speed
-
-
 
         # Adding boundary function :D
-
-
-
-
         # s = "current distance of movement is " + str(dist)
         # msg2screen(s,self.x - 100, self.y + 200)
         while dist > 0:
             # s = "current distance of movement is " + str(dist)
             # msg2screen(s,self.x - 100, self.y + 200)
-            gameDisplay.fill(white)
+            if not smear:
+                gameDisplay.fill(GREEN)
 
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
@@ -126,27 +104,106 @@ class Balls:
             dist -= 1 # Movement of these units only :D
         # s = "current distance of movement is " + str(dist)
         # msg2screen(s,self.x - 100, self.y + 200)
+    def move_with_collision_correction(self,dist=None, angle = None, speed=3, list_of_ball_objects = []):
+        
+        if dist != None:
+            self.dist = dist
+
+        if angle != None:
+            self.angle = angle
+
+        if list_of_ball_objects == []:
+            list_of_ball_objects.append(self)
+        
+        self.speed = speed
+
+        # Adding boundary function :D
+
+        # s = "current distance of movement is " + str(dist)
+        # msg2screen(s,self.x - 100, self.y + 200)
+        while self.dist > 0:
+            # s = "current distance of movement is " + str(dist)
+            # msg2screen(s,self.x - 100, self.y + 200)
+            gameDisplay.fill(GREEN)
+
+            self.x += int(round(sin(self.angle) * self.speed))
+            self.y -= int(round(cos(self.angle) * self.speed))
+
+            #---------
+            self.collision(list_of_ball_objects, self.dist)
+            self.is_pocketed()
+            self.boundary()
+            #---------
+            self.disp()
+            # pygame.display.update()
+            self.dist -= 1 # Movement of these units only :D
+
     def is_clicked(self, a, b):
         if hypot(self.x-a, self.y-b) <= self.size:
             return 1                                # If the point (a,b) is inside the ball then return 1 :D
         else:
             return 0                                # Else return 0 :D
 
+    def collision(self, all_balls, dist):
+        all_other_except_me = [my_ball for my_ball in all_balls if (my_ball != self) & (my_ball.pocketed == 0)]
+        # This is list of all balls except me, which are not pocketed :D
+
+        for my_ball in all_other_except_me:
+            dx = my_ball.x - self.x
+            dy = my_ball.y - self.y
+
+            dist_of_separation = hypot(dx,dy)
+
+            if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
+                print "Bang Bang !!"
+                
+                tangent = atan2(dy, dx)
+                self.angle      = 2*tangent - self.angle
+                self.dist       = self.dist/2
+
+                my_ball.angle   = 2*tangent - my_ball.angle
+                my_ball.dist    = self.dist             # This is modified distance, which 1/2 of the previous :D
+
+                # list_for_my_ball = [temp_ball for temp_ball in all_balls if temp_ball != my_ball]
+
+                my_ball.move_with_collision_correction(list_of_ball_objects = all_balls)
+
+    def is_pocketed(self):
+        x_limits = (0, dispWidth/2, dispWidth)
+        y_limits = (0, dispHeight)
+
+        for i in x_limits:
+            for j in y_limits:
+                ball_dist = hypot(self.x - i, self.y -j)
+                if ball_dist < 3*self.size:
+                    self.pocketed = 1
+                    self.dist = 0           # So that the ball will not move any further :D
+                    return 1
+        return 0
+
 def create_rand_Ball(size):
     x = random.randint(size, dispWidth-size)
     y = random.randint(size, dispHeight-size)
-    return Balls((x,y),size)
+    return Balls((x,y), size)
 
 def msg2screen(msg, x_loc=dispWidth/4, y_loc=dispHeight/2, color=black):
     screen_text = font.render(msg, True, color)
     gameDisplay.blit(screen_text, [x_loc,  y_loc])
 
+def show_pockets(pocket_size):
+    a = (0, dispWidth/2, dispWidth)
+    b = (0, dispHeight)
 
+    for i in a:
+        for j in b:
+            pygame.draw.circle(gameDisplay, (0, 0, 0), (i, j), pocket_size, 0)
+            pygame.display.update()
+            
 def stick(block_size, stickList): # This will print our stick of finite length :D
     for each in stickList:
         pygame.draw.rect(gameDisplay, blue, [each[0], each[1], block_size, block_size])
 
-def get_points(x1,y1,x2,y2,curr_dist,m,choice):
+def get_points(x1, y1, x2, y2, curr_dist, m, choice):
     # choice = 0 for start point , 
     #        = 1 for end point :D
 
@@ -161,8 +218,8 @@ def get_points(x1,y1,x2,y2,curr_dist,m,choice):
     #     y = y1 + curr_dist
 
     # x = x2 + round(m*(y - y2))  # From (x2,y2) and y selected, x will be found out :D
-    a = dispWidth/4
-    b = 3*dispHeight/4
+    # a = dispWidth/4
+    # b = 3*dispHeight/4
 
     if abs(y2-y1) >= abs(x2-x1):
         if (y2 >= y1) ^ choice:
@@ -173,7 +230,7 @@ def get_points(x1,y1,x2,y2,curr_dist,m,choice):
             y = y1 + curr_dist
 
         x = x2 + round(m*(y - y2))  # From (x2,y2) and y selected, x will be found out :D
-        s = "<<--------Inside y------->>  " + str(m)
+        # s = "<<--------Inside y------->>  " + str(m)
     else:
         if (x2 >= x1) ^ choice:
             x = x1 - curr_dist
@@ -181,10 +238,10 @@ def get_points(x1,y1,x2,y2,curr_dist,m,choice):
             x = x1 + curr_dist
 
         y = y2 + round(m*(x - x2))  # From (x2,y2) and y selected, x will be found out :D
-        s = "<<--------Inside x------->>  " + str(m)
+        # s = "<<--------Inside x------->>  " + str(m)
 
-    msg2screen(s,a,b)
-    return (x,y)
+    # msg2screen(s,a,b)
+    return (x, y)
 
 def new_get_slope(x1,y1,x2,y2):
     # p = dispWidth/4
@@ -199,14 +256,13 @@ def new_get_slope(x1,y1,x2,y2):
         #     m = m * -1
         if x2 > x1:
             m = m * -1
-        
     return m
 
 def get_slope(x1,y1,x2,y2):
-    p = dispWidth/4
-    q = 3*dispHeight/4
-    s = "x1, y1, x2, y2: " + str(x1) + ":" + str(x1) + ":" + str(y1) + ":" + str(x2) + ":" + str(y2)
-    # if (x2-x1)!=0:
+    # p = dispWidth/4
+    # q = 3*dispHeight/4
+    # s = "x1, y1, x2, y2: " + str(x1) + ":" + str(x1) + ":" + str(y1) + ":" + str(x2) + ":" + str(y2)
+    # # if (x2-x1)!=0:
     #                                 #          (y2-y1)
     #                 #                (y-y1) =  ------- * (x-x1)                                      
     #                            #               (x2-x1) 
@@ -267,7 +323,7 @@ def trace_the_shot(start_point, end_point, m, mouse_pos):
     # Now I am checking for any boundary reflection of that trace line :D
 
     temp_dist = 1
-    points_on_line = []
+    # points_on_line = []
 
     while temp_dist <= move_dist:
         # m = get_slope(a,b,c,d)
@@ -402,9 +458,9 @@ def trace_the_shot(start_point, end_point, m, mouse_pos):
     new = aa,bb
     pygame.draw.line(gameDisplay, (255, 0, 0), point_to_draw[0], new,2)
     pygame.display.update()
-    p = dispWidth/4 - 100
-    q = 3*dispHeight/4 + 100
-    s = "tracing the shot.... No of lines to be drawn is : "+ str(len(point_to_draw) -1) +"::: " + str(point_to_draw)
+    # p = dispWidth/4 - 100
+    # q = 3*dispHeight/4 + 100
+    # s = "tracing the shot.... No of lines to be drawn is : "+ str(len(point_to_draw) -1) +"::: " + str(point_to_draw)
     # msg2screen(s,p,q)
     # pygame.display.update()
 
@@ -415,15 +471,13 @@ def in_boundary(trace_point):
     else:
         return 1
 
-def get_boundary_point(trace_point, m): # This function will be called only if the point is out of boundary :D
-    a,b = trace_point
-
+# def get_boundary_point(trace_point, m): # This function will be called only if the point is out of boundary :D
+#     a,b = trace_point
 
 def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
     a,b = end_point
     c,d = mouse_pos
     e,f = start_point
-
     
     move_dist       = sqrt((a-c)**2 + (b-d)**2)
 
@@ -436,10 +490,10 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
     trace_angle = kkk - (slope_angle)
 
     # Ball.move(self,dist, angle, speed)
-    ball_point.move_smear(move_dist, trace_angle, speed = 8)
+    ball_point.move(move_dist, trace_angle, speed = 8, smear=True)
 
-    p = dispWidth/4
-    q = 3*dispHeight/4
+    # p = dispWidth/4
+    # q = 3*dispHeight/4
     # s = "tracing the shot....at angle : " + str(trace_angle*180/pi)
     s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
     print s
@@ -449,7 +503,6 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
 # def new_stick_show(start_point, end_point, elevation):
 #     a,b = end_point
 #     e,f = start_point
-
     
 #     move_dist       = sqrt((a-e)**2 + (b-f)**2)
 
@@ -467,25 +520,17 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
 #     pygame.display.update()
 
 def gameLoop():
-    lead_x = dispWidth/2
-    lead_y = dispHeight/2
-    lead_x_del = 0
-    lead_y_del = 0
-    block_size = 10
     gameExit = False
     gameOver = False
     stickLength = 100
-    stickList = []
-    prev_key = 0        # This is initialisation before the using in program :D
-    once = 0
-
-    #randAppleX = round(random.randrange(0, dispWidth - block_size)/10.0)*10
-    #randAppleY = round(random.randrange(0, dispHeight - block_size)/10.0)*10
-
+    # stickList = []
+    # prev_key = 0        # This is initialisation before the using in program :D
+    # once = 0
+    
     stick_loc = []
     no_of_balls = 3
     my_ball_size = 15
-    all_balls = []
+    all_balls = []              # List of my balls :D
 
     for i in xrange(no_of_balls):
         x = random.randint(my_ball_size, dispWidth - my_ball_size)
@@ -503,10 +548,10 @@ def gameLoop():
     print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
     # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
     while not gameExit:
-        #print "General loop :D"
+        # print "General loop :D"
         while gameOver:
-            #gameDisplay.fill(white)
-            #msg2screen("Game over, press Q to quit or C to continue.")
+            gameDisplay.fill(GREEN)
+            msg2screen("Game over, press Q to quit or C to continue.")
             pygame.display.update()
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
@@ -516,33 +561,29 @@ def gameLoop():
                     if event.key == pygame.K_c:
                         gameLoop()
 
-        
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
             if event.type == pygame.KEYDOWN:
 
-                mods = pygame.key.get_mods()        # Assining a name, to use easily :D
+                # mods = pygame.key.get_mods()        # Assining a name, to use easily :D
 
                         
                 if event.key == pygame.K_q:
                     gameOver = True
                 # elif event.key == pygame.K_RCTRL: # This is for special R_CTRL key :D
                 #     print "Inside the K_RCTRL loop :D"
-                    
-                
-        
 
         # I want to remove the border overloading problem. i.e. game should run even
         # after the stick crosses it. :D
         # stick will just come from other side, after it crosses the boundary :D
 
-
         #------------------
         # Ball_1 = Balls((320,400),15)            # Fixed location ball
-        Ball_2 = create_rand_Ball(40)           # Random location ball :D  # NOTE: This ball is not being usd currently :D
+        # Ball_2 = create_rand_Ball(40)           # Random location ball :D  # NOTE: This ball is not being usd currently :D
         # Ball_1.disp()
+
+        show_pockets(2*my_ball_size)
 
         for my_ball in all_balls:       # Showing all my balls :D
             my_ball.disp()
@@ -551,7 +592,7 @@ def gameLoop():
         pygame.display.update()
         #------------------
 
-        gameDisplay.fill(white)
+        gameDisplay.fill(GREEN)
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -564,7 +605,7 @@ def gameLoop():
         #     pygame.draw.line(screen, (0, 0, 0), (639, y), mouse_pos)
          # pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, block_size, block_size])
         
-        print "mouse location", mouse_pos
+        # print "mouse location", mouse_pos
         # x = round(random.randrange(0, dispWidth - block_size)/10.0)*10
         mouse_butt = pygame.mouse.get_pressed()
         if mouse_butt[1] ==1:
@@ -584,7 +625,7 @@ def gameLoop():
                 move_angle = get_angle(mouse_pos, my_ball)
 
                 # s = "Movement angle is " + str(move_angle*180/pi) + " in degrees " #:D
-                # msg2screen(s,my_balsl.x - 100, my_ball.y + 100)
+                # msg2screen(s,my_ball.x - 100, my_ball.y + 100)
 
                 my_ball.move(50, move_angle,3)
                 # Ball_1.move(50, pi/2, 1)
@@ -636,7 +677,6 @@ def gameLoop():
 
             else:                               # No ball is selected, hence continue your stick drawing :D
                 stick_loc.append(temp)
-
                 
                 # if mouse_butt[2]==0:
                 #     pass
@@ -758,15 +798,13 @@ def gameLoop():
                     #     print "in x", m2
 
                     curr_dist = 1   # This is current distance achieved :D
-                    out_msg = "Moving distance is "  + str(move_dist)
-                    msg2screen(out_msg,dispWidth/4,dispHeight/4)
+                    # out_msg = "Moving distance is "  + str(move_dist)
+                    # msg2screen(out_msg,dispWidth/4,dispHeight/4)
 
                     while (start_point[0] > 0) & (start_point[0] < dispWidth) & (start_point[1] > 0) & (start_point[1] < dispHeight) & (curr_dist < move_dist):
                         # hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
-                        
 
-                        m = get_slope(x1,y1,x2,y2)
-                        
+                        m = get_slope(x1,y1,x2,y2)                        
                         if abs(m)>1:
                             m = 1/m
 
@@ -776,12 +814,8 @@ def gameLoop():
                         end_point = get_points(x2,y2,x1,y1,curr_dist,m,1)           # choice = 1, for end point
 
                         curr_dist += 1
-
-                        
-
-                        
                         # Last parameter is for the width of the line :D
-                        gameDisplay.fill(white)
+                        gameDisplay.fill(GREEN)
                         pygame.draw.line(gameDisplay, (255, 0, 0), start_point, end_point,20)           # This pretty bad line, no smppthness
                         pygame.display.update()
                         #---------
@@ -802,26 +836,34 @@ def gameLoop():
                                 move_angle = temp_angle + pi                # Why this??? Ball should move in opposite direction from where it is being hit :D
                                 move_speed = 3                              # You can choose more high speed :D
 
-                                my_ball.move(ball_move_dist, move_angle, move_speed)
+                                my_ball.move_with_collision_correction(dist = ball_move_dist, angle = move_angle, speed = move_speed, list_of_ball_objects = all_balls)
+                                # move_with_collision_correction(self,dist=None, angle = None, speed=3, list_of_ball_objects =[]):
                                 pygame.display.update()
                                 break
                                 # move(self,dist, angle, speed):
                             #----------
+                        temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
+                        all_balls = temp_all_balls
+                        # After looping out of the list, I must reassign it, with removing
+                                                            # the pocketed balls :D
+                        if all_balls == []: # If all balls are pocketed then, quit the game :D
+                            gameOver = True
+                        
                         pygame.display.update()
         
         else:
             # This is like whenever I am not holding the stick to initialise,
             # clear the points in that :D
             stick_loc = []
-        
-        
+                
         clock.tick(FPS)
-        s = "Length of stick_loc is: "+ str(len(stick_loc))
-        msg2screen(s)
+        # s = "Length of stick_loc is: "+ str(len(stick_loc))
+        # msg2screen(s)
         pygame.display.update()
 
     pygame.quit()
     print "++++-----------------------------------++++"
     quit()
 
-gameLoop()
+if __name__ == '__main__':
+    gameLoop()
