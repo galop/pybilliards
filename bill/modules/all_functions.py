@@ -378,6 +378,8 @@ def move_my_all_balls(list_of_balls):
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
     while dist_sum > 0:
+        print "dist_sum: " + str(dist_sum)
+        # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
             # Here I am moving all balls :D
             # All those balls have distance of movement = 0, will mot move :D
@@ -386,3 +388,7 @@ def move_my_all_balls(list_of_balls):
 
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
+
+def show_my_balls(list_of_balls):
+    for a_ball in list_of_balls:
+        a_ball.disp()

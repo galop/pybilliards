@@ -4,7 +4,7 @@ import pygame
 import random
 
 class Balls:
-    def __init__(self, (x,y), size, thickness=0, color=(0,0,255), pocket_size = 0):
+    def __init__(self, (x,y), size = 20, thickness=0, color=(0,0,255), pocket_size = 0):
         self.x = x
         self.y = y
         self.size = size
@@ -185,7 +185,47 @@ class Balls:
         # This will ensure, when any other ball will hit it, then it can move in direction determined by hitting ball :D
         self.angle = 0
 
-    def move_with_collision_correction_2(self, dist = None, angle = None, speed = None, list_of_ball_objects = []):
+    def collision_2(self, all_balls):
+        all_other_except_me = [my_ball for my_ball in all_balls if (my_ball != self) & (my_ball.pocketed == 0)]
+        # This is list of all balls except me, which are not pocketed :D
+
+        for my_ball in all_other_except_me:
+            dx = my_ball.x - self.x
+            dy = my_ball.y - self.y
+
+            dist_of_separation = hypot(dx,dy)
+
+            if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
+                print "Bang Bang !!"
+                
+                tangent = atan2(dy, dx) + pi/2
+                #=======================================
+                # self.angle      = 2*tangent - self.angle
+                # self.dist       = self.dist/2
+
+                # my_ball.angle   = 2*tangent - my_ball.angle
+                # my_ball.dist    = self.dist             # This is modified distance, which 1/2 of the previous :D
+                #======================================
+                self.angle      = tangent + pi/2
+                self.dist       = self.dist - 20
+
+                my_ball.angle   = tangent
+                my_ball.dist    = self.dist
+                
+                print "tangent: " + str(tangent*180/pi % 360)
+                
+                 
+                #======================================
+                # if my_ball.angle != 0: 
+                #     # If the ball with which my_ball got hit was moving, then do this :D
+                #     my_ball.angle   = 2*tangent - my_ball.angle
+                #     my_ball.dist    = self.dist             # This is modified distance, which 1/2 of the previous :D
+                # else my_ball.angle == 0:
+                    # If my_ball hits a stationary ball then
+
+                # list_for_my_ball = [temp_ball for temp_ball in all_balls if temp_ball != my_ball]
+
+    def move_with_collision_correction_2(self, dist = None, angle = None, speed = None, list_of_ball_objects = [], smear = False):
         
         if dist != None:
             self.dist = dist
@@ -199,15 +239,13 @@ class Balls:
         if speed != None:
             self.speed = speed
 
-        # Adding boundary function :D
-
-        # s = "current distance of movement is " + str(dist)
-        # msg2screen(s,self.x - 100, self.y + 200)
         while self.dist > 0:
-            # s = "current distance of movement is " + str(dist)
-            # msg2screen(s,self.x - 100, self.y + 200)
+            for a_ball in list_of_ball_objects:
+                a_ball.disp()
             
-            # gameDisplay.fill(GREEN)
+
+            if not smear:
+                gameDisplay.fill(GREEN)
 
             
 
@@ -233,10 +271,12 @@ class Balls:
             #---------
             self.disp()
             # pygame.display.update()
+            print str(self) + "dist inside the corr_2: " + str(self.dist)
             self.dist -= 1 # Movement of these units only :D
         # After movement of the ball, its angle should be reset to zero :D
         # This will ensure, when any other ball will hit it, then it can move in direction determined by hitting ball :D
         self.angle = 0
+
     def is_clicked(self, a, b):
         if hypot(self.x-a, self.y-b) <= self.size:
             return 1                                # If the point (a,b) is inside the ball then return 1 :D
@@ -296,28 +336,6 @@ class Balls:
 
                 my_ball.move_with_collision_correction(list_of_ball_objects = all_balls)
 
-    def collision_2(self, all_balls):
-        all_other_except_me = [my_ball for my_ball in all_balls if (my_ball != self) & (my_ball.pocketed == 0)]
-        # This is list of all balls except me, which are not pocketed :D
-
-        for my_ball in all_other_except_me:
-            dx = my_ball.x - self.x
-            dy = my_ball.y - self.y
-
-            dist_of_separation = hypot(dx,dy)
-
-            if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
-                print "Bang Bang !!"
-                
-                tangent = atan2(dy, dx)
-                self.angle      = 2*tangent - self.angle
-                self.dist       = self.dist/2
-
-                my_ball.angle   = 2*tangent - my_ball.angle
-                my_ball.dist    = self.dist             # This is modified distance, which 1/2 of the previous :D
-
-                # list_for_my_ball = [temp_ball for temp_ball in all_balls if temp_ball != my_ball]
-
     def is_pocketed(self, pocket_size):
         x_limits = (0, dispWidth/2, dispWidth)
         y_limits = (0, dispHeight)
@@ -331,16 +349,16 @@ class Balls:
                     return 1
         return 0
 
-def move_my_all_balls(list_of_balls):
-    dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
-    dist_sum = sum(dist_sum_vect)
-    while dist_sum > 0:
-        for moving_ball in list_of_balls:
-            # Here I am moving all balls :D
-            # All those balls have distance of movement = 0, will mot move :D
-            if moving_ball.dist > 0:
-                moving_ball.move_with_collision_correction_2(dist = moving_ball.dist, angle = moving_ball.angle, speed = 2, list_of_ball_objects = list_of_balls)
+# def move_my_all_balls(list_of_balls):
+#     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
+#     dist_sum = sum(dist_sum_vect)
+#     while dist_sum > 0:
+#         for moving_ball in list_of_balls:
+#             # Here I am moving all balls :D
+#             # All those balls have distance of movement = 0, will mot move :D
+#             if moving_ball.dist > 0:
+#                 moving_ball.move_with_collision_correction_2(dist = moving_ball.dist, angle = moving_ball.angle, speed = 2, list_of_ball_objects = list_of_balls)
 
-        dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
-        dist_sum = sum(dist_sum_vect)
+#         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
+#         dist_sum = sum(dist_sum_vect)
 
