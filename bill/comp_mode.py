@@ -26,7 +26,7 @@ black = (0, 0, 0)
 blue = (0, 0, 255)
 red = (255, 0, 0)
 GREEN = (0,140,0)
-FPS = 40
+FPS = 100
 dispHeight = 500
 dispWidth = 800
 font = pygame.font.SysFont(None, 25)
@@ -40,7 +40,7 @@ pygame.display.update()
 # pygame.display.flip()
 
 class Balls:
-    def __init__(self, (x,y), size, thickness=0, color=(0,0,255)):
+    def __init__(self, (x,y), size, thickness=0, color=(0,0,255), pocket_size = 0):
         self.x = x
         self.y = y
         self.size = size
@@ -50,8 +50,13 @@ class Balls:
         self.c2 = color[1]
         self.c3 = color[2]
         self.speed = 1
-        self.angle = 0                          # This is in radian :D
-        self.pocketed = self.is_pocketed()      # Dpending on its initialization location :D
+        self.angle = 0                           # This is in radian :D
+        if pocket_size == 0:
+            pocket_size = 2*self.size
+
+        self.pocket_size = pocket_size
+
+        self.pocketed = self.is_pocketed(self.pocket_size)      # Dpending on its initialization location :D
         self.in_line_with_white_ball = 0        # Default is zero, but will be changed afterwards :D
         self.ok_to_hit = 0                      # This will be made equal to 1 for white_ball in line with this ball
 
@@ -112,7 +117,7 @@ class Balls:
             dist -= 1 # Movement of these units only :D
         # s = "current distance of movement is " + str(dist)
         # msg2screen(s,self.x - 100, self.y + 200)
-    def move_with_collision_detection(self,dist=None, angle = None, list_of_ball_objects = [], speed=3, smear=False):
+    def move_with_collision_detection(self,dist = None, angle = None, list_of_ball_objects = [], speed = 3, smear = False):
         # NOTE: 
         # This is specially used for the ball_point tracing :D
         # Find the related code in trace_for_white_ball :D
@@ -133,7 +138,7 @@ class Balls:
         
         self.speed = speed
 
-        while self.dist > 0:
+        while self.dist > 0 & (self.pocketed == 0):
             # s = "current distance of movement is " + str(dist)
             # msg2screen(s,self.x - 100, self.y + 200)
             if not smear:
@@ -141,23 +146,30 @@ class Balls:
 
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
-
+            
+            p, q = self.x + 10, self.y + 10
+            s = str(self.dist)
+            msg2screen(s,p,q)
             #---------
             self.collision_detection(list_of_ball_objects, self.dist)
-            temp = self.is_pocketed()
+
+            temp_ball_for_pocket_size = list_of_ball_objects[0]
+
+            temp = self.is_pocketed(temp_ball_for_pocket_size.pocket_size)
+
             if temp == 1:
                 in_journey = 1
-                
-
-            self.boundary()
-            #---------
+                self.dist = 0       # If the ball_point is pocketed, then no more distance to move for it :D
+            else:
+                self.boundary()
+                #---------
             self.disp()
             pygame.display.update()
             self.dist -= 1 # Movement of these units only :D
         
         return in_journey
 
-    def move_with_collision_correction(self,dist=None, angle = None, speed=3, list_of_ball_objects = []):
+    def move_with_collision_correction(self,dist=None, angle = None, speed = None, list_of_ball_objects = []):
         
         if dist != None:
             self.dist = dist
@@ -168,7 +180,8 @@ class Balls:
         if list_of_ball_objects == []:
             list_of_ball_objects.append(self)
         
-        self.speed = speed
+        if speed != None:
+            self.speed = speed
 
         # Adding boundary function :D
 
@@ -177,14 +190,23 @@ class Balls:
         while self.dist > 0:
             # s = "current distance of movement is " + str(dist)
             # msg2screen(s,self.x - 100, self.y + 200)
-            gameDisplay.fill(GREEN)
+            
+            # gameDisplay.fill(GREEN)
 
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
+            
+            # try:
+            #     self.x += int(round(sin(self.angle) * self.speed))
+            #     self.y -= int(round(cos(self.angle) * self.speed))
+            # except TypeError:
+            #     print "Self angle: " + str(self.angle) + "Self speed: " + str(self.speed) + "Type of self.speed: " + str(type(self.speed)) + "\n"
+            #     gameExit = True
+            #     break
 
             #---------
             self.collision(list_of_ball_objects, self.dist)
-            self.is_pocketed()
+            self.is_pocketed(self.pocket_size)
             self.boundary()
             #---------
             self.disp()
@@ -197,14 +219,18 @@ class Balls:
         else:
             return 0                                # Else return 0 :D
     
-    def collision_detection(self, all_balls_with_white, dist):
+    def collision_detection(self, temp_list_of_balls, dist):
         # NOTE:
         # Here I am only changing my self parameters, without changing anyone else parameters. Why???
         # Ans:  This is used only ball_point, specially for white_ball collision tracing :D
         #       Hence, I only want the trace of ball_point after hitting. I don't want to move the balls
         #       if the ball_point trace hits them :D
 
-        all_other_except_me = [my_ball for my_ball in all_balls_with_white if (my_ball != self) & (my_ball.pocketed == 0)]
+        # NOTE: temp_list_of_balls does not contain "self" by default, but it has white_ball :D
+        # Following step to check existence of self is for relality check :D
+
+        all_other_except_me = [my_ball for my_ball in temp_list_of_balls if (my_ball != self) & (my_ball.pocketed == 0)]
+        print "in collision_detection no. of balls came is " + str(len(all_other_except_me))
         # This is list of all balls except me, which are not pocketed :D
 
         for my_ball in all_other_except_me:
@@ -214,7 +240,7 @@ class Balls:
             dist_of_separation = hypot(dx,dy)
 
             if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
-                print "Bang Bang !!"
+                print "Bang Bang !! in collision detection"
                 
                 tangent = atan2(dy, dx)
                 self.angle      = 2*tangent - self.angle
@@ -246,14 +272,14 @@ class Balls:
 
                 my_ball.move_with_collision_correction(list_of_ball_objects = all_balls)
 
-    def is_pocketed(self):
+    def is_pocketed(self, pocket_size):
         x_limits = (0, dispWidth/2, dispWidth)
         y_limits = (0, dispHeight)
 
         for i in x_limits:
             for j in y_limits:
                 ball_dist = hypot(self.x - i, self.y -j)
-                if ball_dist < 3*self.size:
+                if ball_dist < pocket_size:
                     self.pocketed = 1
                     self.dist = 0           # So that the ball will not move any further :D
                     return 1
@@ -615,26 +641,7 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
     s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
     print s
     # msg2screen(s,p,q)
-    pygame.display.update()
-
-# def new_stick_show(start_point, end_point, elevation):
-#     a,b = end_point
-#     e,f = start_point
-    
-#     move_dist       = sqrt((a-e)**2 + (b-f)**2)
-
-#     # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
-#     stick_ball_point = Balls(end_point, 5, color=(0,0,255))
-    
-#     # kkk = 2*pi/2
-#     kkk = pi
-#     slope_angle = elevation
-#     trace_angle = kkk - (slope_angle)
-
-#     # Ball.move(self,dist, angle, speed)
-#     stick_ball_point.move_smear(move_dist, trace_angle, speed = 1.01)
-
-#     pygame.display.update()
+    # pygame.display.update()
 
 def gameLoop():
     gameExit = False
@@ -644,9 +651,9 @@ def gameLoop():
     # prev_key = 0        # This is initialisation before the using in program :D
     # once = 0
     
-    stick_loc = []
+    # stick_loc = []
     no_of_balls = 3
-    my_ball_size = 15
+    my_ball_size = 25
     all_balls = []              # List of my balls :D
 
     # The main white cue ball positioning and initialization
@@ -670,7 +677,10 @@ def gameLoop():
         c3 = random.randint(0,255)
 
         all_balls.append(Balls((x,y), size = my_ball_size, color = (c1,c2,c3)))
-
+    
+    # my_pocket_size = 2*my_ball_size
+    # show_pockets(my_pocket_size)
+    # pygame.display.update()
     # Ball_1 = Balls((320,400),15)            # Fixed location ball
                                             # Initialising the ball here :D
 
@@ -701,182 +711,29 @@ def gameLoop():
                         
                 if event.key == pygame.K_q:
                     gameOver = True
-                # if event.key == pygame.K_u:
-                #     #==================================================================
-                #     #------------------
-                #     # COMP starts thinking here :D
-                #     # Which ball are directly hitable, means no ball is in between the white and itself.
+                
 
-                #     balls_ok_to_hit = []
-                #     # Following loop will extract hittable balls from all_balls :D
-                #     # Then we will decide which one to hit from those :D
-                #     for my_ball in all_balls:
-                #         # List of other ball except current ball :D
-                #         list_of_other_balls = [other_ball for other_ball in all_balls if other_ball != my_ball]
+        gameDisplay.fill(GREEN)
+        my_pocket_size = 2*my_ball_size
+        show_pockets(my_pocket_size)
 
-                #         balls_to_be_tested = []
-
-                #         for other_ball in list_of_other_balls:
-                #             dist_white_other    = hypot(white_ball.x - other_ball.x, white_ball.y - other_ball.y)
-                #             dist_my_other       = hypot(my_ball.x - other_ball.x, my_ball.y - other_ball.y)
-                #             # Distance between white and other ball, and my_ball and other ball
-
-                #             dist_my_white       = hypot(white_ball.x - my_ball.x, white_ball.y - my_ball.y)
-                #             if (dist_my_white > dist_white_other) & (dist_my_white > dist_my_other):
-                #                 # then test this other_ball location, since it is in between my_ball and white_ball :D
-                #                 balls_to_be_tested.append(other_ball)
-                #         p,q = my_ball.x + 10, my_ball.y + 10
-                #         s = "T: " + str(len(balls_to_be_tested))
-                #         msg2screen(s,p,q)
-                #         pygame.display.update()
-
-                #         if len(balls_to_be_tested) == 0:
-                #             balls_ok_to_hit.append(my_ball)
-                #         else:
-                #             x1, y1 = white_ball.x, white_ball.y
-                #             x2, y2 = my_ball.x, my_ball.y
-
-                #             # Testing for balls and their distance :D
-                #             for test_ball in balls_to_be_tested:
-                #                 x3, y3 = test_ball.x, test_ball.y
-
-                #                 # I will find of the perpendicular distance of point (x3, y3) from the line formed by the two points
-                #                 # (x2, y2), and (x1, y1) :D
-
-                #                 # Line equation in the form of Ax+ By+ C = 0 formed by the two points
-                #                 # (x2, y2), and (x1, y1) is
-                #                 A = tan(atan2(y2-y1, x2-x1))        # This is nothing but the slope of line :D
-                #                 B = -1
-                #                 C = y1 - A*x1
-                #                 # Above formula is permutation from two point line equation :D
-
-                #                 # Perpendicular distance is given by 
-                #                 # Reference: goo.gl/mUFJSh 
-                #                 perp_dist = abs(A*x3 + B*y3 + C)/ hypot(A,B)
-                #                 if perp_dist > 2*(test_ball.size + white_ball.size): 
-                #                     # Here the multiplier 2 is taken, to be sure of distance :D
-                #                     my_ball.in_line_with_white_ball = 1
-                #                 else:
-                #                     my_ball.in_line_with_white_ball = 0
-                #                     # Why to break? Beacause this means that some comes in between line of sight, hence can't test, break it :D
-                #                     break
-
-                #             if my_ball.in_line_with_white_ball == 1:    # If that ball is hittable after testing will all balls :D
-                #                 balls_ok_to_hit.append(my_ball)
-                    
-                #     # So hittable balls are extracted :D
-                #     # This small loop will show which are able show hittable balls, some timepass programming :D
-                #     for hit_ball in balls_ok_to_hit:
-                #         p,q = hit_ball.x + 20, hit_ball.y + 20
-                #         s = "OK"
-                #         msg2screen(s,p,q)
-                #         pygame.display.update()
-
-                #         for loop_i in xrange(2):
-                #             hit_ball.c1 = 255 - hit_ball.c1
-                #             hit_ball.c2 = 255 - hit_ball.c2
-                #             hit_ball.c3 = 255 - hit_ball.c3
-                #             hit_ball.disp()
-                #             pygame.display.update()
-                #     # end of flikering balls display :D
-
-                #     at_least_one_ball_hit = 0       # 0 is for NO
-                #     p,q = dispWidth/2, dispWidth/2
-                #     s = "Number of inline balls is " + str(len(balls_ok_to_hit))
-                #     msg2screen(s,p,q)
-
-                #     for hit_ball in balls_ok_to_hit:
-                #         # Tracing the shot for white
-                #         white_ball_loc  = (white_ball.x, white_ball.y)
-                #         hit_ball_loc     = (my_ball.x, my_ball.y)
-
-                #         temp = all_balls
-                #         all_balls_with_white = temp.append(white_ball)
-
-                #         will_it_be_pocketed = trace_for_while_ball_shot(hit_ball_loc, white_ball_loc, all_balls)
-
-                #         p, q = hit_ball.x + 30, hit_ball.y + 30
-                        
-
-                #         if will_it_be_pocketed == 1:
-                            
-                #             temp_angle = get_angle(white_ball_loc, hit_ball)   # Passing the end point and Ball object to get the movement angle
-                #             move_angle = temp_angle + pi
-
-                #             white_ball.move_with_collision_correction(50, move_angle, all_balls)
-                #             at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
-
-                #             p, q = hit_ball.x + 30, hit_ball.y + 30
-                #             s = "is being hit :D"
-                #             msg2screen(s,p,q)
-                #             # Why are your breaking?
-                #             # Ans: Since in one chance COMP hit one ball
-                #             break;
-                #     # if at_least_one_ball_hit == 0:
-                #     #     if len(balls_ok_to_hit) > 0:
-                #     #         # When will this situation will arise?
-                #     #         # Even though you have balls in clear lin of sight, but no one will be pocketed, even after hitting them
-                #     #         # Hence, COMP has no choice, which one to hit :(
-                #     #         # Therefor, in this case, COMP will choose randomly as follows :D
-
-                #     #         temp = random.randint(0,len(balls_ok_to_hit)-1)
-                #     #         rand_ball_to_hit = balls_ok_to_hit[temp]
-
-                #     #         temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
-                #     #         move_angle = temp_angle + pi
-
-                #     #         white_ball.move_with_collision_correction(50, move_angle, all_balls)
-                #     #     elif len(all_balls) > 0:
-                #     #         # This is will execute if there is no ball ok to hit :D
-                #     #         # COMP will hit any ball from all_ball
-                #     #         temp = random.randint(0,len(all_balls)-1)
-                #     #         rand_ball_to_hit = balls_ok_to_hit[temp]
-
-                #     #         temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
-                #     #         move_angle = temp_angle + pi
-
-                #     #         white_ball.move_with_collision_correction(50, move_angle, all_balls)
-
-                #     # Modifying the all_balls, depending on their current locations :D
-                #     temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
-                #     all_balls = temp_all_balls
-                #     # After looping out of the list, I must reassign it, with removing
-                #                                         # the pocketed balls :D
-                #     if all_balls == []: # If all balls are pocketed then, quit the game :D
-                #         gameOver = True
-                        
-                    # ------------------
-                    # ==================================================================
-
-
-        show_pockets(2*my_ball_size)
 
         for my_ball in all_balls:       # Showing all my balls :D
             my_ball.disp()
-
         white_ball.disp()
-        #Ball_2.disp()
         pygame.display.update()
-        #------------------
-
-        gameDisplay.fill(GREEN)
+        # gameDisplay.fill(GREEN)
 
         mouse_pos = pygame.mouse.get_pos()
 
-        # for x in xrange(0,640,20):
-        #     pygame.draw.line(screen, (0, 0, 0), (x, 0), mouse_pos)              # (x,0) is start point and mouse_pos is end point :D
-        #     pygame.draw.line(screen, (0, 0, 0), (x, 479), mouse_pos)
-
-        # for y in xrange(0,480,20):
-        #     pygame.draw.line(screen, (0, 0, 0), (0, y), mouse_pos)
-        #     pygame.draw.line(screen, (0, 0, 0), (639, y), mouse_pos)
-         # pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, block_size, block_size])
-        
-        # print "mouse location", mouse_pos
-        # x = round(random.randrange(0, dispWidth - block_size)/10.0)*10
-
         mouse_butt = pygame.mouse.get_pressed()
-        if mouse_butt[2] == 1:
+        if mouse_butt[1] == 1:      # This will be pressed by the user manually, to start COMP to hit the right shot :D
+                                    # Next shot placement, which ball to hit, all be decide by the COMP, dpending on the 
+                                    # some other factors (or may be randomly :D)
+
+            my_pocket_size = 2*my_ball_size
+            show_pockets(my_pocket_size)
+
             # balls_ok_to_hit = []
             # Following loop will extract hittable balls from all_balls :D
             # Then we will decide which one to hit from those :D
@@ -933,110 +790,111 @@ def gameLoop():
 
                     if my_ball.in_line_with_white_ball == 1:    # If that ball is hittable after testing will all balls :D
                         my_ball.ok_to_hit = 1
+                    else:
+                        my_ball.ok_to_hit = 0
                 
-                balls_ok_to_hit = [a_ball for a_ball in all_balls if a_ball.ok_to_hit == 1]
+            
+            balls_ok_to_hit = [a_ball for a_ball in all_balls if a_ball.ok_to_hit == 1]
             # So hittable balls are extracted :D
             # This small loop will show which are able show hittable balls, some timepass programming :D
             for hit_ball in balls_ok_to_hit:
                 p,q = hit_ball.x + 20, hit_ball.y + 20
-                s = "OK"
+                s = "OK to hit"
                 msg2screen(s,p,q)
                 pygame.display.update()
 
-                for loop_i in xrange(2):
-                    hit_ball.c1 = 255 - hit_ball.c1
-                    hit_ball.c2 = 255 - hit_ball.c2
-                    hit_ball.c3 = 255 - hit_ball.c3
-                    hit_ball.disp()
-                    pygame.display.update()
-            # end of flikering balls display :D
-
             at_least_one_ball_hit = 0       # 0 is for NO
-            p,q = dispWidth/2, dispWidth/2
+            p,q = dispWidth/2, dispHeight/2
 
-            s = "Number of inline balls is " + str(len(balls_ok_to_hit))
+            s = "Ok to hit balls is " + str(len(balls_ok_to_hit))
             print balls_ok_to_hit
             msg2screen(s,p,q)
 
-            # temp = all_balls
-            # temp.append(white_ball)
-            # all_balls_with_white = temp
-
-            # print "Length of all_balls: " + str(len(all_balls)) + "Length of all_balls_with_white: " + str(len(all_balls_with_white))
-            # print "Length of all_balls_with_white: " + str(len(all_balls_with_white))
-            # print all_balls_with_white
+            ok_to_hit_but_cannot_be_pocketed = 0
 
             for hit_ball in balls_ok_to_hit:
+                # if hit_ball.ok_to_hit == 1:     # Not needed actually, but being sure
                 # Tracing the shot for white
                 white_ball_loc  = (white_ball.x, white_ball.y)
-                hit_ball_loc     = (my_ball.x, my_ball.y)
+                hit_ball_loc     = (hit_ball.x, hit_ball.y)
 
                 
                 all_balls_except_hit_ball_but_with_white_ball = [a_ball for a_ball in all_balls if a_ball != hit_ball]
                 all_balls_except_hit_ball_but_with_white_ball.append(white_ball)
-                # Inteligence not getting transfered :(
-                    #################
+                
+                print "No. of Passing balls for tracing is " + str(len(all_balls_except_hit_ball_but_with_white_ball))
                 will_it_be_pocketed = trace_for_while_ball_shot(hit_ball_loc, white_ball_loc, all_balls_except_hit_ball_but_with_white_ball)
 
-                p, q = hit_ball.x + 30, hit_ball.y + 30
-                
+                    # p, q = hit_ball.x + 30, hit_ball.y + 30
+                    
 
                 if will_it_be_pocketed == 1:
                     
                     temp_angle = get_angle(white_ball_loc, hit_ball)   # Passing the end point and Ball object to get the movement angle
                     move_angle = temp_angle + pi
 
-                    white_ball.move_with_collision_correction(50, move_angle, all_balls)
+                    # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+                    rand_dist = random.randint(50,150)
+
+                    list_of_balls_with_white = [a_ball for a_ball in all_balls]
+                    list_of_balls_with_white.append(white_ball)
+
+                    white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
                     at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
 
                     p, q = hit_ball.x + 30, hit_ball.y + 30
                     s = "is being hit :D"
+                    print s
                     msg2screen(s,p,q)
                     # Why are your breaking?
                     # Ans: Since in one chance COMP hit one ball
                     break;
-        if mouse_butt[1] == 1:
-            #move(self,dist, angle=self.angle, speed=self.speed):
-            # temp1 = mouse_pos[0] - Ball_1.x
-            # temp2 = -1* (mouse_pos[1] - Ball_1.y) # This -ve sign is to incorporate the inverted y-axis :D
-            # if temp2 == 0:
-            #     move_angle = (pi/2) * (temp1/abs(temp1)) # This is for the sign of than angle also :D
-            # else:
-            #     move_angle = atan(float(temp1)/temp2)
-            # if mouse_pos[1] > Ball_1.y:
-            #     move_angle += pi
-            #     pass
+                else:
+                    ok_to_hit_but_cannot_be_pocketed += 1
+            if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
+                # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
+                # then, out of those balls_ok_to_hit, choose any one randomly and hit it :D
+                
+                temp_loc = random.randint(0,len(balls_ok_to_hit)-1)
+                rand_ball_to_hit = balls_ok_to_hit[temp_loc]
 
-            for my_ball in all_balls:
+                temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+                move_angle = temp_angle + pi
 
-                move_angle = get_angle(mouse_pos, my_ball)
+                # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+                rand_dist = random.randint(50,150)
 
-                # s = "Movement angle is " + str(move_angle*180/pi) + " in degrees " #:D
-                # msg2screen(s,my_ball.x - 100, my_ball.y + 100)
+                list_of_balls_with_white = [a_ball for a_ball in all_balls]
+                list_of_balls_with_white.append(white_ball)
 
-                my_ball.move(50, move_angle,3)
-                # Ball_1.move(50, pi/2, 1)
-                pygame.display.update()
-        #---------------
-        # if mouse_butt[0] == 1:
-        #     s = "left and right clicked "
-        #     if mouse_butt[2]==0:
-        #         s = "left pressed buttttttt right not clicked"
-        #         msg2screen(s)
+                white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+
+            if len(balls_ok_to_hit) == 0:
+                gameOver = True
+
+        #=====================================================================================================================
+        # if mouse_butt[1] == 1:
+        #     for my_ball in all_balls:
+
+        #         move_angle = get_angle(mouse_pos, my_ball)
+
+        #         # s = "Movement angle is " + str(move_angle*180/pi) + " in degrees " #:D
+        #         # msg2screen(s,my_ball.x - 100, my_ball.y + 100)
+
+        #         my_ball.move(50, move_angle,3)
+        #         # Ball_1.move(50, pi/2, 1)
         #         pygame.display.update()
-        #         pass
-        #     msg2screen(s)
-        #     pygame.display.update()
-        # else:
-        #     s = "left not pressed"
-        #     msg2screen(s)
-        #     pygame.display.update()
-        #---------------
+        #=====================================================================================================================
         
-        # stick_loc = []
-        if mouse_butt[0] == 1:      # This will be pressed by the user manually, to start COMP to hit the right shot :D
-                                    # Next shot placement, which ball to hit, all be decide by the COMP, dpending on the 
-                                    # some other factors (or may be randomly :D)
+
+        if mouse_butt[0] == 1:      
+
+            my_pocket_size = 2*my_ball_size
+            show_pockets(my_pocket_size)
+
+            # for my_ball in all_balls:
+            #     my_ball.disp()
+            # white_ball.disp()
 
             # This logic is for saving the start point of stick :D
             # Otherwise its not possible to store the initial value of mouse_position :D
@@ -1047,8 +905,10 @@ def gameLoop():
 
             this_ball_status = 0
             # clicked_ball = []              #list of all balls which are clicked
+            list_of_balls_with_white = [a_ball for a_ball in all_balls]
+            list_of_balls_with_white.append(white_ball)
 
-            for my_ball in all_balls:
+            for my_ball in list_of_balls_with_white:
                 this_ball_status = my_ball.is_clicked(s,t)
                 
                 if this_ball_status == 1:
@@ -1057,126 +917,19 @@ def gameLoop():
 
             if this_ball_status != 0:              # If mouse has left clicked on some ball then :D
                 # def move(self,dist, angle, speed):
-                move_angle  = get_angle(mouse_pos, clicked_ball)
-                move_dist   = hypot(clicked_ball.x - mouse_pos[0], clicked_ball.y - mouse_pos[1])
-                move_speed  = 3
+                # move_angle  = get_angle(mouse_pos, clicked_ball)
+                # move_dist   = hypot(clicked_ball.x - mouse_pos[0], clicked_ball.y - mouse_pos[1])
+                # move_speed  = 3
                 # clicked_ball.move(move_dist, move_angle, move_speed)
                 clicked_ball.x = s
                 clicked_ball.y = t
 
+                stick_loc = []                  # Don't know is it right or not. Works without it also :D
+
             else:                               # No ball is selected, hence continue your stick drawing :D
-                # #------------------
-                # # COMP starts thinking here :D
-                # # Which ball are directly hitable, means no ball is in between the white and itself.
-
-                # balls_ok_to_hit = []
-                # # Following loop will extract hittable balls from all_balls :D
-                # # Then we will decide which one to hit from those :D
-                # for my_ball in all_balls:
-                #     # List of other ball except current ball :D
-                #     list_of_other_balls = [other_ball for other_ball in all_balls if other_ball != my_ball]
-
-                #     balls_to_be_tested = []
-
-                #     for other_ball in list_of_other_balls:
-                #         dist_white_other    = hypot(white_ball.x - other_ball.x, white_ball.y - other_ball.y)
-                #         dist_my_other       = hypot(my_ball.x - other_ball.x, my_ball.y - other_ball.y)
-                #         # Distance between white and other ball, and my_ball and other ball
-
-                #         dist_my_white       = hypot(white_ball.x - my_ball.x, white_ball.y - my_ball.y)
-                #         if (dist_my_white > dist_white_other) & (dist_my_white > dist_my_other):
-                #             # then test this other_ball location, since it is in between my_ball and white_ball :D
-                #             balls_to_be_tested.append(other_ball)
-                    
-                #     x1, y1 = white_ball.x, white_ball.y
-                #     x2, y2 = my_ball.x, my_ball.y
-
-                #     # Testing for balls and their distance :D
-                #     for test_ball in balls_to_be_tested:
-                #         x3, y3 = test_ball.x, test_ball.y
-
-                #         # I will find of the perpendicular distance of point (x3, y3) from the line formed by the two points
-                #         # (x2, y2), and (x1, y1) :D
-
-                #         # Line equation in the form of Ax+ By+ C = 0 formed by the two points
-                #         # (x2, y2), and (x1, y1) is
-                #         A = tan(atan2(y2-y1, x2-x1))        # This is nothing but the slope of line :D
-                #         B = -1
-                #         C = y1 - A*x1
-                #         # Above formula is permutation from two point line equation :D
-
-                #         # Perpendicular distance is given by 
-                #         # Reference: goo.gl/mUFJSh 
-                #         perp_dist = abs(A*x3 + B*y2 + C)/ hypot(A,B)
-                #         if perp_dist > 2*(test_ball.size + white_ball.size): 
-                #             # Here the multiplier 2 is taken, to be sure of distance :D
-                #             my_ball.in_line_with_white_ball = 1
-                #         else:
-                #             my_ball.in_line_with_white_ball = 0
-                #             # Why to break? Beacause this means that some comes in between line of sight, hence can't test, break it :D
-                #             break
-
-                #     if my_ball.in_line_with_white_ball == 1:    # If that ball is hittable after testing will all balls :D
-                #         balls_ok_to_hit.append(my_ball)
                 
-                # # So hittable balls are extracted :D
-                # # This small loop will show which are able show hittable balls, some timepass programming :D
-                # for hit_ball in balls_ok_to_hit:
-                #     for loop_i in xrange(2):
-                #         hit_ball.c1 = 255 - hit_ball.c1
-                #         hit_ball.c2 = 255 - hit_ball.c2
-                #         hit_ball.c3 = 255 - hit_ball.c3
-                #         hit_ball.disp()
-                #         pygame.display.update()
-                # # end of flikering balls display :D
-
-                # at_least_one_ball_hit = 0       # 0 is for NO
-                # for hit_ball in balls_ok_to_hit:
-                #     # Tracing the shot for white
-                #     white_ball_loc  = (white_ball.x, white_ball.y)
-                #     hit_ball_loc     = (my_ball.x, my_ball.y)
-
-                #     will_it_be_pocketed = trace_for_while_ball_shot(hit_ball_loc, white_ball_loc)
-
-                #     if will_it_be_pocketed == 1:
-                        
-                #         temp_angle = get_angle(white_ball_loc, hit_ball)   # Passing the end point and Ball object to get the movement angle
-                #         move_angle = temp_angle + pi
-
-                #         white_ball.move_with_collision_correction(move_dist = 50, move_angle, all_balls)
-                #         at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
-
-                #         # Why are your breaking?
-                #         # Ans: Since in one chance COMP hit one ball
-                #         break;
-                # if at_least_one_ball_hit == 0:
-                #     # When will this situation will arise?
-                #     # Even though you have balls in clear lin of sight, but no one will be pocketed, even after hitting them
-                #     # Hence, COMP has no choice, which one to hit :(
-                #     # Therefor, in this case, COMP will choose randomly as follows :D
-
-                #     temp = rand.randint(0,len(balls_ok_to_hit)-1)
-                #     rand_ball_to_hit = balls_ok_to_hit[temp]
-
-                #     temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
-                #     move_angle = temp_angle + pi
-
-                #     white_ball.move_with_collision_correction(move_dist = 50, move_angle, all_balls)
-
-                # # Modifying the all_balls, depending on their current locations :D
-                # temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
-                # all_balls = temp_all_balls
-                # # After looping out of the list, I must reassign it, with removing
-                #                                     # the pocketed balls :D
-                # if all_balls == []: # If all balls are pocketed then, quit the game :D
-                #     gameOver = True
-
-                # #------------------
                 stick_loc.append(temp)
                 
-                # if mouse_butt[2]==0:
-                #     pass
-                #--------------------------------------------------------------------
                 mouse_pos = pygame.mouse.get_pos()
                 
                 x2 = mouse_pos[0] # First coordinate is x-cordinate :D
@@ -1213,9 +966,7 @@ def gameLoop():
                 # (x,0) is start point and mouse_pos is end point :D
                 # Last parameter is for the width of the line :D
                 pygame.draw.line(gameDisplay, (0, 0, 0), start_point, end_point,10)           # This pretty bad line, no smppthness
-                # pygame.draw.aaline(gameDisplay, (0, 0, 0), start_point, end_point,30)
                 
-                # pygame.draw.arc(gameDisplay, (255, 0, 0), ((100, 100), (200, 200)), 0, pi, 1)              
                 mouse_butt = pygame.mouse.get_pressed()
                 # print "mouse status", mouse_butt
 
@@ -1227,24 +978,7 @@ def gameLoop():
                 # NOTE: Stick will not cross the boundary of pool table :D
                 pygame.display.update()                 
                 #--------------------------------------------------------------------
-            # Thought:
-            # left click:       Fix the stick start point
-            # middle click:     undo of left click and hang there freely
-            # right click:      Hit the stick :D, and hang there freely
-
             
-            # if mouse_butt[0] == 1:
-            #     s = "only left"
-            #     while (True):
-            #         mouse_butt = pygame.mouse.get_pressed()
-            #         if mouse_butt[1] == 1:
-            #             s = "left -> middle"
-            #             break
-            #         elif mouse_butt[2] == 1:
-            #             s = "left -> right"
-            #             break
-            #         break
-                # ----------------------------------------------------------------------
                 # Adding the ray tracing :D
                 mouse_dist = sqrt((mouse_pos[0] - x1)**2 + (mouse_pos[1] - y1)**2)
 
@@ -1266,33 +1000,25 @@ def gameLoop():
                             elevation = 2*pi + atan(new_m)
                     # if abs(m)>1:
                     #     m = 1/m
-                    for my_ball in all_balls:
-                        my_ball.disp()
-                    white_ball.disp()
+                    
                         # Ball_1.disp()
 
                     # new_stick_show(start_point, end_point, elevation)
 
                     new_trace_the_shot(start_point, end_point, elevation, mouse_pos)
+                    pygame.display.update()
                     # print "elevation is :-------------------- (" + str(elevation*180/pi) + ")"
 
                 if mouse_butt[2] == 1 : # & mouse_butt[0] == 0:
-                    
+                    mouse_pos = pygame.mouse.get_pos()
                     x3 = mouse_pos[0] # First coordinate is x-cordinate :D
                     y3 = mouse_pos[1]
 
                     # x2,y2 are endpoint co-ordinates :D
 
                     # Movement distance :D
-                    move_dist = sqrt((y2-y3)**2+(x2-x3)**2)
-
-                    # if (x2-x1)!=0:
-                    #     m1 = float(y2-y1)/(x2-x1)
-                    #     print "in y", m1
-
-                    # if (y2-y1)!=0:
-                    #     m2 = float(x2-x1)/(y2-y1)
-                    #     print "in x", m2
+                    # move_dist = sqrt((y2-y3)**2+(x2-x3)**2)
+                    move_dist = hypot(y2-y3, x2-x3)
 
                     curr_dist = 1   # This is current distance achieved :D
                     # out_msg = "Moving distance is "  + str(move_dist)
@@ -1310,9 +1036,9 @@ def gameLoop():
                         start_point = get_points(x1,y1,x2,y2,curr_dist,m,0)         # choice = 0, for start point
                         end_point = get_points(x2,y2,x1,y1,curr_dist,m,1)           # choice = 1, for end point
 
-                        curr_dist += 1
+                        curr_dist += 2
                         # Last parameter is for the width of the line :D
-                        gameDisplay.fill(GREEN)
+                        # gameDisplay.fill(GREEN)
                         pygame.draw.line(gameDisplay, (255, 0, 0), start_point, end_point,20)           # This pretty bad line, no smppthness
                         pygame.display.update()
                         #---------
@@ -1324,7 +1050,7 @@ def gameLoop():
                         # condition for checking the stick hits the ball
                         # if start_point == (Ball_1.x, Ball_1.y):
 
-                        all_balls_with_white = all_balls
+                        all_balls_with_white = [a_ball for a_ball in all_balls]
                         all_balls_with_white.append(white_ball)
 
                         for my_ball in all_balls_with_white:
@@ -1336,9 +1062,12 @@ def gameLoop():
                                 move_angle = temp_angle + pi                # Why this??? Ball should move in opposite direction from where it is being hit :D
                                 move_speed = 3                              # You can choose more high speed :D
 
-                                my_ball.move_with_collision_correction(dist = ball_move_dist, angle = move_angle, speed = move_speed, list_of_ball_objects = all_balls)
+                                my_ball.move_with_collision_correction(dist = ball_move_dist, angle = move_angle, speed = move_speed, list_of_ball_objects = all_balls_with_white)
                                 # move_with_collision_correction(self,dist=None, angle = None, speed=3, list_of_ball_objects =[]):
-                                pygame.display.update()
+                                # pygame.display.update()
+
+                                curr_dist = move_dist
+                                # This will ensure the stick (red) will not move any further after hitting a ball :D
                                 break
                                 # move(self,dist, angle, speed):
                             #----------
@@ -1369,7 +1098,7 @@ def gameLoop():
         clock.tick(FPS)
         # s = "Length of stick_loc is: "+ str(len(stick_loc))
         # msg2screen(s)
-        pygame.display.update()
+        # pygame.display.update()
 
     pygame.quit()
     print "++++-----------------------------------++++"
