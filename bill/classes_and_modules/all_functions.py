@@ -8,8 +8,9 @@
 # from math import *
 # pygame.init()
 
-from classes.env_variables import *
-from classes.Balls_class import Balls
+from classes_and_modules.env_variables import *
+from classes_and_modules.Balls_class import Balls
+
 
 # font = pygame.font.SysFont(None, 25)
 # gameDisplay = pygame.display.set_mode((dispWidth, dispHeight))
@@ -22,7 +23,7 @@ def create_rand_Ball(size):
     y = random.randint(size, dispHeight-size)
     return Balls((x,y), size)
 
-def msg2screen(msg, x_loc, y_loc, color=black):
+def msg2screen(msg, x_loc = dispWidth/2, y_loc = dispHeight/2, color=black):
     screen_text = font.render(msg, True, color)
     gameDisplay.blit(screen_text, [x_loc,  y_loc])
 
@@ -378,13 +379,24 @@ def move_my_all_balls(list_of_balls):
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
     while dist_sum > 0:
-        print "dist_sum: " + str(dist_sum)
+        # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
             # Here I am moving all balls :D
             # All those balls have distance of movement = 0, will mot move :D
             if moving_ball.dist > 0:
-                moving_ball.move_with_collision_correction_2(dist = moving_ball.dist, angle = moving_ball.angle, speed = 2, list_of_ball_objects = list_of_balls)
+
+                s = "D" + str(int(moving_ball.dist))
+
+                p = moving_ball.x + 10
+                q = moving_ball.y + 10
+                msg2screen(s, p, q)
+
+                moving_ball.move_with_collision_correction_3(speed = 10, list_of_ball_objects = list_of_balls)
+
+                # moving_ball.dist -= 1
+            else:
+                moving_ball.angle = 0
 
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
@@ -392,3 +404,8 @@ def move_my_all_balls(list_of_balls):
 def show_my_balls(list_of_balls):
     for a_ball in list_of_balls:
         a_ball.disp()
+
+if __name__ == "__main__":
+    print "This is running individually: all_functions"
+else:
+    print "This is running inside someone :d : all_functions"

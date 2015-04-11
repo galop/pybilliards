@@ -2,9 +2,14 @@ from env_variables import *
 from math import *
 import pygame
 import random
+import sys
+# sys.path.append(r'/Documents/Python_2015/pybilliards/bill/modules/')
+# from all_functions import *
+# from all_functions import *
 
 class Balls:
     def __init__(self, (x,y), size = 20, thickness=0, color=(0,0,255), pocket_size = 0):
+        
         self.x = x
         self.y = y
         self.size = size
@@ -13,7 +18,7 @@ class Balls:
         self.c1 = color[0]
         self.c2 = color[1]
         self.c3 = color[2]
-        self.speed = 1
+        self.speed = 3
         self.angle = 0   
         self.dist = 0                        # This is in radian :D
         if pocket_size == 0:
@@ -114,7 +119,10 @@ class Balls:
             
             p, q = self.x + 10, self.y + 10
             s = str(self.dist)
-            msg2screen(s,p,q)
+            #
+            from all_functions import *
+            #=======
+            # msg2screen(s,p,q)
             #---------
             self.collision_detection(list_of_ball_objects, self.dist)
 
@@ -186,6 +194,12 @@ class Balls:
         self.angle = 0
 
     def collision_2(self, all_balls):
+        from all_functions import *
+        #============
+        my_pocket_size = 2*my_ball_size
+        show_pockets(my_pocket_size)
+        #============
+
         all_other_except_me = [my_ball for my_ball in all_balls if (my_ball != self) & (my_ball.pocketed == 0)]
         # This is list of all balls except me, which are not pocketed :D
 
@@ -193,12 +207,101 @@ class Balls:
             dx = my_ball.x - self.x
             dy = my_ball.y - self.y
 
+            dx = -1*dx
+            dy = -1*dy
+
             dist_of_separation = hypot(dx,dy)
 
-            if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
+            if dist_of_separation <= (self.size + my_ball.size):             # Collision happened :D
                 print "Bang Bang !!"
                 
-                tangent = atan2(dy, dx) + pi/2
+                # tangent = atan2(dy, dx) + pi/2
+                tangent = atan2(dy, dx)
+
+                
+                print "tangent is : " + str(tangent*180/pi)
+                # By doing this the tangent will always be positive :D
+
+                dist_correction_angle = 0
+
+                if (self.angle > 0) & (self.angle <= pi/2):
+                    print "0-pi/2"
+                    if tangent > pi/2:
+                        my_ball.angle = tangent - pi/2
+                    else:
+                        my_ball.angle = tangent + 3*pi/2
+
+                    dist_correction_angle = tangent - self.angle
+
+                    if tangent > self.angle:
+                        self.angle = my_ball.angle - pi/2
+                    else:
+                        self.angle = my_ball.angle + pi/2
+
+                elif (self.angle > pi/2) & (self.angle <= 2*pi/2):
+                    print "pi/2-pi"
+                    tangent = pi + tangent  
+                    # tangent will be negative here
+                    my_ball.angle = tangent + pi/2
+
+                    dist_correction_angle = tangent - (self.angle - pi/2)
+                    if tangent > self.angle - pi/2:
+                        self.angle = my_ball.angle - pi/2
+                    else:
+                        self.angle = my_ball.angle + pi/2
+
+                elif (self.angle > 2*pi/2) & (self.angle <= 3*pi/2):
+                    print "pi-3*pi/2"
+                    tangent = pi + tangent  
+                    # tangent will be negative here
+                    my_ball.angle = tangent + pi/2
+
+                    dist_correction_angle = tangent - (self.angle - pi/2)
+
+                    # if tangent > self.angle - 2*pi/2:
+                    if tangent > self.angle - pi/2:
+                        self.angle = my_ball.angle - pi/2
+                    else:
+                        self.angle = my_ball.angle + pi/2
+
+                elif ((self.angle > 3*pi/2) & (self.angle <= 4*pi/2)) or (self.angle == 0):
+                    print "3*pi/2-2*pi"
+                    if tangent > pi/2:
+                        my_ball.angle = tangent - pi/2
+                    else:
+                        my_ball.angle = tangent + 3*pi/2
+
+                    dist_correction_angle = tangent - (self.angle - 3*pi/2)
+
+                    if tangent > self.angle - 3*pi/2:
+                        self.angle = my_ball.angle - pi/2
+                    else:
+                        self.angle = my_ball.angle + pi/2
+
+                # if sign_of_tangent == 1:
+                #     # positive angle, from 1,1 to -1,-1 or -1,-1 to 1,1 :D
+                #     if dy/abs(dy) == sign_of_tangent:
+                #         # from 1,1 to -1,-1
+                #         my_ball.angle   = 3*pi/2 + tangent
+                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
+                #         self.angle      = my_ball.angle - pi/2
+                #     else:
+                #         my_ball.angle   = pi/2 + tangent
+                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
+                #         self.angle      = my_ball.angle - pi/2
+                #         # from -1,-1 to 1,1
+                # elif sign_of_tangent == -1:
+                #     # negative angle, from -1,1 to 1,-1 or 1,-1 to -1,1 :D
+                #     if dy/abs(dy) == sign_of_tangent:
+                #         # from 1,-1 to -1,1
+                #         my_ball.angle   = 3*pi/2 - tangent
+                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
+                #         self.angle      = my_ball.angle + pi/2
+                #     else:
+                #         my_ball.angle   = pi/2 - tangent
+                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
+                #         self.angle      = my_ball.angle + pi/2
+                        # from -1,1 to 1,-1
                 #=======================================
                 # self.angle      = 2*tangent - self.angle
                 # self.dist       = self.dist/2
@@ -206,13 +309,26 @@ class Balls:
                 # my_ball.angle   = 2*tangent - my_ball.angle
                 # my_ball.dist    = self.dist             # This is modified distance, which 1/2 of the previous :D
                 #======================================
-                self.angle      = tangent + pi/2
-                self.dist       = self.dist - 20
+                ##
+                # This is bouncing of balls before hitting each other, so they will not be trapped inside the 
+                # internal bouncing, and leanding nowhere :D
+                # NOTE: THIS IS VERY IMPORTANT NEVER REMOVE THIS
+                self.x += int(round(20*sin(self.angle)))
+                self.y -= int(round(20*cos(self.angle)))
 
-                my_ball.angle   = tangent
-                my_ball.dist    = self.dist
+                my_ball.x += int(round(20*sin(my_ball.angle)))
+                my_ball.y -= int(round(20*cos(my_ball.angle)))
+
                 
-                print "tangent: " + str(tangent*180/pi % 360)
+                # self.dist       = self.dist - 10
+                # my_ball.dist    = self.dist
+
+                new_self_dist       = int(self.dist * sin(abs(dist_correction_angle)))
+                new_my_ball_dist    = int(self.dist * cos(abs(dist_correction_angle)))
+                
+                self.dist       = new_self_dist
+                my_ball.dist    = new_my_ball_dist
+                # print "tangent: " + str(tangent*180/pi % 360)
                 
                  
                 #======================================
@@ -277,6 +393,69 @@ class Balls:
         # This will ensure, when any other ball will hit it, then it can move in direction determined by hitting ball :D
         self.angle = 0
 
+    def move_with_collision_correction_3(self, dist = None, angle = None, speed = None, list_of_ball_objects = [], smear = False):
+        
+        from all_functions import *
+
+        if dist != None:
+            self.dist = dist
+
+
+        if angle != None:
+            self.angle = angle
+
+        if list_of_ball_objects == []:
+            list_of_ball_objects.append(self)
+        
+        if speed != None:
+            self.speed = speed
+
+        if self.dist > 0:
+            
+            
+
+            if not smear:
+                gameDisplay.fill(GREEN)
+
+            for a_ball in list_of_ball_objects:
+                a_ball.disp()
+
+            #======================================
+            # This shows what distance is the ball with it moves :D
+            s = "D: " + str(int(self.dist))
+
+            p = self.x + 20
+            q = self.y + 20
+            msg2screen(s, p, q)
+            #======================================
+            # try:
+            #     self.x += int(round(sin(self.angle) * self.speed))
+            #     self.y -= int(round(cos(self.angle) * self.speed))
+            # except TypeError:
+            #     print "Self angle: " + str(self.angle) + "Self speed: " + str(self.speed) + "Type of self.speed: " + str(type(self.speed)) + "\n"
+            #     gameExit = True
+            #     break
+
+            #---------
+            self.collision_2(list_of_ball_objects)
+            
+            self.is_pocketed(self.pocket_size)
+            if self.pocketed == 1:
+                self.dist = 0
+            
+            self.x += int(round(sin(self.angle) * self.speed))
+            self.y -= int(round(cos(self.angle) * self.speed))
+
+            self.boundary()
+            #---------
+            self.disp()
+            # pygame.display.update()
+            # print str(self) + "dist inside the corr_2: " + str(self.dist)
+            self.dist -= 1 # Movement of these units only :D
+        # After movement of the ball, its angle should be reset to zero :D
+        # This will ensure, when any other ball will hit it, then it can move in direction determined by hitting ball :D
+        # self.angle = 0
+
     def is_clicked(self, a, b):
         if hypot(self.x-a, self.y-b) <= self.size:
             return 1                                # If the point (a,b) is inside the ball then return 1 :D
@@ -294,7 +473,7 @@ class Balls:
         # Following step to check existence of self is for relality check :D
 
         all_other_except_me = [my_ball for my_ball in temp_list_of_balls if (my_ball != self) & (my_ball.pocketed == 0)]
-        print "in collision_detection no. of balls came is " + str(len(all_other_except_me))
+        # print "in collision_detection no. of balls came is " + str(len(all_other_except_me))
         # This is list of all balls except me, which are not pocketed :D
 
         for my_ball in all_other_except_me:
@@ -304,7 +483,7 @@ class Balls:
             dist_of_separation = hypot(dx,dy)
 
             if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
-                print "Bang Bang !! in collision detection"
+                # print "Bang Bang !! in collision detection"
                 
                 tangent = atan2(dy, dx)
                 self.angle      = 2*tangent - self.angle
@@ -349,16 +528,9 @@ class Balls:
                     return 1
         return 0
 
-# def move_my_all_balls(list_of_balls):
-#     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
-#     dist_sum = sum(dist_sum_vect)
-#     while dist_sum > 0:
-#         for moving_ball in list_of_balls:
-#             # Here I am moving all balls :D
-#             # All those balls have distance of movement = 0, will mot move :D
-#             if moving_ball.dist > 0:
-#                 moving_ball.move_with_collision_correction_2(dist = moving_ball.dist, angle = moving_ball.angle, speed = 2, list_of_ball_objects = list_of_balls)
+print "Hi"
 
-#         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
-#         dist_sum = sum(dist_sum_vect)
-
+if __name__ == "__main__":
+    print "This is running individually: Balls_class"
+else:
+    print "This is running inside someone :d: Balls_class"

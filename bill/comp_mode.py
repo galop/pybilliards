@@ -12,9 +12,10 @@ from math import *
 pygame.init()
 #============
 # Functions are written to some py file :D
-from modules.all_functions import *
-from classes.env_variables import *
-from classes.Balls_class import Balls
+from classes_and_modules.all_functions import *
+from classes_and_modules.env_variables import *
+from classes_and_modules.Balls_class import Balls
+# from classes.Balls_class import *
 #============
 
 pygame.display.update()
@@ -33,8 +34,9 @@ def gameLoop():
     # once = 0
     
     # stick_loc = []
-    no_of_balls = 3
-    my_ball_size = 25
+    # no_of_balls = 10    # 3
+    # my_ball_size = 20   # 25
+
     all_balls = []              # List of my balls :D
 
     # The main white cue ball positioning and initialization
@@ -45,7 +47,7 @@ def gameLoop():
         c1 = 255            # white ball
         c2 = 255
         c3 = 255
-        white_ball = Balls((x,y), size = my_ball_size, color = (c1,c2,c3))
+        white_ball = Balls((x,y), size = my_ball_size, thickness = 3, color = (c1,c2,c3))
         white_ball.disp()
 
     # Other balls initialization
@@ -100,6 +102,9 @@ def gameLoop():
         # gameDisplay.fill(GREEN)
 
         mouse_pos = pygame.mouse.get_pos()
+
+        list_of_balls_with_white = [a_ball for a_ball in all_balls]
+        list_of_balls_with_white.append(white_ball)
 
         mouse_butt = pygame.mouse.get_pressed()
         if mouse_butt[1] == 1:      # This will be pressed by the user manually, to start COMP to hit the right shot :D
@@ -182,10 +187,20 @@ def gameLoop():
             p,q = dispWidth/2, dispHeight/2
 
             s = "Ok to hit balls is " + str(len(balls_ok_to_hit))
-            print balls_ok_to_hit
+            # print balls_ok_to_hit
             msg2screen(s,p,q)
 
             ok_to_hit_but_cannot_be_pocketed = 0
+
+            #==============
+            # Clearing the angles and their distances :D
+            
+            all_balls_with_white = [a_ball for a_ball in all_balls]
+            all_balls_with_white.append(white_ball)
+            for a_ball in all_balls_with_white:
+                a_ball.angle    = 0
+                a_ball.dist     = 0
+            #==============
 
             for hit_ball in balls_ok_to_hit:
                 # if hit_ball.ok_to_hit == 1:     # Not needed actually, but being sure
@@ -197,22 +212,26 @@ def gameLoop():
                 all_balls_except_hit_ball_but_with_white_ball = [a_ball for a_ball in all_balls if a_ball != hit_ball]
                 all_balls_except_hit_ball_but_with_white_ball.append(white_ball)
                 
-                print "No. of Passing balls for tracing is " + str(len(all_balls_except_hit_ball_but_with_white_ball))
+                # print "No. of Passing balls for tracing is " + str(len(all_balls_except_hit_ball_but_with_white_ball))
                 will_it_be_pocketed = trace_for_while_ball_shot(hit_ball_loc, white_ball_loc, all_balls_except_hit_ball_but_with_white_ball)
 
                     # p, q = hit_ball.x + 30, hit_ball.y + 30
                     
-
+                #============
+                my_pocket_size = 2*my_ball_size
+                show_pockets(my_pocket_size)
+                #============
                 if will_it_be_pocketed == 1:
                     
                     temp_angle = get_angle(white_ball_loc, hit_ball)   # Passing the end point and Ball object to get the movement angle
                     move_angle = temp_angle + pi
 
                     # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
-                    rand_dist = random.randint(50,150)
+                    # rand_dist = random.randint(50,150)
+                    rand_dist = 50
 
-                    list_of_balls_with_white = [a_ball for a_ball in all_balls]
-                    list_of_balls_with_white.append(white_ball)
+                    # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+                    # list_of_balls_with_white.append(white_ball)
 
                     # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
 
@@ -233,26 +252,60 @@ def gameLoop():
                 else:
                     ok_to_hit_but_cannot_be_pocketed += 1
             if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
+                #============
+                my_pocket_size = 2*my_ball_size
+                show_pockets(my_pocket_size)
+                #============
+
                 # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
                 # then, out of those balls_ok_to_hit, choose any one randomly and hit it :D
                 
+                print "Choosing ball randomly to hit"
                 temp_loc = random.randint(0,len(balls_ok_to_hit)-1)
                 rand_ball_to_hit = balls_ok_to_hit[temp_loc]
 
+                # temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+                # move_angle = temp_angle + pi
+
+                # # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+                # # rand_dist = random.randint(50,150)
+                # rand_dist = 300
+
+                # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+                # list_of_balls_with_white.append(white_ball)
+
+                # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+
+                #===============================
                 temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
                 move_angle = temp_angle + pi
 
                 # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
-                rand_dist = random.randint(50,150)
+                # rand_dist = random.randint(50,150)
+                rand_dist = 50
 
-                list_of_balls_with_white = [a_ball for a_ball in all_balls]
-                list_of_balls_with_white.append(white_ball)
+                # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+                # list_of_balls_with_white.append(white_ball)
 
-                white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+                # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+
+                white_ball.dist = rand_dist
+                white_ball.angle = move_angle
+
+                move_my_all_balls(list_of_balls_with_white)
+                #===============================
 
             if len(balls_ok_to_hit) == 0:
                 gameOver = True
 
+            temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
+            all_balls = temp_all_balls
+            # After looping out of the list, I must reassign it, with removing
+                                                # the pocketed balls :D
+            if all_balls == []: # If all balls are pocketed then, quit the game :D
+                gameOver = True
+            
+            pygame.display.update()
         #=====================================================================================================================
         # if mouse_butt[1] == 1:
         #     for my_ball in all_balls:
@@ -266,6 +319,7 @@ def gameLoop():
         #         # Ball_1.move(50, pi/2, 1)
         #         pygame.display.update()
         #=====================================================================================================================
+        
         
 
         if mouse_butt[0] == 1:      
@@ -286,8 +340,8 @@ def gameLoop():
 
             this_ball_status = 0
             # clicked_ball = []              #list of all balls which are clicked
-            list_of_balls_with_white = [a_ball for a_ball in all_balls]
-            list_of_balls_with_white.append(white_ball)
+            # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+            # list_of_balls_with_white.append(white_ball)
 
             for my_ball in list_of_balls_with_white:
                 this_ball_status = my_ball.is_clicked(s,t)
@@ -431,8 +485,8 @@ def gameLoop():
                         # condition for checking the stick hits the ball
                         # if start_point == (Ball_1.x, Ball_1.y):
 
-                        all_balls_with_white = [a_ball for a_ball in all_balls]
-                        all_balls_with_white.append(white_ball)
+                        # all_balls_with_white = [a_ball for a_ball in all_balls]
+                        # all_balls_with_white.append(white_ball)
 
                         for my_ball in all_balls_with_white:
 
@@ -441,7 +495,7 @@ def gameLoop():
 
                                 temp_angle = get_angle(end_point, my_ball)   # Passing the end point and Ball object to get the movement angle
                                 move_angle = temp_angle + pi                # Why this??? Ball should move in opposite direction from where it is being hit :D
-                                move_speed = 3                              # You can choose more high speed :D
+                                move_speed = 10                              # You can choose more high speed :D
 
                                 # my_ball.move_with_collision_correction(dist = ball_move_dist, angle = move_angle, speed = move_speed, list_of_ball_objects = all_balls_with_white)
                                 my_ball.dist = ball_move_dist
@@ -464,7 +518,7 @@ def gameLoop():
                             c1 = 255            # white ball
                             c2 = 255
                             c3 = 255
-                            white_ball = Balls((x,y), size = my_ball_size, color = (c1,c2,c3))
+                            white_ball = Balls((x,y), size = my_ball_size, thickness = 3, color = (c1,c2,c3))
                             white_ball.disp()
 
                         temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
