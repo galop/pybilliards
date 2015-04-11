@@ -195,9 +195,9 @@ def gameLoop():
             #==============
             # Clearing the angles and their distances :D
             
-            all_balls_with_white = [a_ball for a_ball in all_balls]
-            all_balls_with_white.append(white_ball)
-            for a_ball in all_balls_with_white:
+            # all_balls_with_white = [a_ball for a_ball in all_balls]
+            # all_balls_with_white.append(white_ball)
+            for a_ball in list_of_balls_with_white:
                 a_ball.angle    = 0
                 a_ball.dist     = 0
             #==============
@@ -487,8 +487,8 @@ def gameLoop():
 
                         # all_balls_with_white = [a_ball for a_ball in all_balls]
                         # all_balls_with_white.append(white_ball)
-
-                        for my_ball in all_balls_with_white:
+                        
+                        for my_ball in list_of_balls_with_white:
 
                             if ball_got_hit(start_point, my_ball):
                                 ball_move_dist = move_dist - curr_dist
@@ -502,7 +502,7 @@ def gameLoop():
                                 my_ball.angle = move_angle
                                 my_ball.speed = move_speed
 
-                                move_my_all_balls(all_balls_with_white)
+                                move_my_all_balls(list_of_balls_with_white)
                                 # move_with_collision_correction(self,dist=None, angle = None, speed=3, list_of_ball_objects =[]):
                                 # pygame.display.update()
 

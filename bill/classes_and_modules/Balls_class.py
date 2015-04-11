@@ -322,13 +322,22 @@ class Balls:
                 
                 # self.dist       = self.dist - 10
                 # my_ball.dist    = self.dist
+                sine_correction     = sin(abs(dist_correction_angle))
+                cosine_correction   = cos(abs(dist_correction_angle))
 
-                new_self_dist       = int(self.dist * sin(abs(dist_correction_angle)))
-                new_my_ball_dist    = int(self.dist * cos(abs(dist_correction_angle)))
+                new_self_dist       = int(self.dist * sine_correction)
+                new_my_ball_dist    = int(self.dist * cosine_correction)
                 
                 self.dist       = new_self_dist
                 my_ball.dist    = new_my_ball_dist
-                # print "tangent: " + str(tangent*180/pi % 360)
+
+                #==================================================
+                new_self_speed      = self.speed * sine_correction
+                new_my_ball_speed   = self.speed * cosine_correction
+
+                self.speed      = new_self_speed
+                my_ball.speed   = new_my_ball_speed
+                #==================================================
                 
                  
                 #======================================

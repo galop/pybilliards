@@ -378,12 +378,17 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
 def move_my_all_balls(list_of_balls):
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
+    for a_ball in list_of_balls:
+        a_ball.speed = 10
+    
     while dist_sum > 0:
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
             # Here I am moving all balls :D
             # All those balls have distance of movement = 0, will mot move :D
+            
+
             if moving_ball.dist > 0:
 
                 s = "D" + str(int(moving_ball.dist))
@@ -391,8 +396,13 @@ def move_my_all_balls(list_of_balls):
                 p = moving_ball.x + 10
                 q = moving_ball.y + 10
                 msg2screen(s, p, q)
-
-                moving_ball.move_with_collision_correction_3(speed = 10, list_of_ball_objects = list_of_balls)
+                #====
+                # Adding friction here
+                
+                friction_coefficient = .96
+                reduced_speed = moving_ball.speed * friction_coefficient
+                #====
+                moving_ball.move_with_collision_correction_3(speed = reduced_speed, list_of_ball_objects = list_of_balls)
 
                 # moving_ball.dist -= 1
             else:
