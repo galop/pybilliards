@@ -18,7 +18,7 @@ class Balls:
         self.c1 = color[0]
         self.c2 = color[1]
         self.c3 = color[2]
-        self.speed = 3
+        self.speed = 10
         self.angle = 0   
         self.dist = 0                        # This is in radian :D
         if pocket_size == 0:
@@ -29,6 +29,7 @@ class Balls:
         self.pocketed = self.is_pocketed(self.pocket_size)      # Dpending on its initialization location :D
         self.in_line_with_white_ball = 0        # Default is zero, but will be changed afterwards :D
         self.ok_to_hit = 0                      # This will be made equal to 1 for white_ball in line with this ball
+        self.correction_angle = 0
 
     def disp(self):
         pygame.draw.circle(gameDisplay, self.color, (self.x, self.y), self.size, self.thickness)
@@ -231,9 +232,9 @@ class Balls:
                     else:
                         my_ball.angle = tangent + 3*pi/2
 
-                    dist_correction_angle = tangent - self.angle
+                    dist_correction_angle = tangent - (self.angle - pi/2)
 
-                    if tangent > self.angle:
+                    if tangent > self.angle + pi/2:
                         self.angle = my_ball.angle - pi/2
                     else:
                         self.angle = my_ball.angle + pi/2
@@ -278,30 +279,7 @@ class Balls:
                     else:
                         self.angle = my_ball.angle + pi/2
 
-                # if sign_of_tangent == 1:
-                #     # positive angle, from 1,1 to -1,-1 or -1,-1 to 1,1 :D
-                #     if dy/abs(dy) == sign_of_tangent:
-                #         # from 1,1 to -1,-1
-                #         my_ball.angle   = 3*pi/2 + tangent
-                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
-                #         self.angle      = my_ball.angle - pi/2
-                #     else:
-                #         my_ball.angle   = pi/2 + tangent
-                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
-                #         self.angle      = my_ball.angle - pi/2
-                #         # from -1,-1 to 1,1
-                # elif sign_of_tangent == -1:
-                #     # negative angle, from -1,1 to 1,-1 or 1,-1 to -1,1 :D
-                #     if dy/abs(dy) == sign_of_tangent:
-                #         # from 1,-1 to -1,1
-                #         my_ball.angle   = 3*pi/2 - tangent
-                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
-                #         self.angle      = my_ball.angle + pi/2
-                #     else:
-                #         my_ball.angle   = pi/2 - tangent
-                #         angle_between_collision_axis_and_hitting_ball = my_ball.angle - self.angle
-                #         self.angle      = my_ball.angle + pi/2
-                        # from -1,1 to 1,-1
+                
                 #=======================================
                 # self.angle      = 2*tangent - self.angle
                 # self.dist       = self.dist/2
@@ -315,13 +293,15 @@ class Balls:
                 # NOTE: THIS IS VERY IMPORTANT NEVER REMOVE THIS
                 self.x += int(round(20*sin(self.angle)))
                 self.y -= int(round(20*cos(self.angle)))
+                self.boundary()
 
                 my_ball.x += int(round(20*sin(my_ball.angle)))
                 my_ball.y -= int(round(20*cos(my_ball.angle)))
-
+                my_ball.boundary()
                 
-                # self.dist       = self.dist - 10
-                # my_ball.dist    = self.dist
+                # I am saving this dist_correction_angle as object parameter. This has been initialized in the __init__ of Balls class :D
+                self.correction_angle = abs(dist_correction_angle*180/pi) %360
+
                 sine_correction     = sin(abs(dist_correction_angle))
                 cosine_correction   = cos(abs(dist_correction_angle))
 
@@ -446,15 +426,18 @@ class Balls:
             #     break
 
             #---------
-            self.collision_2(list_of_ball_objects)
+            # self.collision_2(list_of_ball_objects)
             
             self.is_pocketed(self.pocket_size)
             if self.pocketed == 1:
                 self.dist = 0
             
+            self.boundary()
+
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
 
+            self.collision_2(list_of_ball_objects)
             self.boundary()
             #---------
             self.disp()

@@ -366,25 +366,23 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
     trace_angle = kkk - (slope_angle)
 
     # Ball.move(self,dist, angle, speed)
-    ball_point.move(move_dist, trace_angle, speed = 8, smear=True)
+    ball_point.move(move_dist, trace_angle, speed = 10, smear=True)
 
-    # p = dispWidth/4
-    # q = 3*dispHeight/4
-    # s = "tracing the shot....at angle : " + str(trace_angle*180/pi)
-    s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
-    print s
-    # msg2screen(s,p,q)
-    # pygame.display.update()
+    # s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
+    # print s
+    
 def move_my_all_balls(list_of_balls):
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
     for a_ball in list_of_balls:
         a_ball.speed = 10
-    
+
     while dist_sum > 0:
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
+            if moving_ball.color == (255,255,255):
+                print "White ball will move: " + str(moving_ball.dist) + "  :   Speed :     " + str(moving_ball.speed) + ": Correction angle :  " + str(moving_ball.correction_angle)
             # Here I am moving all balls :D
             # All those balls have distance of movement = 0, will mot move :D
             
@@ -399,14 +397,15 @@ def move_my_all_balls(list_of_balls):
                 #====
                 # Adding friction here
                 
-                friction_coefficient = .96
+                friction_coefficient = .988
                 reduced_speed = moving_ball.speed * friction_coefficient
                 #====
                 moving_ball.move_with_collision_correction_3(speed = reduced_speed, list_of_ball_objects = list_of_balls)
-
+                moving_ball.boundary()
                 # moving_ball.dist -= 1
             else:
                 moving_ball.angle = 0
+                moving_ball.dist = 0
 
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)

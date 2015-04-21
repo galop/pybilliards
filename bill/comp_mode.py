@@ -44,10 +44,7 @@ def gameLoop():
         x = random.randint(my_ball_size, dispWidth - my_ball_size)
         y = random.randint(my_ball_size, dispHeight - my_ball_size)
 
-        c1 = 255            # white ball
-        c2 = 255
-        c3 = 255
-        white_ball = Balls((x,y), size = my_ball_size, thickness = 3, color = (c1,c2,c3))
+        white_ball = Balls((x,y), size = my_ball_size, thickness = 6, color = (255,255,255))
         white_ball.disp()
 
     # Other balls initialization
@@ -228,7 +225,7 @@ def gameLoop():
 
                     # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
                     # rand_dist = random.randint(50,150)
-                    rand_dist = 50
+                    rand_dist = 100
 
                     # list_of_balls_with_white = [a_ball for a_ball in all_balls]
                     # list_of_balls_with_white.append(white_ball)
@@ -242,10 +239,10 @@ def gameLoop():
 
                     at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
 
-                    p, q = hit_ball.x + 30, hit_ball.y + 30
-                    s = "is being hit :D"
-                    print s
-                    msg2screen(s,p,q)
+                    # p, q = hit_ball.x + 30, hit_ball.y + 30
+                    # s = "is being hit :D"
+                    # print s
+                    # msg2screen(s,p,q)
                     # Why are your breaking?
                     # Ans: Since in one chance COMP hit one ball
                     break;
@@ -282,7 +279,7 @@ def gameLoop():
 
                 # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
                 # rand_dist = random.randint(50,150)
-                rand_dist = 50
+                rand_dist = 100
 
                 # list_of_balls_with_white = [a_ball for a_ball in all_balls]
                 # list_of_balls_with_white.append(white_ball)
@@ -300,6 +297,9 @@ def gameLoop():
 
             temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
             all_balls = temp_all_balls
+
+            if white_ball.pocketed == 1:
+                white_ball = Balls((x,y), size = my_ball_size, thickness = 6, color = (255,255,255))
             # After looping out of the list, I must reassign it, with removing
                                                 # the pocketed balls :D
             if all_balls == []: # If all balls are pocketed then, quit the game :D
@@ -518,13 +518,15 @@ def gameLoop():
                             c1 = 255            # white ball
                             c2 = 255
                             c3 = 255
-                            white_ball = Balls((x,y), size = my_ball_size, thickness = 3, color = (c1,c2,c3))
+                            white_ball = Balls((x,y), size = my_ball_size, thickness = 6, color = (255,255,255))
                             white_ball.disp()
 
                         temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
                         all_balls = temp_all_balls
                         # After looping out of the list, I must reassign it, with removing
                                                             # the pocketed balls :D
+                        
+
                         if all_balls == []: # If all balls are pocketed then, quit the game :D
                             gameOver = True
                         

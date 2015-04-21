@@ -7,7 +7,7 @@ FPS = 100
 dispHeight = 500
 dispWidth = 800
 
-no_of_balls = 3    # 3
+no_of_balls = 5    # 3
 my_ball_size = 20   # 25
 
 import pygame
