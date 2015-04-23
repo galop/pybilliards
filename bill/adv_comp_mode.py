@@ -19,6 +19,8 @@ from classes_and_modules.Balls_class import Balls
 #============
 
 pygame.display.update()
+ballsurface = pygame.Surface((50,50)) 
+pygame.draw.circle(ballsurface, (0,0,255), (25,25),25)
 # pygame.display.flip()
 
 # #============
@@ -88,6 +90,7 @@ def gameLoop():
                 
 
         gameDisplay.fill(GREEN)
+        # scoreDisplay.fill(red)
         my_pocket_size = 2*my_ball_size
         show_pockets(my_pocket_size)
 
@@ -180,7 +183,7 @@ def gameLoop():
                 msg2screen(s,p,q)
                 pygame.display.update()
 
-            at_least_one_ball_hit = 0       # 0 is for NO
+            # at_least_one_ball_hit = 0       # 0 is for NO
             p,q = dispWidth/2, dispHeight/2
 
             s = "Ok to hit balls is " + str(len(balls_ok_to_hit))
@@ -237,7 +240,7 @@ def gameLoop():
 
                     move_my_all_balls(list_of_balls_with_white)
 
-                    at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
+                    # at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
 
                     # p, q = hit_ball.x + 30, hit_ball.y + 30
                     # s = "is being hit :D"
@@ -248,49 +251,100 @@ def gameLoop():
                     break;
                 else:
                     ok_to_hit_but_cannot_be_pocketed += 1
+
+            #--------------------------------------------
+            # Rotational moving
+            # white_ball will try to see at different angles to hit the ball, which can not be pocketed
+            # directly, but ok to hit
+            #
+            # For a ball from list of such above balls, angle of white_ball will be varied and its path 
+            # will be traced, if that ball can be pocketed, then loop will break, and white_ball will
+            # hit it. I will set a flag, rotate_pocketed = 1
             if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
-                #============
                 my_pocket_size = 2*my_ball_size
                 show_pockets(my_pocket_size)
-                #============
 
-                # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
-                # then, out of those balls_ok_to_hit, choose any one randomly and hit it :D
+                for a_ball in balls_ok_to_hit:
+                    dist_sep = hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y)
+                    tangent_dist = hypot(dist_sep, a_ball.size)
+                    half_cone_angle = acos(dist_sep/tangent_dist)
+
+                    angle_resolution = 5
+                    # 10 parts to revolve through 2 * half_cone_angle
+                    print "Half cone angle is :%d"%(half_cone_angle*180/pi)
+                    white_ball.angle = get_angle(white_ball_loc, a_ball) - half_cone_angle + pi
+                    base_angle = white_ball.angle
+
+                    rotate_pocketed = 0
+                    for i in xrange(angle_resolution):
+                        # a_ball_loc = (a_ball.x, a_ball.y)
+                        # white_ball_loc = (white_ball.x, white_ball.y)
+                        # all_balls_except_a_ball_but_with_white_ball = [temp_ball for temp_ball in list_of_balls_with_white if temp_ball != a_ball]
+                        pygame.display.update()
+                        # will_it_be_pocketed = trace_for_rotated_white_ball_shot(a_ball, white_ball, all_balls_except_a_ball_but_with_white_ball)
+                        print "White ball's angle is: %d" %(white_ball.angle*180/pi)
+                        will_it_be_pocketed = trace_for_rotated_white_ball_shot(a_ball, white_ball, list_of_balls_with_white)
+                        if will_it_be_pocketed == 1:
+                            print "|--------------------------|"
+                            print "|---Yo billaird I got you--|"
+                            print "|--------------------------|"
+                            rotate_pocketed = 1
+                            break
+                        white_ball.angle = base_angle + 2*(i+1)*half_cone_angle/angle_resolution
+                        print "Ball status %d @%d" %(will_it_be_pocketed, i)
+
+                    if rotate_pocketed == 1:
+                        # white_ball.move_with_collision_correction(dist = 50, angle = white_ball.angle, list_of_ball_objects = list_of_balls_with_white)
+                        white_ball.dist = 50
+                        move_my_all_balls(list_of_balls_with_white)
+            #--------------------------------------------
+
+            # #===============================
+            # # Below is random hitting :D
+            
+            # if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
+            #     #============
+            #     my_pocket_size = 2*my_ball_size
+            #     show_pockets(my_pocket_size)
+            #     #============
+
+            #     # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
+            #     # then, out of those balls_ok_to_hit, choose any one randomly and hit it :D
                 
-                print "Choosing ball randomly to hit"
-                temp_loc = random.randint(0,len(balls_ok_to_hit)-1)
-                rand_ball_to_hit = balls_ok_to_hit[temp_loc]
+            #     print "Choosing ball randomly to hit"
+            #     temp_loc = random.randint(0,len(balls_ok_to_hit)-1)
+            #     rand_ball_to_hit = balls_ok_to_hit[temp_loc]
 
-                # temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
-                # move_angle = temp_angle + pi
+            #     # temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+            #     # move_angle = temp_angle + pi
 
-                # # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
-                # # rand_dist = random.randint(50,150)
-                # rand_dist = 300
+            #     # # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+            #     # # rand_dist = random.randint(50,150)
+            #     # rand_dist = 300
 
-                # list_of_balls_with_white = [a_ball for a_ball in all_balls]
-                # list_of_balls_with_white.append(white_ball)
+            #     # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+            #     # list_of_balls_with_white.append(white_ball)
 
-                # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+            #     # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
 
-                #===============================
-                temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
-                move_angle = temp_angle + pi
+            #     #===============================
+            #     temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+            #     move_angle = temp_angle + pi
 
-                # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
-                # rand_dist = random.randint(50,150)
-                rand_dist = 100
+            #     # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+            #     # rand_dist = random.randint(50,150)
+            #     rand_dist = 100
 
-                # list_of_balls_with_white = [a_ball for a_ball in all_balls]
-                # list_of_balls_with_white.append(white_ball)
+            #     # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+            #     # list_of_balls_with_white.append(white_ball)
 
-                # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+            #     # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
 
-                white_ball.dist = rand_dist
-                white_ball.angle = move_angle
+            #     white_ball.dist = rand_dist
+            #     white_ball.angle = move_angle
 
-                move_my_all_balls(list_of_balls_with_white)
-                #===============================
+            #     move_my_all_balls(list_of_balls_with_white)
+            #     #===============================
 
             if len(balls_ok_to_hit) == 0:
                 gameOver = True

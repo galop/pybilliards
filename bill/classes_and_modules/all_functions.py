@@ -328,21 +328,54 @@ def get_elevation(start_point, end_point):
 
     return elevation
 
-def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist = 50 ):
+def trace_for_rotated_white_ball_shot(my_ball, white_ball, list_of_ball_objects, move_dist = 50):
+    start1 = (white_ball.x, white_ball.y)
+    start2 = (my_ball.x, my_ball.y)
+
+    ball_point                  = Balls(start1, 3, color = (0,0,255), angle = white_ball.angle)
+    big_ball_of_size_of_white   = Balls(start1, white_ball.size, color = (0,0,0,), angle = white_ball.angle)
+    final_trace_ball_point      = Balls(start2, 3, color = (255,255,0))
+
+    list_1 = [such_ball for such_ball in list_of_ball_objects if such_ball != white_ball]
+    list_2 = [such_ball for such_ball in list_of_ball_objects if such_ball != my_ball]
+
+    trace_for_while_ball_shot(start2, start1, list_1, move_dist = 50, start_point = 1, trace_angle = ball_point.angle)
+
+    ball_point.move_with_collision_correction_2_rotation(dist = 50, angle = ball_point.angle, list_of_ball_objects = list_1, speed = 8, smear = True , show_me = True, ball_will_got_hit = final_trace_ball_point)
+    big_ball_of_size_of_white.move_with_collision_correction_2_rotation(dist = 50, angle = ball_point.angle, list_of_ball_objects = list_1, speed = 8, smear = True , show_me = False, ball_will_got_hit = final_trace_ball_point)
+    # Value of angle of "final_trace_ball_point" is changed twice :D
+    # Second one will be the final :D
+    # Why to do this?
+    # By first move_.. I am showing a small point tracing
+    # By second move_.. I am moving a white_ball like object so as to get the right
+    # movement angle for "final_trace_ball_point" :D
+
+
+    # temp_value = trace_for_while_ball_shot(start2, start1, list_2, move_dist = final_trace_ball_point.dist, trace_angle = final_trace_ball_point.angle, start_point = 2)
+    temp_value = trace_for_while_ball_shot(start2, start1, list_2, move_dist = 50, trace_angle = final_trace_ball_point.angle, start_point = 2)
+    return temp_value
+
+
+def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist = 50, trace_angle = None , start_point = 2):
     
     elevation = get_elevation(my_ball_loc, white_ball_loc)
 
     # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
-    ball_point = Balls(my_ball_loc, 3, color=(255,0,0))
-    
+    if start_point == 2:
+        ball_point = Balls(my_ball_loc, 3, color=(255,0,0))
+    else:
+        ball_point = Balls(white_ball_loc, 3, color=(0,255,0))
+
     # kkk = 2*pi/2
     kkk = pi
     slope_angle = elevation
-    trace_angle = kkk - (slope_angle)
+    if trace_angle == None:
+        trace_angle = kkk - (slope_angle)
+
 
     # Note: The method is used is different :D
     # Its detection only :D no correction is intended since its only trace :D
-    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed = 8, smear=True )
+    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed = 8, smear=True , show_me = True)
                             
     pygame.display.update()
 
@@ -366,24 +399,28 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
     trace_angle = kkk - (slope_angle)
 
     # Ball.move(self,dist, angle, speed)
-    ball_point.move(move_dist, trace_angle, speed = 8, smear=True)
+    ball_point.move(move_dist, trace_angle, speed = 10, smear=True)
 
-    # p = dispWidth/4
-    # q = 3*dispHeight/4
-    # s = "tracing the shot....at angle : " + str(trace_angle*180/pi)
-    s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
-    print s
-    # msg2screen(s,p,q)
-    # pygame.display.update()
+    # s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
+    # print s
+    
 def move_my_all_balls(list_of_balls):
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
+    for a_ball in list_of_balls:
+        a_ball.speed = 10
+
     while dist_sum > 0:
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
+            # if moving_ball.color == (255,255,255):
+            #     print "White ball will move: " + str(moving_ball.dist) + "  :   Speed :     " + str(moving_ball.speed) + ": Correction angle :  " + str(moving_ball.correction_angle)
+
             # Here I am moving all balls :D
             # All those balls have distance of movement = 0, will mot move :D
+            
+
             if moving_ball.dist > 0:
 
                 s = "D" + str(int(moving_ball.dist))
@@ -391,12 +428,18 @@ def move_my_all_balls(list_of_balls):
                 p = moving_ball.x + 10
                 q = moving_ball.y + 10
                 msg2screen(s, p, q)
-
-                moving_ball.move_with_collision_correction_3(speed = 10, list_of_ball_objects = list_of_balls)
-
+                #====
+                # Adding friction here
+                
+                friction_coefficient = .988
+                reduced_speed = moving_ball.speed * friction_coefficient
+                #====
+                moving_ball.move_with_collision_correction_3(speed = reduced_speed, list_of_ball_objects = list_of_balls)
+                moving_ball.boundary()
                 # moving_ball.dist -= 1
             else:
                 moving_ball.angle = 0
+                moving_ball.dist = 0
 
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
