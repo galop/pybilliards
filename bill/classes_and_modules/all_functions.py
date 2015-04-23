@@ -328,21 +328,41 @@ def get_elevation(start_point, end_point):
 
     return elevation
 
-def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist = 50 ):
+def trace_for_rotated_white_ball_shot(my_ball, white_ball, list_of_ball_objects, move_dist = 50):
+    start1 = (white_ball.x, white_ball.y)
+    start2 = (my_ball.x, my_ball.y)
+    ball_point = Balls(start1, 3, color=(0,255,0), angle = white_ball.angle)
+    final_trace_ball_point = Balls(start2, 3, color=(255,0,0))
+
+    list_1 = [such_ball for such_ball in list_of_ball_objects if such_ball != white_ball]
+    list_2 = [such_ball for such_ball in list_of_ball_objects if such_ball != my_ball]
+    
+    trace_for_while_ball_shot(start2, start1, list_1, move_dist = 50, start_point = 2)
+
+    ball_point.move_with_collision_correction_2_rotation(dist = 50, angle = ball_point.angle, list_of_ball_objects = list_of_ball_objects, speed = 8, smear = True , show_me = True, ball_will_got_hit = final_trace_ball_point)
+    return trace_for_while_ball_shot(start2, start1, list_2, move_dist = 50, trace_angle = final_trace_ball_point.angle, start_point = 1)
+
+
+def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist = 50, trace_angle = None , start_point = 1):
     
     elevation = get_elevation(my_ball_loc, white_ball_loc)
 
     # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
-    ball_point = Balls(my_ball_loc, 3, color=(255,0,0))
-    
+    if start_point == 1:
+        ball_point = Balls(my_ball_loc, 3, color=(255,0,0))
+    else:
+        ball_point = Balls(white_ball_loc, 3, color=(0,255,0))
+
     # kkk = 2*pi/2
     kkk = pi
     slope_angle = elevation
-    trace_angle = kkk - (slope_angle)
+    if trace_angle == None:
+        trace_angle = kkk - (slope_angle)
+
 
     # Note: The method is used is different :D
     # Its detection only :D no correction is intended since its only trace :D
-    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed = 8, smear=True )
+    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed = 8, smear=True , show_me = True)
                             
     pygame.display.update()
 
@@ -381,8 +401,9 @@ def move_my_all_balls(list_of_balls):
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
-            if moving_ball.color == (255,255,255):
-                print "White ball will move: " + str(moving_ball.dist) + "  :   Speed :     " + str(moving_ball.speed) + ": Correction angle :  " + str(moving_ball.correction_angle)
+            # if moving_ball.color == (255,255,255):
+            #     print "White ball will move: " + str(moving_ball.dist) + "  :   Speed :     " + str(moving_ball.speed) + ": Correction angle :  " + str(moving_ball.correction_angle)
+
             # Here I am moving all balls :D
             # All those balls have distance of movement = 0, will mot move :D
             
