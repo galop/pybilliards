@@ -331,24 +331,37 @@ def get_elevation(start_point, end_point):
 def trace_for_rotated_white_ball_shot(my_ball, white_ball, list_of_ball_objects, move_dist = 50):
     start1 = (white_ball.x, white_ball.y)
     start2 = (my_ball.x, my_ball.y)
-    ball_point = Balls(start1, 3, color=(0,255,0), angle = white_ball.angle)
-    final_trace_ball_point = Balls(start2, 3, color=(255,0,0))
+
+    ball_point                  = Balls(start1, 3, color = (0,0,255), angle = white_ball.angle)
+    big_ball_of_size_of_white   = Balls(start1, white_ball.size, color = (0,0,0,), angle = white_ball.angle)
+    final_trace_ball_point      = Balls(start2, 3, color = (255,255,0))
 
     list_1 = [such_ball for such_ball in list_of_ball_objects if such_ball != white_ball]
     list_2 = [such_ball for such_ball in list_of_ball_objects if such_ball != my_ball]
-    
-    trace_for_while_ball_shot(start2, start1, list_1, move_dist = 50, start_point = 2)
 
-    ball_point.move_with_collision_correction_2_rotation(dist = 50, angle = ball_point.angle, list_of_ball_objects = list_of_ball_objects, speed = 8, smear = True , show_me = True, ball_will_got_hit = final_trace_ball_point)
-    return trace_for_while_ball_shot(start2, start1, list_2, move_dist = 50, trace_angle = final_trace_ball_point.angle, start_point = 1)
+    trace_for_while_ball_shot(start2, start1, list_1, move_dist = 50, start_point = 1, trace_angle = ball_point.angle)
+
+    ball_point.move_with_collision_correction_2_rotation(dist = 50, angle = ball_point.angle, list_of_ball_objects = list_1, speed = 8, smear = True , show_me = True, ball_will_got_hit = final_trace_ball_point)
+    big_ball_of_size_of_white.move_with_collision_correction_2_rotation(dist = 50, angle = ball_point.angle, list_of_ball_objects = list_1, speed = 8, smear = True , show_me = False, ball_will_got_hit = final_trace_ball_point)
+    # Value of angle of "final_trace_ball_point" is changed twice :D
+    # Second one will be the final :D
+    # Why to do this?
+    # By first move_.. I am showing a small point tracing
+    # By second move_.. I am moving a white_ball like object so as to get the right
+    # movement angle for "final_trace_ball_point" :D
 
 
-def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist = 50, trace_angle = None , start_point = 1):
+    # temp_value = trace_for_while_ball_shot(start2, start1, list_2, move_dist = final_trace_ball_point.dist, trace_angle = final_trace_ball_point.angle, start_point = 2)
+    temp_value = trace_for_while_ball_shot(start2, start1, list_2, move_dist = 50, trace_angle = final_trace_ball_point.angle, start_point = 2)
+    return temp_value
+
+
+def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist = 50, trace_angle = None , start_point = 2):
     
     elevation = get_elevation(my_ball_loc, white_ball_loc)
 
     # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
-    if start_point == 1:
+    if start_point == 2:
         ball_point = Balls(my_ball_loc, 3, color=(255,0,0))
     else:
         ball_point = Balls(white_ball_loc, 3, color=(0,255,0))

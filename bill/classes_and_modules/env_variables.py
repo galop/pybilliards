@@ -10,10 +10,10 @@ scorecardSize = scorecardWidth, scorecardHeight = 400, 100
 
 
 no_of_balls = 1    # 3
-my_ball_size = 20   # 25
+my_ball_size = 30   # 25
 
 import pygame
-import random
+# import random
 from math import *
 pygame.init()
 

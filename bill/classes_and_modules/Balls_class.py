@@ -586,7 +586,7 @@ class Balls:
             if dist_of_separation <= (self.size + my_ball.size):             
                 # Collision happened :D, and I will break here only :D
                 # only for first collision
-                my_ball = ball_will_got_hit
+                
                 # By doing above assignment, I am directing all changes of the ball that got hit to
                 # input ball object i.e. ball_will_got_hit
 
@@ -604,56 +604,56 @@ class Balls:
                 if (self.angle > 0) & (self.angle <= pi/2):
                     # print "0-pi/2"
                     if tangent > pi/2:
-                        my_ball.angle = tangent - pi/2
+                        ball_will_got_hit.angle = tangent - pi/2
                     else:
-                        my_ball.angle = tangent + 3*pi/2
+                        ball_will_got_hit.angle = tangent + 3*pi/2
 
                     dist_correction_angle = tangent - (self.angle - pi/2)
 
                     if tangent > self.angle + pi/2:
-                        self.angle = my_ball.angle - pi/2
+                        self.angle = ball_will_got_hit.angle - pi/2
                     else:
-                        self.angle = my_ball.angle + pi/2
+                        self.angle = ball_will_got_hit.angle + pi/2
 
                 elif (self.angle > pi/2) & (self.angle <= 2*pi/2):
                     # print "pi/2-pi"
                     tangent = pi + tangent  
                     # tangent will be negative here
-                    my_ball.angle = tangent + pi/2
+                    ball_will_got_hit.angle = tangent + pi/2
 
                     dist_correction_angle = tangent - (self.angle - pi/2)
                     if tangent > self.angle - pi/2:
-                        self.angle = my_ball.angle - pi/2
+                        self.angle = ball_will_got_hit.angle - pi/2
                     else:
-                        self.angle = my_ball.angle + pi/2
+                        self.angle = ball_will_got_hit.angle + pi/2
 
                 elif (self.angle > 2*pi/2) & (self.angle <= 3*pi/2):
                     # print "pi-3*pi/2"
                     tangent = pi + tangent  
                     # tangent will be negative here
-                    my_ball.angle = tangent + pi/2
+                    ball_will_got_hit.angle = tangent + pi/2
 
                     dist_correction_angle = tangent - (self.angle - pi/2)
 
                     # if tangent > self.angle - 2*pi/2:
                     if tangent > self.angle - pi/2:
-                        self.angle = my_ball.angle - pi/2
+                        self.angle = ball_will_got_hit.angle - pi/2
                     else:
-                        self.angle = my_ball.angle + pi/2
+                        self.angle = ball_will_got_hit.angle + pi/2
 
                 elif ((self.angle > 3*pi/2) & (self.angle <= 4*pi/2)) or (self.angle == 0):
                     # print "3*pi/2-2*pi"
                     if tangent > pi/2:
-                        my_ball.angle = tangent - pi/2
+                        ball_will_got_hit.angle = tangent - pi/2
                     else:
-                        my_ball.angle = tangent + 3*pi/2
+                        ball_will_got_hit.angle = tangent + 3*pi/2
 
                     dist_correction_angle = tangent - (self.angle - 3*pi/2)
 
                     if tangent > self.angle - 3*pi/2:
-                        self.angle = my_ball.angle - pi/2
+                        self.angle = ball_will_got_hit.angle - pi/2
                     else:
-                        self.angle = my_ball.angle + pi/2
+                        self.angle = ball_will_got_hit.angle + pi/2
 
                 
                 #=======================================
@@ -671,28 +671,28 @@ class Balls:
                 self.y -= int(round(10*cos(self.angle)))
                 self.boundary()
 
-                my_ball.x += int(round(10*sin(my_ball.angle)))
-                my_ball.y -= int(round(10*cos(my_ball.angle)))
-                my_ball.boundary()
+                # my_ball.x += int(round(10*sin(my_ball.angle)))
+                # my_ball.y -= int(round(10*cos(my_ball.angle)))
+                # my_ball.boundary()
                 
                 # I am saving this dist_correction_angle as object parameter. This has been initialized in the __init__ of Balls class :D
                 self.correction_angle = abs(dist_correction_angle*180/pi) %360
 
                 sine_correction     = sin(abs(dist_correction_angle))
-                cosine_correction   = cos(abs(dist_correction_angle))
+                # cosine_correction   = cos(abs(dist_correction_angle))
 
                 new_self_dist       = int(self.dist * sine_correction)
-                new_my_ball_dist    = int(self.dist * cosine_correction)
+                # new_my_ball_dist    = int(self.dist * cosine_correction)
                 
-                self.dist       = new_self_dist
-                my_ball.dist    = new_my_ball_dist
+                self.dist                   = new_self_dist
+                # ball_will_got_hit.dist      = new_my_ball_dist
 
                 #==================================================
                 new_self_speed      = self.speed * sine_correction
-                new_my_ball_speed   = self.speed * cosine_correction
+                # new_my_ball_speed   = self.speed * cosine_correction
 
                 self.speed      = new_self_speed
-                my_ball.speed   = new_my_ball_speed
+                # ball_will_got_hit.speed   = new_my_ball_speed
                 #==================================================
                 
                  

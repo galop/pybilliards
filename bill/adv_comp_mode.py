@@ -183,7 +183,7 @@ def gameLoop():
                 msg2screen(s,p,q)
                 pygame.display.update()
 
-            at_least_one_ball_hit = 0       # 0 is for NO
+            # at_least_one_ball_hit = 0       # 0 is for NO
             p,q = dispWidth/2, dispHeight/2
 
             s = "Ok to hit balls is " + str(len(balls_ok_to_hit))
@@ -240,7 +240,7 @@ def gameLoop():
 
                     move_my_all_balls(list_of_balls_with_white)
 
-                    at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
+                    # at_least_one_ball_hit = 1               # 1 is for YES, on ball got hit, hence breaking :D
 
                     # p, q = hit_ball.x + 30, hit_ball.y + 30
                     # s = "is being hit :D"
@@ -271,23 +271,32 @@ def gameLoop():
 
                     angle_resolution = 5
                     # 10 parts to revolve through 2 * half_cone_angle
+                    print "Half cone angle is :%d"%(half_cone_angle*180/pi)
+                    white_ball.angle = get_angle(white_ball_loc, a_ball) - half_cone_angle + pi
+                    base_angle = white_ball.angle
 
-                    white_ball.angle = get_angle(white_ball_loc, a_ball) - half_cone_angle
-
+                    rotate_pocketed = 0
                     for i in xrange(angle_resolution):
-                        a_ball_loc = (a_ball.x, a_ball.y)
-                        white_ball_loc = (white_ball.x, white_ball.y)
-                        all_balls_except_a_ball_but_with_white_ball = [temp_ball for temp_ball in list_of_balls_with_white if temp_ball != a_ball]
+                        # a_ball_loc = (a_ball.x, a_ball.y)
+                        # white_ball_loc = (white_ball.x, white_ball.y)
+                        # all_balls_except_a_ball_but_with_white_ball = [temp_ball for temp_ball in list_of_balls_with_white if temp_ball != a_ball]
                         pygame.display.update()
                         # will_it_be_pocketed = trace_for_rotated_white_ball_shot(a_ball, white_ball, all_balls_except_a_ball_but_with_white_ball)
+                        print "White ball's angle is: %d" %(white_ball.angle*180/pi)
                         will_it_be_pocketed = trace_for_rotated_white_ball_shot(a_ball, white_ball, list_of_balls_with_white)
                         if will_it_be_pocketed == 1:
-                            print "Yo billaird I got you"
+                            print "|--------------------------|"
+                            print "|---Yo billaird I got you--|"
+                            print "|--------------------------|"
+                            rotate_pocketed = 1
                             break
-                        white_ball.angle += 2*i*half_cone_angle/angle_resolution
+                        white_ball.angle = base_angle + 2*(i+1)*half_cone_angle/angle_resolution
                         print "Ball status %d @%d" %(will_it_be_pocketed, i)
 
-
+                    if rotate_pocketed == 1:
+                        # white_ball.move_with_collision_correction(dist = 50, angle = white_ball.angle, list_of_ball_objects = list_of_balls_with_white)
+                        white_ball.dist = 50
+                        move_my_all_balls(list_of_balls_with_white)
             #--------------------------------------------
 
             # #===============================
