@@ -436,6 +436,15 @@ def move_my_all_balls(list_of_balls):
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
 
+def is_it_in_my_list(elem_to_search, in_list, pass_range):
+    # This function will return 1, if elem_to_search is present in pass_range of in_list
+    # i.e. pass_range = 20 => 20% difference is ok,
+
+    for item in in_list:
+        if abs(item - elem_to_search)/item >= pass_range:
+            return 1
+        else:
+            return 0
 
 def show_my_balls(list_of_balls):
     for a_ball in list_of_balls:

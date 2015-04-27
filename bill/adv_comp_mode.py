@@ -245,11 +245,39 @@ def gameLoop():
                     ok_to_hit_but_cannot_be_pocketed += 1
 
             
+            # Advanced mode:
+            if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
+                for a_ball in balls_ok_to_hit:
+                    a_ball.pk_list = a_ball.give_me_pocket_angles()
 
+                    const_k = 2
+                    # This is can be seen as radius of circle with radius = (const_k * r)
+                    for t in xrange(0, 360):
+                        # ref: http://stackoverflow.com/questions/14829621/formula-to-find-points-on-the-circumference-of-a-circle-given-the-center-of-the
+                        x = const_k*a_ball.size*cos(t*pi/180.0) + a_ball.x
+                        y = const_k*a_ball.size*sin(t*pi/180.0) + a_ball.y
+
+                        current_ang = get_angle((x,y), a_ball)
+                        # if current_ang in a_ball.pk_list:
+                        pass_range = 0.2
+
+                        if is_it_in_my_list(current_ang, a_ball.pk_list, pass_range):
+
+                            white_ball.angle = get_angle((x,y), white_ball)
+                            white_ball.dist = 100
+                            move_my_all_balls(list_of_balls_with_white)
+                            print "---------------------------------------"
+                            print "I have got it... Advanced COMP mode"
+                            print "---------------------------------------"
+                            break
+                        pygame.draw.aaline(gameDisplay, (0,255,0), (x,y), (white_ball.x, white_ball.y))
+                    pygame.display.update()
+                pygame.display.update()
             # #===============================
             # Below is random hitting :D
-            
-            if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
+            # k = 9
+            k = 9
+            if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0) & (k < 1):
                 #============
                 my_pocket_size = 2*my_ball_size
                 show_pockets(my_pocket_size)

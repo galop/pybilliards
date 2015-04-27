@@ -10,10 +10,10 @@ import sys
 
 class Balls:
     def __init__(self, (x, y), size=20, thickness=0, color=(0, 0, 255), pocket_size=0, angle=0):
-        self.x = x
-        self.y = y
-        self.size = size
-        self.thickness = thickness              # Default :D
+        self.x = int(x)
+        self.y = int(y)
+        self.size = int(size)
+        self.thickness = int(thickness)              # Default :D
         self.color = color
         self.c1 = color[0]
         self.c2 = color[1]
@@ -398,7 +398,7 @@ class Balls:
                 my_ball.speed = new_my_ball_speed
 
                 # self.speed, my_ball.speed = my_ball.speed,  self.speed
-                
+
                 # if my_ball.angle != 0: 
                 #     # If the ball with which my_ball got hit was moving, then do this :D
                 #     my_ball.angle   = 2*tangent - my_ball.angle
@@ -721,6 +721,20 @@ class Balls:
                     return 1
         return 0
 
+    def give_me_pocket_angles(self):
+        # For a ball obj, this function returns a list containing movement
+        # angles for all pockets
+
+        from all_functions import *
+
+        a = (0, dispWidth/2, dispWidth)
+        b = (0, dispHeight)
+
+        t = [] # Empty list for angles towards pockets
+        for i in a:
+            for j in b:
+                t.append(get_angle((i,j), self))
+        return t
 
 if __name__ == "__main__":
     print "This is running individually: Balls_class"
