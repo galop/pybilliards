@@ -1,51 +1,42 @@
 #!/usr/bin/python
 #
-# This is implementation of COMP mode :D
+# This is implementation of COMP mode.
 # Computer will play and pocket the balls available on screen, with some factor of intellengece (manually set)
-
 # ----------------------------------------------------------------------------------------------------------
 import pygame
 import random
 from math import *
-pygame.init()
-#============
-# Functions are written to some py file :D
+
 from classes_and_modules.all_functions import *
 from classes_and_modules.env_variables import *
 from classes_and_modules.Balls_class import Balls
-# from classes.Balls_class import *
-#============
 
+pygame.init()
 pygame.display.update()
 # ballsurface = pygame.Surface((50, 50))
 # pygame.draw.circle(ballsurface, (0,0,255), (25, 25), 25)
 # gameDisplay.blit(ballsurface, (x,y))
 # pygame.display.flip()
 
-# #============
-# # Functions are written to some py file :D
-# from modules.all_functions import *
-# #============
+
 def gameLoop():
     gameExit = False
     gameOver = False
     stickLength = 100
     # stickList = []
-    # prev_key = 0        # This is initialisation before the using in program :D
+    # prev_key = 0        # This is initialisation before the using in program
     # once = 0
-    
     # stick_loc = []
     # no_of_balls = 10    # 3
     # my_ball_size = 20   # 25
 
-    all_balls = []              # List of my balls :D
+    all_balls = []              # List of balls
 
-    # The main white cue ball positioning and initialization
+    # The white cue ball positioning and initialization (random for now)
     for i in xrange(1):
         x = random.randint(my_ball_size, dispWidth - my_ball_size)
         y = random.randint(my_ball_size, dispHeight - my_ball_size)
-
-        white_ball = Balls((x,y), size = my_ball_size, thickness = 6, color = (255, 255, 255))
+        white_ball = Balls((x, y), size=my_ball_size, thickness=6, color=WHITE)
         white_ball.disp()
 
     # Other balls initialization
@@ -53,22 +44,20 @@ def gameLoop():
         x = random.randint(my_ball_size, dispWidth - my_ball_size)
         y = random.randint(my_ball_size, dispHeight - my_ball_size)
 
-        c1 = random.randint(0,255)
-        c2 = random.randint(0,255)
-        c3 = random.randint(0,255)
+        c1 = random.randint(0, 255)
+        c2 = random.randint(0, 255)
+        c3 = random.randint(0, 255)
 
-        all_balls.append(Balls((x, y), size = my_ball_size, color = (c1,c2,c3)))
-    
-    print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+        all_balls.append(Balls((x, y), size=my_ball_size, color=(c1, c2, c3)))
     # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
     while not gameExit:
-        # print "General loop :D"
-
         while gameOver:
             gameDisplay.fill(GREEN)
             msg2screen("Game over, press Q to quit or C to continue.")
             pygame.display.update()
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    gameExit = True
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         gameExit = True
@@ -80,35 +69,30 @@ def gameLoop():
             if event.type == pygame.QUIT:
                 gameExit = True
             if event.type == pygame.KEYDOWN:
-
-                # mods = pygame.key.get_mods()        # Assining a name, to use easily :D
-
-                        
                 if event.key == pygame.K_q:
                     gameOver = True
-                
 
+        # gameDisplay.fill(BLACK)
         gameDisplay.fill(GREEN)
         # scoreDisplay.fill(red)
         my_pocket_size = 2*my_ball_size
         show_pockets(my_pocket_size)
 
-
-        for my_ball in all_balls:       # Showing all my balls :D
+        for my_ball in all_balls:  # Put all balls
             my_ball.disp()
-        white_ball.disp()
+        white_ball.disp()  # Put white ball
         pygame.display.update()
-        # gameDisplay.fill(GREEN)
 
         mouse_pos = pygame.mouse.get_pos()
 
-        list_of_balls_with_white = [a_ball for a_ball in all_balls]
-        list_of_balls_with_white.append(white_ball)
+        # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+        list_of_balls_with_white = all_balls + [white_ball]
 
         mouse_butt = pygame.mouse.get_pressed()
-        if mouse_butt[1] == 1:      # This will be pressed by the user manually, to start COMP to hit the right shot :D
-                                    # Next shot placement, which ball to hit, all be decide by the COMP, dpending on the 
-                                    # some other factors (or may be randomly :D)
+        if mouse_butt[1] == 1:
+            # Pressed by the user manually, to start COMP to hit the right shot
+            # Next shot placement, which ball to hit, is decided by the COMP,
+            # depending on the some other factors (or may be randomly)
 
             my_pocket_size = 2*my_ball_size
             show_pockets(my_pocket_size)
@@ -118,24 +102,22 @@ def gameLoop():
             # Then we will decide which one to hit from those :D
             for my_ball in all_balls:
                 # List of other ball except current ball :D
-                list_of_other_balls = [other_ball for other_ball in all_balls if other_ball != my_ball]
-
+                list_of_other_balls = all_balls[:]
+                list_of_other_balls.remove(my_ball)
                 balls_to_be_tested = []
-
                 for other_ball in list_of_other_balls:
-                    dist_white_other    = hypot(white_ball.x - other_ball.x, white_ball.y - other_ball.y)
-                    dist_my_other       = hypot(my_ball.x - other_ball.x, my_ball.y - other_ball.y)
+                    dist_white_other = hypot(white_ball.x-other_ball.x, white_ball.y-other_ball.y)
+                    dist_my_other = hypot(my_ball.x-other_ball.x, my_ball.y-other_ball.y)
                     # Distance between white and other ball, and my_ball and other ball
 
-                    dist_my_white       = hypot(white_ball.x - my_ball.x, white_ball.y - my_ball.y)
+                    dist_my_white = hypot(white_ball.x - my_ball.x, white_ball.y - my_ball.y)
                     if (dist_my_white > dist_white_other) & (dist_my_white > dist_my_other):
                         # then test this other_ball location, since it is in between my_ball and white_ball :D
                         balls_to_be_tested.append(other_ball)
-                p,q = my_ball.x + 10, my_ball.y + 10
+                p, q = my_ball.x + 10, my_ball.y + 10
                 s = "T: " + str(len(balls_to_be_tested))
-                msg2screen(s,p,q)
+                msg2screen(s, p, q)
                 pygame.display.update()
-
                 if len(balls_to_be_tested) == 0:
                     my_ball.ok_to_hit = 1
                 else:

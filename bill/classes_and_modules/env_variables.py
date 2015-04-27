@@ -3,7 +3,7 @@ BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 GREEN = (0, 140, 0)
-FPS = 100
+FPS = 60
 dispSize = dispWidth, dispHeight = 800, 500
 
 scorecardSize = scorecardWidth, scorecardHeight = 400, 100
