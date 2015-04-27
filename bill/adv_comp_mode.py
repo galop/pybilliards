@@ -31,6 +31,7 @@ def gameLoop():
     # my_ball_size = 20   # 25
 
     all_balls = []              # List of balls
+    cue_dist = 0 # This is initialization of cue distance 
 
     # The white cue ball positioning and initialization (random for now)
     for i in xrange(1):
@@ -51,6 +52,10 @@ def gameLoop():
         all_balls.append(Balls((x, y), size=my_ball_size, color=(c1, c2, c3)))
     # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
     while not gameExit:
+        mouse_current_pos = pygame.mouse.get_pos()
+        pygame.draw.aaline(gameDisplay, WHITE, (white_ball.x, white_ball.y), mouse_current_pos)
+        pygame.display.update()
+
         while gameOver:
             gameDisplay.fill(GREEN)
             msg2screen("Game over, press Q to quit or C to continue.")
@@ -87,6 +92,12 @@ def gameLoop():
 
         # list_of_balls_with_white = [a_ball for a_ball in all_balls]
         list_of_balls_with_white = all_balls + [white_ball]
+
+        temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
+        all_balls = temp_all_balls
+
+        if all_balls == []:
+            gameOver = 1 # If all balls are pocketed then gameover
 
         mouse_butt = pygame.mouse.get_pressed()
         if mouse_butt[1] == 1:
@@ -233,98 +244,53 @@ def gameLoop():
                 else:
                     ok_to_hit_but_cannot_be_pocketed += 1
 
-            #--------------------------------------------
-            # Rotational moving
-            # white_ball will try to see at different angles to hit the ball, which can not be pocketed
-            # directly, but ok to hit
-            #
-            # For a ball from list of such above balls, angle of white_ball will be varied and its path 
-            # will be traced, if that ball can be pocketed, then loop will break, and white_ball will
-            # hit it. I will set a flag, rotate_pocketed = 1
-            if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
-                my_pocket_size = 2*my_ball_size
-                show_pockets(my_pocket_size)
-
-                for a_ball in balls_ok_to_hit:
-                    dist_sep = hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y)
-                    tangent_dist = hypot(dist_sep, a_ball.size)
-                    half_cone_angle = acos(dist_sep/tangent_dist)
-
-                    angle_resolution = 5
-                    # 10 parts to revolve through 2 * half_cone_angle
-                    print "Half cone angle is :%d"%(half_cone_angle*180/pi)
-                    white_ball.angle = get_angle(white_ball_loc, a_ball) - half_cone_angle + pi
-                    base_angle = white_ball.angle
-
-                    rotate_pocketed = 0
-                    for i in xrange(angle_resolution):
-                        # a_ball_loc = (a_ball.x, a_ball.y)
-                        # white_ball_loc = (white_ball.x, white_ball.y)
-                        # all_balls_except_a_ball_but_with_white_ball = [temp_ball for temp_ball in list_of_balls_with_white if temp_ball != a_ball]
-                        pygame.display.update()
-                        # will_it_be_pocketed = trace_for_rotated_white_ball_shot(a_ball, white_ball, all_balls_except_a_ball_but_with_white_ball)
-                        print "White ball's angle is: %d" %(white_ball.angle*180/pi)
-                        will_it_be_pocketed = trace_for_rotated_white_ball_shot(a_ball, white_ball, list_of_balls_with_white)
-                        if will_it_be_pocketed == 1:
-                            print "|--------------------------|"
-                            print "|---Yo billaird I got you--|"
-                            print "|--------------------------|"
-                            rotate_pocketed = 1
-                            break
-                        white_ball.angle = base_angle + 2*(i+1)*half_cone_angle/angle_resolution
-                        print "Ball status %d @%d" %(will_it_be_pocketed, i)
-
-                    if rotate_pocketed == 1:
-                        # white_ball.move_with_collision_correction(dist = 50, angle = white_ball.angle, list_of_ball_objects = list_of_balls_with_white)
-                        white_ball.dist = 50
-                        move_my_all_balls(list_of_balls_with_white)
-            #--------------------------------------------
+            
 
             # #===============================
-            # # Below is random hitting :D
+            # Below is random hitting :D
             
-            # if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
-            #     #============
-            #     my_pocket_size = 2*my_ball_size
-            #     show_pockets(my_pocket_size)
-            #     #============
+            if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0):
+                #============
+                my_pocket_size = 2*my_ball_size
+                show_pockets(my_pocket_size)
+                #============
 
-            #     # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
-            #     # then, out of those balls_ok_to_hit, choose any one randomly and hit it :D
+                # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
+                # then, out of those balls_ok_to_hit, choose any one randomly and hit it :D
                 
-            #     print "Choosing ball randomly to hit"
-            #     temp_loc = random.randint(0,len(balls_ok_to_hit)-1)
-            #     rand_ball_to_hit = balls_ok_to_hit[temp_loc]
+                print "Choosing ball randomly to hit"
+                temp_loc = random.randint(0,len(balls_ok_to_hit)-1)
+                rand_ball_to_hit = balls_ok_to_hit[temp_loc]
 
-            #     # temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
-            #     # move_angle = temp_angle + pi
+                # temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+                # move_angle = temp_angle + pi
 
-            #     # # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
-            #     # # rand_dist = random.randint(50,150)
-            #     # rand_dist = 300
+                # # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+                # # rand_dist = random.randint(50,150)
+                # rand_dist = 300
 
-            #     # list_of_balls_with_white = [a_ball for a_ball in all_balls]
-            #     # list_of_balls_with_white.append(white_ball)
+                # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+                # list_of_balls_with_white.append(white_ball)
 
-            #     # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+                # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
 
-            #     #===============================
-            #     temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
-            #     move_angle = temp_angle + pi
+                #===============================
+                temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+                move_angle = temp_angle + pi
 
-            #     # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
-            #     # rand_dist = random.randint(50,150)
-            #     rand_dist = 100
+                # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+                # rand_dist = random.randint(50,150)
+                rand_dist = 100
 
-            #     # list_of_balls_with_white = [a_ball for a_ball in all_balls]
-            #     # list_of_balls_with_white.append(white_ball)
+                # list_of_balls_with_white = [a_ball for a_ball in all_balls]
+                # list_of_balls_with_white.append(white_ball)
 
-            #     # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
+                # white_ball.move_with_collision_correction(dist = rand_dist, angle = move_angle, list_of_ball_objects = list_of_balls_with_white)
 
-            #     white_ball.dist = rand_dist
-            #     white_ball.angle = move_angle
+                white_ball.dist = rand_dist
+                white_ball.angle = move_angle
 
-            #     move_my_all_balls(list_of_balls_with_white)
+                move_my_all_balls(list_of_balls_with_white)
             #     #===============================
 
             if len(balls_ok_to_hit) == 0:
@@ -355,7 +321,28 @@ def gameLoop():
         #         pygame.display.update()
         #=====================================================================================================================
         
-        
+        if mouse_butt[2] == 1:
+            # If pressed it acts as pulling the cue
+            if cue_dist < cue_limit:
+                # print "I am still holding the right click"
+                cue_dist += 1 # If pressed I am increasing it
+            else:
+                pass
+                # print "Please release the right click"
+        else:
+            if cue_dist != 0:
+                # print "I have released the right click: Hit dist = %d" %cue_dist
+                white_ball.dist = cue_dist
+                # I will hit the white ball with cue
+                
+                # Get mouse location, to hit
+                mouse_current_pos = pygame.mouse.get_pos()
+                white_ball.angle = get_angle(mouse_current_pos, white_ball)
+
+                move_my_all_balls(list_of_balls_with_white)
+                
+                # and then I will assign the distance back to zero
+                cue_dist = 0 # If butt pressed and then released then assigning to zero
 
         if mouse_butt[0] == 1:      
 
