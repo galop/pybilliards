@@ -7,9 +7,9 @@ FPS = 60
 dispSize = dispWidth, dispHeight = 800, 500
 
 scorecardSize = scorecardWidth, scorecardHeight = 400, 100
+cue_limit = 200
 
-
-no_of_balls = 1    # 3
+no_of_balls = 2   # 3
 my_ball_size = 30   # 25
 
 import pygame

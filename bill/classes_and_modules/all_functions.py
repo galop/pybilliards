@@ -112,17 +112,22 @@ def get_slope(x1, y1, x2, y2):
 
 
 def get_angle(point_loc, Ball_obj):
-    temp1 = point_loc[0] - Ball_obj.x
-    temp2 = -1*(point_loc[1] - Ball_obj.y)  # This -ve sign is to incorporate the inverted y-axis :D
+    # temp1 = point_loc[0] - Ball_obj.x
+    # temp2 = -1*(point_loc[1] - Ball_obj.y)  # This -ve sign is to incorporate the inverted y-axis :D
+
+    a, b = point_loc
+    c, d = Ball_obj.x, Ball_obj.y
+    t1 = (a - c)
+    t2 = (-1)*(b - d)
 
     # if temp2 == 0:
     #     move_angle = (pi/2) * (temp1/abs(temp1)) # This is for the sign of than angle also :D
     # else:
     #     move_angle = atan(float(temp1)/temp2)
 
-    move_angle = atan2(temp1, temp2)
+    move_angle = atan2(t1, t2)
 
-    return move_angle
+    return move_angle %(2*pi)
 
 def ball_got_hit(start_point, Ball_obj):
     hamming_dist = sqrt((start_point[0]- Ball_obj.x)**2 + (start_point[1]- Ball_obj.y)**2)
@@ -396,13 +401,17 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
 def move_my_all_balls(list_of_balls):
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
+
     for a_ball in list_of_balls:
-        a_ball.speed = 10
+        a_ball.speed = 5
 
     while dist_sum > 0:
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
+            
+
+
             if moving_ball.dist > 0:
                 s = "D" + str(int(moving_ball.dist))
                 p = moving_ball.x + 10
@@ -410,8 +419,12 @@ def move_my_all_balls(list_of_balls):
                 msg2screen(s, p, q)
                 # ====
                 # Adding friction here
-                friction_coefficient = .988
+                friction_coefficient = .998
                 reduced_speed = moving_ball.speed * friction_coefficient
+                # const_decrease = (moving_ball.speed - 1)/ moving_ball.dist
+                # const_decrease = (moving_ball.speed)/ moving_ball.dist
+
+                # reduced_speed = moving_ball.speed - const_decrease
                 # ====
                 moving_ball.move_with_collision_correction_3(speed = reduced_speed, list_of_ball_objects = list_of_balls)
                 moving_ball.boundary()
