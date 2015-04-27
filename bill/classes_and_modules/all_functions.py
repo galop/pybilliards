@@ -1,31 +1,18 @@
-# white = (255, 255, 255)
-# black = (0, 0, 0)
-# blue = (0, 0, 255)
-# red = (255, 0, 0)
-# GREEN = (0,140,0)
-# import pygame
-# import random
-# from math import *
-# pygame.init()
 
 from classes_and_modules.env_variables import *
 from classes_and_modules.Balls_class import Balls
 
 
-# font = pygame.font.SysFont(None, 25)
-# gameDisplay = pygame.display.set_mode((dispWidth, dispHeight))
-# pygame.display.set_caption('pyBilliard')
-# clock = pygame.time.Clock()
-
-
 def create_rand_Ball(size):
     x = random.randint(size, dispWidth-size)
     y = random.randint(size, dispHeight-size)
-    return Balls((x,y), size)
+    return Balls((x, y), size)
 
-def msg2screen(msg, x_loc = dispWidth/2, y_loc = dispHeight/2, color=black):
+
+def msg2screen(msg, x_loc=dispWidth/2, y_loc=dispHeight/2, color=BLACK):
     screen_text = font.render(msg, True, color)
     gameDisplay.blit(screen_text, [x_loc,  y_loc])
+
 
 def show_pockets(pocket_size):
     a = (0, dispWidth/2, dispWidth)
@@ -35,10 +22,12 @@ def show_pockets(pocket_size):
         for j in b:
             pygame.draw.circle(gameDisplay, (0, 0, 0), (i, j), pocket_size, 0)
             pygame.display.update()
-            
-def stick(block_size, stickList): # This will print our stick of finite length :D
+
+
+def stick(block_size, stickList):  # This will print our stick of finite length
     for each in stickList:
         pygame.draw.rect(gameDisplay, blue, [each[0], each[1], block_size, block_size])
+
 
 def get_points(x1, y1, x2, y2, curr_dist, m, choice):
     # choice = 0 for start point , 
@@ -80,22 +69,20 @@ def get_points(x1, y1, x2, y2, curr_dist, m, choice):
     # msg2screen(s,a,b)
     return (x, y)
 
-def new_get_slope(x1,y1,x2,y2):
+def new_get_slope(x1, y1, x2, y2):
     # p = dispWidth/4
     # q = 3*dispHeight/4
     # s = "x1, y1, x2, y2: " + str(x1) + ":" + str(x1) + ":" + str(y1) + ":" + str(x2) + ":" + str(y2)
 
-    if (y2-y1)!=0:
+    if (y2-y1) != 0:
         m = float(x2-x1)/(y2-y1)
     else:
-        m = abs(x2-x1)*10**2   # I am returing a high value, equivalent to infinity :D
-        # if y1 > y2:
-        #     m = m * -1
+        m = abs(x2-x1)*10**2 # I am returning a high value, equivalent to infinity.
         if x2 > x1:
             m = m * -1
     return m
 
-def get_slope(x1,y1,x2,y2):
+def get_slope(x1, y1, x2, y2):
     # p = dispWidth/4
     # q = 3*dispHeight/4
     # s = "x1, y1, x2, y2: " + str(x1) + ":" + str(x1) + ":" + str(y1) + ":" + str(x2) + ":" + str(y2)
@@ -120,12 +107,13 @@ def get_slope(x1,y1,x2,y2):
     y_diff = (y2-y1)
     x_diff = (x2-x1)
 
-    m = tan(atan2(y_diff,x_diff))
+    m = tan(atan2(y_diff, x_diff))
     return m
+
 
 def get_angle(point_loc, Ball_obj):
     temp1 = point_loc[0] - Ball_obj.x
-    temp2 = -1* (point_loc[1] - Ball_obj.y) # This -ve sign is to incorporate the inverted y-axis :D
+    temp2 = -1*(point_loc[1] - Ball_obj.y)  # This -ve sign is to incorporate the inverted y-axis :D
 
     # if temp2 == 0:
     #     move_angle = (pi/2) * (temp1/abs(temp1)) # This is for the sign of than angle also :D
@@ -143,6 +131,8 @@ def ball_got_hit(start_point, Ball_obj):
         return 1
     else:
         return 0
+
+
 def trace_the_shot(start_point, end_point, m, mouse_pos):
     # This only projects a line from the stick with some finite distnace :D
     # Ball touch is not included here :D
@@ -301,8 +291,9 @@ def trace_the_shot(start_point, end_point, m, mouse_pos):
     # msg2screen(s,p,q)
     # pygame.display.update()
 
+
 def in_boundary(trace_point):
-    a,b = trace_point
+    a, b = trace_point
     if a < 0 or b < 0 or a > dispWidth or b > dispHeight:
         return 0
     else:
@@ -310,11 +301,13 @@ def in_boundary(trace_point):
 
 # def get_boundary_point(trace_point, m): # This function will be called only if the point is out of boundary :D
 #     a,b = trace_point
+
+
 def get_elevation(start_point, end_point):
-    a,b = start_point
-    c,d = end_point
-    new_m = new_get_slope(a,b,c,d)  # Calculating this slope :D
-    
+    a, b = start_point
+    c, d = end_point
+    new_m = new_get_slope(a, b, c, d)  # Calculating this slope :D
+
     if new_m > 0:   # First and Third quadrant
         if b < d:
             elevation = pi + atan(new_m)
@@ -328,13 +321,13 @@ def get_elevation(start_point, end_point):
 
     return elevation
 
-def trace_for_rotated_white_ball_shot(my_ball, white_ball, list_of_ball_objects, move_dist = 50):
+def trace_for_rotated_white_ball_shot(my_ball, white_ball, list_of_ball_objects, move_dist=50):
     start1 = (white_ball.x, white_ball.y)
     start2 = (my_ball.x, my_ball.y)
 
-    ball_point                  = Balls(start1, 3, color = (0,0,255), angle = white_ball.angle)
-    big_ball_of_size_of_white   = Balls(start1, white_ball.size, color = (0,0,0,), angle = white_ball.angle)
-    final_trace_ball_point      = Balls(start2, 3, color = (255,255,0))
+    ball_point = Balls(start1, 3, color = (0,0,255), angle=white_ball.angle)
+    big_ball_of_size_of_white = Balls(start1, white_ball.size, color=BLACK, angle=white_ball.angle)
+    final_trace_ball_point = Balls(start2, 3, color = (255, 255, 0))
 
     list_1 = [such_ball for such_ball in list_of_ball_objects if such_ball != white_ball]
     list_2 = [such_ball for such_ball in list_of_ball_objects if such_ball != my_ball]
@@ -356,8 +349,7 @@ def trace_for_rotated_white_ball_shot(my_ball, white_ball, list_of_ball_objects,
     return temp_value
 
 
-def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist = 50, trace_angle = None , start_point = 2):
-    
+def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist=50, trace_angle=None, start_point=2):
     elevation = get_elevation(my_ball_loc, white_ball_loc)
 
     # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
@@ -372,28 +364,24 @@ def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects,
     if trace_angle == None:
         trace_angle = kkk - (slope_angle)
 
-
     # Note: The method is used is different :D
     # Its detection only :D no correction is intended since its only trace :D
-    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed = 8, smear=True , show_me = True)
-                            
+    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed=8, smear=True, show_me=True)                            
     pygame.display.update()
 
     will_it_be_pocketed = in_journey            # yes for 1, and no for 0 :D
 
     return will_it_be_pocketed
 
+
 def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
-    a,b = end_point
-    c,d = mouse_pos
-    e,f = start_point
-    
-    move_dist       = sqrt((a-c)**2 + (b-d)**2)
+    a, b = end_point
+    c, d = mouse_pos
+    e, f = start_point
+    move_dist = sqrt((a-c)**2 + (b-d)**2)
 
     # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
-    ball_point = Balls(start_point, 3, color=(255,0,0))
-    
-    # kkk = 2*pi/2
+    ball_point = Balls(start_point, 3, color=RED)
     kkk = pi
     slope_angle = elevation
     trace_angle = kkk - (slope_angle)
@@ -403,7 +391,8 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
 
     # s = "tracing the shot...................(" + str(slope_angle*180/pi) +").........(" + str(trace_angle*180/pi) + ")"
     # print s
-    
+
+
 def move_my_all_balls(list_of_balls):
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
@@ -414,26 +403,16 @@ def move_my_all_balls(list_of_balls):
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for moving_ball in list_of_balls:
-            # if moving_ball.color == (255,255,255):
-            #     print "White ball will move: " + str(moving_ball.dist) + "  :   Speed :     " + str(moving_ball.speed) + ": Correction angle :  " + str(moving_ball.correction_angle)
-
-            # Here I am moving all balls :D
-            # All those balls have distance of movement = 0, will mot move :D
-            
-
             if moving_ball.dist > 0:
-
                 s = "D" + str(int(moving_ball.dist))
-
                 p = moving_ball.x + 10
                 q = moving_ball.y + 10
                 msg2screen(s, p, q)
-                #====
+                # ====
                 # Adding friction here
-                
                 friction_coefficient = .988
                 reduced_speed = moving_ball.speed * friction_coefficient
-                #====
+                # ====
                 moving_ball.move_with_collision_correction_3(speed = reduced_speed, list_of_ball_objects = list_of_balls)
                 moving_ball.boundary()
                 # moving_ball.dist -= 1
@@ -444,9 +423,11 @@ def move_my_all_balls(list_of_balls):
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
 
+
 def show_my_balls(list_of_balls):
     for a_ball in list_of_balls:
         a_ball.disp()
+
 
 if __name__ == "__main__":
     print "This is running individually: all_functions"

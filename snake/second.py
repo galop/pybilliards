@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import pygame
-# import time
 import random
 pygame.init()
 
@@ -86,7 +85,7 @@ def gameLoop():
 
         gameDisplay.fill(white)
         pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, block_size, block_size])
-        
+
         snakeHead = []
         snakeHead.append(lead_x)
         snakeHead.append(lead_y)
@@ -106,7 +105,7 @@ def gameLoop():
             randAppleX = round(random.randrange(0, dispWidth - block_size)/10.0)*10
             randAppleY = round(random.randrange(0, dispHeight - block_size)/10.0)*10
             snakeLength += 1
-        
+
         clock.tick(FPS)
     pygame.quit()
     quit()

@@ -1,12 +1,10 @@
 #!/usr/bin/python
 #
 # This is implementation of COMP mode :D
-# Computer will play and pocket the balls available on screen, with some factor of intellengece (manually set by me)
+# Computer will play and pocket the balls available on screen, with some factor of intellengece (manually set)
 
 # ----------------------------------------------------------------------------------------------------------
 import pygame
-
-# import time
 import random
 from math import *
 pygame.init()
@@ -19,8 +17,9 @@ from classes_and_modules.Balls_class import Balls
 #============
 
 pygame.display.update()
-ballsurface = pygame.Surface((50,50)) 
-pygame.draw.circle(ballsurface, (0,0,255), (25,25),25)
+# ballsurface = pygame.Surface((50, 50))
+# pygame.draw.circle(ballsurface, (0,0,255), (25, 25), 25)
+# gameDisplay.blit(ballsurface, (x,y))
 # pygame.display.flip()
 
 # #============
@@ -46,7 +45,7 @@ def gameLoop():
         x = random.randint(my_ball_size, dispWidth - my_ball_size)
         y = random.randint(my_ball_size, dispHeight - my_ball_size)
 
-        white_ball = Balls((x,y), size = my_ball_size, thickness = 6, color = (255,255,255))
+        white_ball = Balls((x,y), size = my_ball_size, thickness = 6, color = (255, 255, 255))
         white_ball.disp()
 
     # Other balls initialization
@@ -58,7 +57,7 @@ def gameLoop():
         c2 = random.randint(0,255)
         c3 = random.randint(0,255)
 
-        all_balls.append(Balls((x,y), size = my_ball_size, color = (c1,c2,c3)))
+        all_balls.append(Balls((x, y), size = my_ball_size, color = (c1,c2,c3)))
     
     print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
     # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
@@ -514,23 +513,18 @@ def gameLoop():
                     # msg2screen(out_msg,dispWidth/4,dispHeight/4)
 
                     while (start_point[0] > 0) & (start_point[0] < dispWidth) & (start_point[1] > 0) & (start_point[1] < dispHeight) & (curr_dist < move_dist):
-                        # hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)   
-
-                        m = get_slope(x1,y1,x2,y2)                        
-                        if abs(m)>1:
+                        # hamming_dist = sqrt((y2-y1)**2+(x2-x1)**2)
+                        m = get_slope(x1, y1, x2, y2)
+                        if abs(m) > 1:
                             m = 1/m
-
-                        # -------------------------
                         # Note down the ordering of elements :D
-                        start_point = get_points(x1,y1,x2,y2,curr_dist,m,0)         # choice = 0, for start point
-                        end_point = get_points(x2,y2,x1,y1,curr_dist,m,1)           # choice = 1, for end point
-
+                        start_point = get_points(x1, y1, x2, y2, curr_dist, m, 0)  # choice = 0, for start point
+                        end_point = get_points(x2, y2, x1, y1, curr_dist, m, 1)  # choice = 1, for end point
                         curr_dist += 2
                         # Last parameter is for the width of the line :D
                         # gameDisplay.fill(GREEN)
                         pygame.draw.line(gameDisplay, (255, 0, 0), start_point, end_point,20)           # This pretty bad line, no smppthness
                         pygame.display.update()
-                        #---------
                         # If this moving stick hits a ball then, break from this loop (to stop stick movement)
                         # and move the ball :D
                         # Ball will moved by the "remaining" distance with which the stick was supposed to move :D
@@ -541,7 +535,6 @@ def gameLoop():
 
                         # all_balls_with_white = [a_ball for a_ball in all_balls]
                         # all_balls_with_white.append(white_ball)
-                        
                         for my_ball in list_of_balls_with_white:
 
                             if ball_got_hit(start_point, my_ball):
@@ -590,7 +583,6 @@ def gameLoop():
             # This is like whenever I am not holding the stick to initialise,
             # clear the points in that :D
             stick_loc = []
-                
         clock.tick(FPS)
         # s = "Length of stick_loc is: "+ str(len(stick_loc))
         # msg2screen(s)

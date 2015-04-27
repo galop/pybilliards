@@ -7,9 +7,9 @@ import sys
 # from all_functions import *
 # from all_functions import *
 
+
 class Balls:
-    def __init__(self, (x,y), size = 20, thickness=0, color=(0,0,255), pocket_size = 0, angle = 0):
-        
+    def __init__(self, (x, y), size=20, thickness=0, color=(0, 0, 255), pocket_size=0, angle=0):
         self.x = x
         self.y = y
         self.size = size
@@ -19,7 +19,7 @@ class Balls:
         self.c2 = color[1]
         self.c3 = color[2]
         self.speed = 10
-        self.angle = angle   
+        self.angle = angle
         self.dist = 0                        # This is in radian :D
         if pocket_size == 0:
             pocket_size = 2*self.size
@@ -52,14 +52,9 @@ class Balls:
             self.y = 2*self.size - self.y
             self.angle = pi - self.angle
 
-
     def move(self, dist, angle, speed, smear=False):
         self.angle = angle
         self.speed = speed
-
-        # Adding boundary function :D
-        # s = "current distance of movement is " + str(dist)
-        # msg2screen(s,self.x - 100, self.y + 200)
         while dist > 0:
             # s = "current distance of movement is " + str(dist)
             # msg2screen(s,self.x - 100, self.y + 200)
@@ -68,51 +63,28 @@ class Balls:
 
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
-
-            #---------
             self.boundary()
-            #---------
-
-            # if (self.x + self.size) > dispWidth or (self.x - self.size) < 0 or (self.y + self.size) > dispHeight or (self.y - self.size)< 0:
-            #     s = "I am breaking it bad .... :( " + str(dist)
-            #     msg2screen(s,self.x - 100, self.y + 200)
-            #     pygame.display.update()
-            #     break
-            # else:
-            #     s = "I am doing it good .... :) " + str(dist)
-            #     msg2screen(s,self.x - 100, self.y + 200)
-            #     pygame.display.update()
-
             self.disp()
             # pygame.display.update()
-            dist -= 1 # Movement of these units only :D
+            dist -= 1  # Movement of these units only :D
         # s = "current distance of movement is " + str(dist)
         # msg2screen(s,self.x - 100, self.y + 200)
-    #----------------------------------------------
+
+
     def move_with_collision_correction_2_rotation(self, dist = None, angle = None, speed = None, list_of_ball_objects = [], smear = False, show_me = False, ball_will_got_hit = None):
-        
-        if dist != None:
+        if dist is not None:
             self.dist = dist
-
-        if angle != None:
+        if angle is not None:
             self.angle = angle
-
         if list_of_ball_objects == []:
             list_of_ball_objects.append(self)
-        
-        if speed != None:
+        if speed is not None:
             self.speed = speed
-
         while self.dist > 0:
             for a_ball in list_of_ball_objects:
                 a_ball.disp()
-            
-
             if not smear:
                 gameDisplay.fill(GREEN)
-
-            
-
             # try:
             #     self.x += int(round(sin(self.angle) * self.speed))
             #     self.y -= int(round(cos(self.angle) * self.speed))
@@ -142,10 +114,8 @@ class Balls:
         # After movement of the ball, its angle should be reset to zero :D
         # This will ensure, when any other ball will hit it, then it can move in direction determined by hitting ball :D
         self.angle = 0
-    #----------------------------------------------
 
-    def move_with_collision_detection(self,dist = None, angle = None, list_of_ball_objects = [], speed = 3, smear = False, show_me = True):
-        # NOTE: 
+    def move_with_collision_detection(self,  dist=None, angle=None,list_of_ball_objects=[], speed=3, smear=False, show_me=True):
         # This is specially used for the ball_point tracing :D
         # Find the related code in trace_for_white_ball :D
 
@@ -162,7 +132,6 @@ class Balls:
 
         if list_of_ball_objects == []:
             list_of_ball_objects.append(self)
-        
         self.speed = speed
 
         while self.dist > 0 & (self.pocketed == 0):
@@ -173,7 +142,7 @@ class Balls:
 
             self.x += int(round(sin(self.angle) * self.speed))
             self.y -= int(round(cos(self.angle) * self.speed))
-            
+
             p, q = self.x + 10, self.y + 10
             s = str(self.dist)
             #
@@ -200,8 +169,8 @@ class Balls:
         
         return in_journey
 
-    def move_with_collision_correction(self,dist = None, angle = None, speed = None, list_of_ball_objects = []):
-        
+    def move_with_collision_correction(self, dist = None, angle = None, speed = None, list_of_ball_objects = []):
+
         if dist != None:
             self.dist = dist
 
@@ -234,8 +203,6 @@ class Balls:
             #     print "Self angle: " + str(self.angle) + "Self speed: " + str(self.speed) + "Type of self.speed: " + str(type(self.speed)) + "\n"
             #     gameExit = True
             #     break
-
-            #---------
             self.collision(list_of_ball_objects, self.dist)
             self.is_pocketed(self.pocket_size)
 
@@ -254,7 +221,7 @@ class Balls:
     def collision_2(self, all_balls):
         from all_functions import *
         #============
-        my_pocket_size = 2*my_ball_size
+        my_pocket_size = 2 * my_ball_size
         show_pockets(my_pocket_size)
         #============
 
@@ -272,11 +239,10 @@ class Balls:
 
             if dist_of_separation <= (self.size + my_ball.size):             # Collision happened :D
                 print "Bang Bang !!"
-                
+
                 # tangent = atan2(dy, dx) + pi/2
                 tangent = atan2(dy, dx)
 
-                
                 print "tangent is : " + str(tangent*180/pi)
                 # By doing this the tangent will always be positive :D
 
@@ -298,7 +264,7 @@ class Balls:
 
                 elif (self.angle > pi/2) & (self.angle <= 2*pi/2):
                     print "pi/2-pi"
-                    tangent = pi + tangent  
+                    tangent = pi + tangent
                     # tangent will be negative here
                     my_ball.angle = tangent + pi/2
 
@@ -310,7 +276,7 @@ class Balls:
 
                 elif (self.angle > 2*pi/2) & (self.angle <= 3*pi/2):
                     print "pi-3*pi/2"
-                    tangent = pi + tangent  
+                    tangent = pi + tangent
                     # tangent will be negative here
                     my_ball.angle = tangent + pi/2
 
@@ -336,7 +302,6 @@ class Balls:
                     else:
                         self.angle = my_ball.angle + pi/2
 
-                
                 #=======================================
                 # self.angle      = 2*tangent - self.angle
                 # self.dist       = self.dist/2
@@ -355,29 +320,24 @@ class Balls:
                 my_ball.x += int(round(20*sin(my_ball.angle)))
                 my_ball.y -= int(round(20*cos(my_ball.angle)))
                 my_ball.boundary()
-                
                 # I am saving this dist_correction_angle as object parameter. This has been initialized in the __init__ of Balls class :D
-                self.correction_angle = abs(dist_correction_angle*180/pi) %360
+                self.correction_angle = abs(dist_correction_angle*180/pi) % 360
 
-                sine_correction     = sin(abs(dist_correction_angle))
-                cosine_correction   = cos(abs(dist_correction_angle))
+                sine_correction = sin(abs(dist_correction_angle))
+                cosine_correction = cos(abs(dist_correction_angle))
 
-                new_self_dist       = int(self.dist * sine_correction)
-                new_my_ball_dist    = int(self.dist * cosine_correction)
-                
-                self.dist       = new_self_dist
-                my_ball.dist    = new_my_ball_dist
+                new_self_dist = int(self.dist * sine_correction)
+                new_my_ball_dist = int(self.dist * cosine_correction)
+
+                self.dist = new_self_dist
+                my_ball.dist = new_my_ball_dist
 
                 #==================================================
-                new_self_speed      = self.speed * sine_correction
-                new_my_ball_speed   = self.speed * cosine_correction
+                new_self_speed = self.speed * sine_correction
+                new_my_ball_speed = self.speed * cosine_correction
 
-                self.speed      = new_self_speed
-                my_ball.speed   = new_my_ball_speed
-                #==================================================
-                
-                 
-                #======================================
+                self.speed = new_self_speed
+                my_ball.speed = new_my_ball_speed
                 # if my_ball.angle != 0: 
                 #     # If the ball with which my_ball got hit was moving, then do this :D
                 #     my_ball.angle   = 2*tangent - my_ball.angle
@@ -387,8 +347,7 @@ class Balls:
 
                 # list_for_my_ball = [temp_ball for temp_ball in all_balls if temp_ball != my_ball]
 
-    def move_with_collision_correction_2(self, dist = None, angle = None, speed = None, list_of_ball_objects = [], smear = False):
-        
+    def move_with_collision_correction_2(self, dist=None, angle=None, speed=None, list_of_ball_objects=[], smear=False):
         if dist != None:
             self.dist = dist
 
@@ -397,19 +356,15 @@ class Balls:
 
         if list_of_ball_objects == []:
             list_of_ball_objects.append(self)
-        
+
         if speed != None:
             self.speed = speed
 
         while self.dist > 0:
             for a_ball in list_of_ball_objects:
                 a_ball.disp()
-            
-
             if not smear:
                 gameDisplay.fill(GREEN)
-
-            
 
             # try:
             #     self.x += int(round(sin(self.angle) * self.speed))
@@ -419,7 +374,6 @@ class Balls:
             #     gameExit = True
             #     break
 
-            #---------
             self.collision_2(list_of_ball_objects)
             self.is_pocketed(self.pocket_size)
             if self.pocketed == 1:
@@ -430,39 +384,30 @@ class Balls:
             self.y -= int(round(cos(self.angle) * self.speed))
 
             self.boundary()
-            #---------
             self.disp()
             # pygame.display.update()
             print str(self) + "dist inside the corr_2: " + str(self.dist)
-            self.dist -= 1 # Movement of these units only :D
+            self.dist -= 1  # Movement of these units only :D
         # After movement of the ball, its angle should be reset to zero :D
-        # This will ensure, when any other ball will hit it, then it can move in direction determined by hitting ball :D
+        # This will ensure, when any other ball will hit it, 
+        # then it can move in direction determined by hitting ball :D
         self.angle = 0
 
-    def move_with_collision_correction_3(self, dist = None, angle = None, speed = None, list_of_ball_objects = [], smear = False):
-        
+    def move_with_collision_correction_3(self, dist=None, angle=None, speed=None, list_of_ball_objects=[], smear=False):
         from all_functions import *
 
         if dist != None:
             self.dist = dist
-
-
         if angle != None:
             self.angle = angle
-
         if list_of_ball_objects == []:
             list_of_ball_objects.append(self)
-        
         if speed != None:
             self.speed = speed
 
         if self.dist > 0:
-            
-            
-
             if not smear:
                 gameDisplay.fill(GREEN)
-
             for a_ball in list_of_ball_objects:
                 a_ball.disp()
 
@@ -496,7 +441,6 @@ class Balls:
 
             self.collision_2(list_of_ball_objects)
             self.boundary()
-            #---------
             self.disp()
             # pygame.display.update()
             # print str(self) + "dist inside the corr_2: " + str(self.dist)
@@ -507,10 +451,11 @@ class Balls:
 
     def is_clicked(self, a, b):
         if hypot(self.x-a, self.y-b) <= self.size:
-            return 1                                # If the point (a,b) is inside the ball then return 1 :D
+            return 1  # If the point (a,b) is inside the ball then return 1 :D
         else:
             return 0                                # Else return 0 :D
-    
+
+
     def collision_detection(self, temp_list_of_balls, dist):
         # NOTE:
         # Here I am only changing my self parameters, without changing anyone else parameters. Why???
@@ -529,16 +474,13 @@ class Balls:
             dx = my_ball.x - self.x
             dy = my_ball.y - self.y
 
-            dist_of_separation = hypot(dx,dy)
+            dist_of_separation = hypot(dx, dy)
 
             if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
                 # print "Bang Bang !! in collision detection"
-                
                 tangent = atan2(dy, dx)
-                self.angle      = 2*tangent - self.angle
-                self.dist       = self.dist/2
-
-                
+                self.angle = 2*tangent - self.angle
+                self.dist = self.dist/2
 
     def collision(self, all_balls, dist):
         all_other_except_me = [my_ball for my_ball in all_balls if (my_ball != self) & (my_ball.pocketed == 0)]
@@ -548,11 +490,10 @@ class Balls:
             dx = my_ball.x - self.x
             dy = my_ball.y - self.y
 
-            dist_of_separation = hypot(dx,dy)
+            dist_of_separation = hypot(dx, dy)
 
             if dist_of_separation < (self.size + my_ball.size):             # Collision happened :D
                 print "Bang Bang !!"
-                
                 tangent = atan2(dy, dx)
                 self.angle      = 2*tangent - self.angle
                 self.dist       = self.dist/2
@@ -693,9 +634,6 @@ class Balls:
 
                 self.speed      = new_self_speed
                 # ball_will_got_hit.speed   = new_my_ball_speed
-                #==================================================
-                
-                 
                 #======================================
                 # if my_ball.angle != 0: 
                 #     # If the ball with which my_ball got hit was moving, then do this :D
@@ -712,14 +650,13 @@ class Balls:
 
         for i in x_limits:
             for j in y_limits:
-                ball_dist = hypot(self.x - i, self.y -j)
+                ball_dist = hypot(self.x - i, self.y - j)
                 if ball_dist < pocket_size:
                     self.pocketed = 1
-                    self.dist = 0           # So that the ball will not move any further :D
+                    self.dist = 0  # So that the ball will not move any further :D
                     return 1
         return 0
 
-print "Hi"
 
 if __name__ == "__main__":
     print "This is running individually: Balls_class"

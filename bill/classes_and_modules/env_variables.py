@@ -1,7 +1,7 @@
-white = (255, 255, 255)
-black = (0, 0, 0)
-blue = (0, 0, 255)
-red = (255, 0, 0)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
 GREEN = (0, 140, 0)
 FPS = 100
 dispSize = dispWidth, dispHeight = 800, 500
