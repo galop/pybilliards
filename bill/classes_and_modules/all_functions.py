@@ -403,7 +403,7 @@ def move_my_all_balls(list_of_balls):
     dist_sum = sum(dist_sum_vect)
 
     for a_ball in list_of_balls:
-        a_ball.speed = 5
+        a_ball.speed = 15
 
     while dist_sum > 0:
         # print "dist_sum: " + str(dist_sum)
@@ -419,7 +419,7 @@ def move_my_all_balls(list_of_balls):
                 msg2screen(s, p, q)
                 # ====
                 # Adding friction here
-                friction_coefficient = .998
+                friction_coefficient = .97
                 reduced_speed = moving_ball.speed * friction_coefficient
                 # const_decrease = (moving_ball.speed - 1)/ moving_ball.dist
                 # const_decrease = (moving_ball.speed)/ moving_ball.dist
@@ -436,6 +436,15 @@ def move_my_all_balls(list_of_balls):
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
 
+def is_it_in_my_list(elem_to_search, in_list, pass_range):
+    # This function will return 1, if elem_to_search is present in pass_range of in_list
+    # i.e. pass_range = 20 => 20% difference is ok,
+
+    for item in in_list:
+        if abs(item - elem_to_search)/item >= pass_range:
+            return 1
+        else:
+            return 0
 
 def show_my_balls(list_of_balls):
     for a_ball in list_of_balls:
