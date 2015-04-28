@@ -34,22 +34,28 @@ def gameLoop():
     cue_dist = 0 # This is initialization of cue distance 
 
     # The white cue ball positioning and initialization (random for now)
-    for i in xrange(1):
-        x = random.randint(my_ball_size, dispWidth - my_ball_size)
-        y = random.randint(my_ball_size, dispHeight - my_ball_size)
-        white_ball = Balls((x, y), size=my_ball_size, thickness=6, color=WHITE)
-        white_ball.disp()
-
+    # for i in xrange(1):
+    #     x = random.randint(my_ball_size, dispWidth - my_ball_size)
+    #     y = random.randint(my_ball_size, dispHeight - my_ball_size)
+    #     white_ball = Balls((x, y), size=my_ball_size, thickness=6, color=WHITE)
+    #     white_ball.disp()
+    #
+    a,b = dispSize
+    white_ball = Balls((a/4, b/2), size=my_ball_size, thickness=6, color=WHITE)
+    white_ball.disp() 
+    #
     # Other balls initialization
-    for i in xrange(no_of_balls):
-        x = random.randint(my_ball_size, dispWidth - my_ball_size)
-        y = random.randint(my_ball_size, dispHeight - my_ball_size)
+    for i in xrange(1,no_of_balls+1):
+        all_balls.append(Balls(ball_loc[i], size=my_ball_size, color=ball_num_col_dict[i], number=i))
+    # for i in xrange(no_of_balls):
+    #     x = random.randint(my_ball_size, dispWidth - my_ball_size)
+    #     y = random.randint(my_ball_size, dispHeight - my_ball_size)
 
-        c1 = random.randint(0, 255)
-        c2 = random.randint(0, 255)
-        c3 = random.randint(0, 255)
+    #     c1 = random.randint(0, 255)
+    #     c2 = random.randint(0, 255)
+    #     c3 = random.randint(0, 255)
 
-        all_balls.append(Balls((x, y), size=my_ball_size, color=(c1, c2, c3)))
+    #     all_balls.append(Balls((x, y), size=my_ball_size, color=(c1, c2, c3)))
     # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
     while not gameExit:
         mouse_current_pos = pygame.mouse.get_pos()
@@ -250,7 +256,7 @@ def gameLoop():
                 for a_ball in balls_ok_to_hit:
                     a_ball.pk_list = a_ball.give_me_pocket_angles()
 
-                    const_k = 2
+                    const_k = 1.6
                     # This is can be seen as radius of circle with radius = (const_k * r)
                     for t in xrange(0, 360):
                         # ref: http://stackoverflow.com/questions/14829621/formula-to-find-points-on-the-circumference-of-a-circle-given-the-center-of-the
@@ -259,12 +265,17 @@ def gameLoop():
 
                         current_ang = get_angle((x,y), a_ball)
                         # if current_ang in a_ball.pk_list:
-                        pass_range = 0.2
+                        pass_range = random.randint(20, 40)/100.0
 
-                        if is_it_in_my_list(current_ang, a_ball.pk_list, pass_range):
+                        if is_it_in_my_list(current_ang, a_ball.pk_list, pass_range) & (hypot(x- white_ball.x, y - white_ball.y) < hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y)):
+
+                            # pygame.draw.aaline(gameDisplay, GREEN, (white_ball.x, white_ball.y), (x,y))
+                            pygame.draw.line(gameDisplay, GREEN, (white_ball.x, white_ball.y), (x,y), 10)
+                            pygame.display.update()
+                            print "Just drawn a line :D"
 
                             white_ball.angle = get_angle((x,y), white_ball)
-                            white_ball.dist = 100
+                            white_ball.dist = random.randint(100, 200)
                             move_my_all_balls(list_of_balls_with_white)
                             print "---------------------------------------"
                             print "I have got it... Advanced COMP mode"

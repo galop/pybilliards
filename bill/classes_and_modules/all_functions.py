@@ -403,7 +403,7 @@ def move_my_all_balls(list_of_balls):
     dist_sum = sum(dist_sum_vect)
 
     for a_ball in list_of_balls:
-        a_ball.speed = 5
+        a_ball.speed = 15
 
     while dist_sum > 0:
         # print "dist_sum: " + str(dist_sum)
@@ -419,7 +419,7 @@ def move_my_all_balls(list_of_balls):
                 msg2screen(s, p, q)
                 # ====
                 # Adding friction here
-                friction_coefficient = .998
+                friction_coefficient = .97
                 reduced_speed = moving_ball.speed * friction_coefficient
                 # const_decrease = (moving_ball.speed - 1)/ moving_ball.dist
                 # const_decrease = (moving_ball.speed)/ moving_ball.dist

@@ -9,7 +9,7 @@ import sys
 
 
 class Balls:
-    def __init__(self, (x, y), size=20, thickness=0, color=(0, 0, 255), pocket_size=0, angle=0):
+    def __init__(self, (x, y), size=20, thickness=0, color=(0, 0, 255), pocket_size=0, angle=0, number=0):
         self.x = int(x)
         self.y = int(y)
         self.size = int(size)
@@ -30,6 +30,7 @@ class Balls:
         self.in_line_with_white_ball = 0        # Default is zero, but will be changed afterwards :D
         self.ok_to_hit = 0                      # This will be made equal to 1 for white_ball in line with this ball
         self.correction_angle = 0
+        self.number = number
 
     def disp(self):
         pygame.draw.circle(gameDisplay, self.color, (self.x, self.y), self.size, self.thickness)
