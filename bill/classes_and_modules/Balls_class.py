@@ -1,8 +1,8 @@
 from env_variables import *
 from math import *
 import pygame
-import random
-import sys
+import random as rd
+# import sys
 # sys.path.append(r'/Documents/Python_2015/pybilliards/bill/modules/')
 # from all_functions import *
 # from all_functions import *
@@ -41,21 +41,26 @@ class Balls:
         # pygame.display.update()
 
     def boundary(self):
+
         if self.x > dispWidth - self.size:
             self.x = 2*(dispWidth - self.size) - self.x
             self.angle = - self.angle
+            self.speed = 0.97*self.speed
 
         elif self.x < self.size:
             self.x = 2*self.size - self.x
             self.angle = - self.angle
+            self.speed = 0.97*self.speed
 
         if self.y > dispHeight - self.size:
             self.y = 2*(dispHeight - self.size) - self.y
             self.angle = pi - self.angle
+            self.speed = 0.97*self.speed
 
         elif self.y < self.size:
             self.y = 2*self.size - self.y
             self.angle = pi - self.angle
+            self.speed = 0.97*self.speed
 
     def move(self, dist, angle, speed, smear=False):
         self.angle = angle
@@ -245,7 +250,7 @@ class Balls:
             tangent = atan2(dy, dx)
             dist_of_separation = hypot(dx,dy)
 
-            if dist_of_separation <= (self.size + my_ball.size + 2):             # Collision happened :D
+            if dist_of_separation < (self.size + my_ball.size + 2):             # Collision happened :D
                 
                 
 
@@ -360,34 +365,12 @@ class Balls:
         if (self.speed > 0) & (self.dist > 0):
             if not smear:
                 show_table()
-                # gameDisplay.fill(GREEN)
-
-            # for a_ball in list_of_ball_objects:
-            #     a_ball.disp()
-            # pygame.display.update()
-            #======================================
-            # This shows what distance is the ball with it moves :D
-            # s = "D: " + str(int(self.dist))
-
-            # p = self.x + 20
-            # q = self.y + 20
-            # msg2screen(s, p, q)
-            #======================================
-            # try:
-            #     self.x += int(round(sin(self.angle) * self.speed))
-            #     self.y -= int(round(cos(self.angle) * self.speed))
-            # except TypeError:
-            #     print "Self angle: " + str(self.angle) + "Self speed: " + str(self.speed) + "Type of self.speed: " + str(type(self.speed)) + "\n"
-            #     gameExit = True
-            #     break
-
-            #---------
-            # self.collision_2(list_of_ball_objects)
             
             self.is_pocketed(self.pocket_size)
             if self.pocketed == 1:
                 self.dist = 0
                 self.speed = 0
+                return
             
             self.boundary()
             # This is equivalent to one time movement
@@ -399,15 +382,16 @@ class Balls:
 
             self.boundary()
 
-            self.collision_2(list_of_ball_objects)
-            self.boundary()
+            # self.collision_2(list_of_ball_objects)
+            # self.boundary()
+
             # self.disp()
-            for a_ball in list_of_ball_objects:
-                a_ball.disp()
-            pygame.display.update()
+            # for a_ball in list_of_ball_objects:
+            #     a_ball.disp()
             # pygame.display.update()
-            # print str(self) + "dist inside the corr_2: " + str(self.dist)
-            self.dist -= hypot(x_change, y_change) # Movement of these units only :D
+
+            self.dist -= hypot(x_change, y_change) 
+            # Movement of these units only :D
         # After movement of the ball, its angle should be reset to zero :D
         # This will ensure, when any other ball will hit it, then it can move in direction determined by hitting ball :D
         # self.angle = 0
@@ -620,20 +604,34 @@ class Balls:
                     return 1
         return 0
 
-    def give_me_pocket_angles(self):
+    def give_me_pocket_angles(self, white_ball):
         # For a ball obj, this function returns a list containing movement
         # angles for all pockets
 
         from all_functions import *
 
-        a = (0, dispWidth/2, dispWidth)
-        b = (0, dispHeight)
+        a = [0, dispWidth/2, dispWidth]
+        b = [0, dispHeight]
+        rd.shuffle(a)
+        rd.shuffle(b)
 
         t = [] # Empty list for angles towards pockets
+
         for i in a:
             for j in b:
-                t.append(get_angle((i,j), self))
+                if self.am_I_near_to_pockets((i,j), white_ball):
+                    t.append(get_angle((i,j), self))
         return t
+
+    def am_I_near_to_pockets(self, pk_loc, white_ball):
+        m, n = pk_loc
+        p, q = white_ball.x, white_ball.y
+
+        if hypot(p-m, q-n) > hypot(hypot(p-self.x, q-self.y), hypot(self.x - m, self.y - n)):
+            return 1
+        else:
+            return 0
+
 
 if __name__ == "__main__":
     print "This is running individually: Balls_class"

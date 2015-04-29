@@ -58,6 +58,9 @@ def gameLoop():
     #     all_balls.append(Balls((x, y), size=my_ball_size, color=(c1, c2, c3)))
     # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
     while not gameExit:
+        # print "================"
+        # print "In general loop"
+        # print "================"
         show_table()
         mouse_current_pos = pygame.mouse.get_pos()
         # mouse_current_pos = [tt[0], tt[1]]
@@ -83,11 +86,27 @@ def gameLoop():
 
         temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
         all_balls = temp_all_balls
+        if all_balls == []:
+            gameOver = 1
 
         list_of_balls_with_white = all_balls + [white_ball]
         show_my_balls(list_of_balls_with_white)
         pygame.display.update()
         
+        #================================================================================
+        for moving_ball in list_of_balls_with_white:
+            moving_ball.collision_2(list_of_balls_with_white)
+            moving_ball.boundary()
+            if (moving_ball.speed > 0) & (moving_ball.dist > 0):
+                # reduced_speed = moving_ball.speed - moving_ball.offset_speed
+                moving_ball.collision_2(list_of_balls_with_white)
+                moving_ball.boundary()
+                # moving_ball.dist -= 1
+            else:
+                moving_ball.angle = 0
+                moving_ball.dist = 0
+                moving_ball.speed = 0
+        #================================================================================
         if white_ball.pocketed == 1:
             a,b = dispSize
             white_ball = Balls((a/4, b/2), size=my_ball_size, thickness=0, color=WHITE)
@@ -118,20 +137,23 @@ def gameLoop():
 
         
 
-        if all_balls == []:
-            gameOver = 1 # If all balls are pocketed then gameover
-            adv_mode_used = 0
+        
 
         mouse_butt = pygame.mouse.get_pressed()
 
         # Comp Mode
         if mouse_butt[1] == 1:
+            print "==================="
+            print "Inside COMP MODE"
+            print "==================="
             # Pressed by the user manually, to start COMP to hit the right shot
             # Next shot placement, which ball to hit, is decided by the COMP,
             # depending on the some other factors (or may be randomly)
 
             show_pockets(my_pocket_size)
             pygame.display.update()
+
+            
 
             # Following loop will extract hittable balls from all_balls :D
             # Then we will decide which one to hit from those :D
@@ -179,7 +201,9 @@ def gameLoop():
                         # Perpendicular distance is given by 
                         # Reference: goo.gl/mUFJSh 
                         perp_dist = abs(A*x3 + B*y3 + C)/ hypot(A,B)
-                        if perp_dist > 2*(test_ball.size + white_ball.size): 
+
+                        seperation_factor = 1.5
+                        if perp_dist > seperation_factor*(test_ball.size + white_ball.size): 
                             # Here the multiplier 2 is taken, to be sure of distance :D
                             my_ball.in_line_with_white_ball = 1
                         else:
@@ -195,99 +219,130 @@ def gameLoop():
             
             balls_ok_to_hit = [a_ball for a_ball in all_balls if a_ball.ok_to_hit == 1]
             
-            ok_to_hit_but_cannot_be_pocketed = 0
+            # ok_to_hit_but_cannot_be_pocketed = 0
 
-            #==============
-            # Clearing the angles and their distances :D
+            # #==============
+            # # Clearing the angles and their distances :D
             
-            for a_ball in list_of_balls_with_white:
-                a_ball.angle = 0
-                a_ball.dist = 0
-            #==============
+            # # for a_ball in list_of_balls_with_white:
+            # #     a_ball.angle = 0
+            # #     a_ball.dist = 0
+            # #==============
 
-            for hit_ball in balls_ok_to_hit:
-                white_ball_loc = (white_ball.x, white_ball.y)
-                hit_ball_loc = (hit_ball.x, hit_ball.y)
+            # for hit_ball in balls_ok_to_hit:
+            #     white_ball_loc = (white_ball.x, white_ball.y)
+            #     hit_ball_loc = (hit_ball.x, hit_ball.y)
 
                 
-                all_balls_except_hit_ball_but_with_white_ball = [a_ball for a_ball in list_of_balls_with_white if a_ball != hit_ball]
+            #     all_balls_except_hit_ball_but_with_white_ball = [a_ball for a_ball in list_of_balls_with_white if a_ball != hit_ball]
                 
-                # print "No. of Passing balls for tracing is " + str(len(all_balls_except_hit_ball_but_with_white_ball))
-                will_it_be_pocketed = trace_for_while_ball_shot(hit_ball_loc, white_ball_loc, all_balls_except_hit_ball_but_with_white_ball)
+            #     # print "No. of Passing balls for tracing is " + str(len(all_balls_except_hit_ball_but_with_white_ball))
+            #     will_it_be_pocketed = trace_for_while_ball_shot(hit_ball_loc, white_ball_loc, all_balls_except_hit_ball_but_with_white_ball)
 
-                #============
-                # show_pockets(my_pocket_size)
-                # pygame.display.update()
-                #============
-                if will_it_be_pocketed == 1:
+            #     #============
+            #     # show_pockets(my_pocket_size)
+            #     # pygame.display.update()
+            #     #============
+            #     if will_it_be_pocketed == 1:
                     
-                    temp_angle = get_angle(white_ball_loc, hit_ball)   # Passing the end point and Ball object to get the movement angle
-                    move_angle = temp_angle + pi
+            #         temp_angle = get_angle(white_ball_loc, hit_ball)   # Passing the end point and Ball object to get the movement angle
+            #         move_angle = temp_angle + pi
 
-                    # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
-                    # rand_dist = random.randint(50,150)
-                    rand_dist = 100
+            #         # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+            #         # rand_dist = random.randint(50,150)
+            #         rand_dist = 100
 
-                    white_ball.dist = rand_dist
-                    white_ball.angle = move_angle
+            #         white_ball.dist = rand_dist
+            #         white_ball.angle = move_angle
 
-                    move_my_all_balls(list_of_balls_with_white)
+            #         move_my_all_balls(list_of_balls_with_white)
 
-                    # p, q = hit_ball.x + 30, hit_ball.y + 30
-                    # s = "is being hit :D"
-                    # print s
-                    # msg2screen(s,p,q)
-                    # Why are your breaking?
-                    # Ans: Since in one chance COMP hit one ball
-                    break;
-                else:
-                    ok_to_hit_but_cannot_be_pocketed += 1
+            #         # p, q = hit_ball.x + 30, hit_ball.y + 30
+            #         # s = "is being hit :D"
+            #         # print s
+            #         # msg2screen(s,p,q)
+            #         # Why are your breaking?
+            #         # Ans: Since in one chance COMP hit one ball
+            #         break;
+            #     else:
+            #         ok_to_hit_but_cannot_be_pocketed += 1
 
             
             # Advanced mode:
-            if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0) & ADV_MODE:
-                for a_ball in balls_ok_to_hit:
-                    a_ball.pk_list = a_ball.give_me_pocket_angles()
+            # print "len balls_ok_to_hit: %d, ok_to_hit_but_cannot_be_pocketed: %d" %(len(balls_ok_to_hit), ok_to_hit_but_cannot_be_pocketed)
+            print "len balls_ok_to_hit: %d" %(len(balls_ok_to_hit))
+            # if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0) & ADV_MODE:
+            if (len(balls_ok_to_hit) > 0) & ADV_MODE:
+                
+                # rand_ball_choosen = random.randint(0, len(balls_ok_to_hit)-1)
 
-                    const_k = 1.6
-                    adv_mode_used = 0
-                    # This is can be seen as radius of circle with radius = (const_k * r)
-                    for t in xrange(0, 360):
-                        # ref: http://stackoverflow.com/questions/14829621/formula-to-find-points-on-the-circumference-of-a-circle-given-the-center-of-the
-                        x = const_k*a_ball.size*cos(t*pi/180.0) + a_ball.x
-                        y = const_k*a_ball.size*sin(t*pi/180.0) + a_ball.y
+                a_ball = find_nearest_ball(balls_ok_to_hit, white_ball)
+                # a_ball = balls_ok_to_hit[rand_ball_choosen]
+                a_ball.pk_list = a_ball.give_me_pocket_angles(white_ball)
+                # random.shuffle(a_ball.pk_list)
+                # print "------------------------"
+                # print len(a_ball.pk_list)
+                # print "++++++++++++++++++++++++"
 
-                        current_ang = get_angle((x,y), a_ball)
-                        # if current_ang in a_ball.pk_list:
-                        pass_range = random.randint(20, 40)/100.0
+                # const_k = 2.0
+                adv_mode_used = 1
+                # This is can be seen as radius of circle with radius = (const_k * r)
 
-                        if is_it_in_my_list(current_ang, a_ball.pk_list, pass_range) & (hypot(x- white_ball.x, y - white_ball.y) < hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y)):
-                            adv_mode_used = 1
-                            # pygame.draw.aaline(gameDisplay, GREEN, (white_ball.x, white_ball.y), (x,y))
-                            # pygame.draw.line(gameDisplay, GREEN, (white_ball.x, white_ball.y), (x,y), 10)
-                            # pygame.display.update()
-                            # print "Just drawn a line :D"
+                #----------------------------------
+                pk_loc_and_dist_from_white_dict = {}
 
-                            white_ball.angle = get_angle((x,y), white_ball)
-                            white_ball.speed = 10
-                            white_ball.dist = random.randint(100, 200)
-                            move_my_all_balls(list_of_balls_with_white)
-                            print "---------------------------------------"
-                            print "I have got it... Advanced COMP mode: %d" %adv_mode_used
-                            print "---------------------------------------"
-                            break
-                        # pygame.draw.aaline(gameDisplay, (0,255,0), (x,y), (white_ball.x, white_ball.y))
-                    # pygame.display.update()
+                all_pk_loc = give_me_pocket_locations()
+                for item in all_pk_loc:
+                    # pygame.draw.line(gameDisplay, RED, item, (a_ball.x,a_ball.y), 4)
 
-                    if adv_mode_used == 1:
-                        break
+                    mouse_current_pos = (a_ball.x,a_ball.y)
+                    # mouse_current_pos = [tt[0], tt[1]]
+
+                    lineStart = item
+                    offset = tuple(map(sub, mouse_current_pos, lineStart))
+                    offset = Normalise_this(offset)
+
+                    factor = 2*a_ball.size + hypot(lineStart[0] - mouse_current_pos[0], lineStart[1] - mouse_current_pos[1])
+                    kk = tuple([ a * factor for a in offset])
+                    lineEnd = tuple(map(add, lineStart, kk))
+                    pk = tuple([a* 10 for a in offset])
+
+                    mm = tuple(map(add, lineStart, pk))
+                    lineStart = mm
+
+                    lineEnd = tuple([ int(a) for a in list(lineEnd)])
+                    lineStart = tuple([ int(a) for a in list(lineStart)])
+
+                    pygame.draw.line(gameDisplay, RED, lineStart , lineEnd, 4)
+
+                    pk_loc_and_dist_from_white_dict[lineEnd] = hypot(lineEnd[0] - white_ball.x, lineEnd[1] - white_ball.y)
+                pygame.display.update()
+
+                print "---"
+                print pk_loc_and_dist_from_white_dict
+                print "+++"
+
+                tt = min(pk_loc_and_dist_from_white_dict.items(), key=lambda x: x[1]) 
+                x, y = point_to_hit_nearest_pocket = tt[0]
+                ball_to_pocket_dist = tt[1]
+
+                print point_to_hit_nearest_pocket
+
+                white_ball.angle = get_angle((x,y), white_ball)
+                white_ball.speed = 20
+                # white_ball.dist = random.randint(100, 200)
+                white_ball.dist = 2*(ball_to_pocket_dist + hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y))
+                move_my_all_balls(list_of_balls_with_white)
+            else:
+                print "Sorry can't use Advanced mode"   
+                adv_mode_used = 0  
                 # pygame.display.update()
             # #===============================
             # Below is random hitting :D
             
             # To enable or disable below if condition "adv_mode_used"
             # if (ok_to_hit_but_cannot_be_pocketed == len(balls_ok_to_hit)) & (len(balls_ok_to_hit) > 0) & (adv_mode_used == 0):
-            if (adv_mode_used == 0):                
+            if (adv_mode_used == 0) or RAND_MODE == 1 :                
                 
                 #============
                 show_pockets(my_pocket_size)
@@ -309,13 +364,14 @@ def gameLoop():
                 rand_dist = 100
 
                 white_ball.dist = rand_dist
+                white_ball.speed = 10
                 white_ball.angle = move_angle
 
                 move_my_all_balls(list_of_balls_with_white)
             
 
-            if len(balls_ok_to_hit) == 0:
-                gameOver = True
+            # if len(balls_ok_to_hit) == 0:
+            #     gameOver = True
 
             # temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
             # all_balls = temp_all_balls
@@ -323,13 +379,21 @@ def gameLoop():
             
             # After looping out of the list, I must reassign it, with removing
             # the pocketed balls
-            if all_balls == []: # If all balls are pocketed then, quit the game
-                gameOver = True
-            
-            pygame.display.update()
+
+            # if all_balls == []: # If all balls are pocketed then, quit the game
+            #     gameOver = True
+            # pygame.display.update()
+
+        else:
+            for a_ball in list_of_balls_with_white:
+                a_ball.angle = 0
+                a_ball.dist = 0
         
         # User mode
         if mouse_butt[2] == 1:
+            print "================"
+            print "User Mode"
+            print "================"
             started = 1
             # If pressed it acts as pulling the cue
             if cue_speed < cue_limit:
