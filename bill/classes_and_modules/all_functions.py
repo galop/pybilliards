@@ -3,7 +3,7 @@ from classes_and_modules.env_variables import *
 # from classes_and_modules.Balls_class import Balls
 
 
-def msg2screen(msg, x_loc=dispWidth/2, y_loc=dispHeight/2, color=BLACK):
+def msg2screen(msg, x_loc=100, y_loc=dispHeight/2, color=WHITE):
     """ This function will print string msg to screen at
         respective location
     """
@@ -12,7 +12,7 @@ def msg2screen(msg, x_loc=dispWidth/2, y_loc=dispHeight/2, color=BLACK):
 
 
 def show_pockets(pocket_size):
-    """ This function displays pockets at six (standard) locations. 
+    """ This function displays pockets at six (standard) locations.
         Size of pocket is taken from user.
     """
     a = (0, dispWidth/2, dispWidth)
@@ -34,11 +34,11 @@ def get_angle(point_loc, Ball_obj):
 
     move_angle = atan2(t1, t2)
 
-    return move_angle %(2*pi)
+    return move_angle % (2*pi)
 
 
 def move_my_all_balls(list_of_balls):
-    """ This function moves Ball objects contained in list_of_balls. 
+    """ This function moves Ball objects contained in list_of_balls.
         The whiile loop runs till all Ball objects in list_of_balls has either speed = 0, or dist = 0.
         It works as all movable Ball objects are moved by one unit distance and, their positions
         are also modified, considering the collision or boundary of table.
@@ -64,7 +64,7 @@ def move_my_all_balls(list_of_balls):
         for moving_ball in list_of_balls:
             if (moving_ball.speed > 0) & (moving_ball.dist > 0):
                 reduced_speed = moving_ball.speed - moving_ball.offset_speed
-                moving_ball.move(speed = reduced_speed)
+                moving_ball.move(speed=reduced_speed)
                 moving_ball.boundary()
             else:
                 moving_ball.angle = 0
@@ -82,7 +82,6 @@ def move_my_all_balls(list_of_balls):
 
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
-        
         speed_sum_vect = [a_ball.speed for a_ball in list_of_balls]
         speed_sum = sum(speed_sum_vect)
 
@@ -91,9 +90,8 @@ def is_it_in_my_list(elem_to_search, in_list, pass_range):
     """ This function return 1 if elem_to_search is present in in_list,
         within pass_range provided by user.
     """
-    # This function will return 1, if elem_to_search is present in pass_range of in_list
+    # Return 1, if elem_to_search is present in pass_range of in_list
     # i.e. pass_range = 20 => 20% difference is ok,
-
     for item in in_list:
         if (abs(item - elem_to_search)/item >= pass_range):
             return 1
@@ -121,8 +119,9 @@ def show_my_balls(list_of_balls):
 
 
 def show_table():
-    """ This function loads simple table enviroment graphics. Fills screen with GREEN and 
-        then draws pockets over it using show_pockets() function.
+    """ This function loads simple table enviroment graphics.
+        Fills screen with GREEN and then draws pockets over it using
+        show_pockets() function.
     """
     gameDisplay.fill(GREEN)
     show_pockets(my_pocket_size)
@@ -139,12 +138,12 @@ def give_me_pocket_locations():
 
     for i in a:
         for j in b:
-            t.append((i,j))
+            t.append((i, j))
     return t
 
 
 def find_nearest_ball(list_of_balls, white_ball):
-    """ This function returns a Ball object from input list_of_balls, which is nearest to
+    """ Returns a Ball object from input list_of_balls, which is nearest to
         the Cue ball i.e. white_ball.
     """
     if len(list_of_balls) == 1:
@@ -161,4 +160,4 @@ def find_nearest_ball(list_of_balls, white_ball):
 if __name__ == "__main__":
     print "This is running individually: all_functions"
 else:
-    print "This is running inside someone :d : all_functions"
+    print "This is running inside someone: all_functions"
