@@ -16,9 +16,9 @@ pygame.display.update()
 Balls.shadow_img = pygame.image.load("assets/2.png").convert_alpha()
 Balls.shading_img = pygame.image.load("assets/1.png").convert_alpha()
 scorecard = pygame.Surface((400, 80))
-scorecard.fill(SCORECARDCOLOR)
+scorecard.fill(WHITE)
 settingpanel = pygame.Surface((400, 80))
-settingpanel.fill(SCORECARDCOLOR)
+settingpanel.fill(WHITE)
 powerbar = pygame.Surface((800, 20))
 powerbar.fill(BLACK)
 # lowerPanel = pygame.Surface((800, 100))
@@ -29,9 +29,15 @@ powerbar.fill(BLACK)
 
 
 def gameLoop(mode_in="single"):
+    from classes_and_modules.env_variables import *
     gameDisplay.blit(powerbar, (0, 580))
     gameDisplay.blit(scorecard, (0, 500))
+    soundcontrol = font.render("M: Mute", True, BLACK)
+    quitcontrol = font.render("Q: Quit", True, BLACK)
+    settingpanel.blit(soundcontrol, (0, 0))
+    settingpanel.blit(quitcontrol, (0, soundcontrol.get_size()[1]))
     gameDisplay.blit(settingpanel, (400, 500))
+
     gameExit = False
     gameOver = False
     all_balls = []  # List of balls
@@ -51,14 +57,14 @@ def gameLoop(mode_in="single"):
     while not gameExit:
         show_table()
         gameDisplay.blit(scorecard, (0, 500))
-        msg2screen("Player 1:  " + str(game_score[1]["Pocketed"]), 10, 510, BLACK, 24)
+        msg2screen("Player 1:  " + str(game_score[1]["Pocketed"]), 10, 500, BLACK, 34, False)
         if mode_in == "single":
             temp = 3
             player_name = "Computer:  "
         else:
             temp = 2
             player_name = "Player 2:  "
-        msg2screen(player_name + str(game_score[temp]["Pocketed"]), 10, 545, BLACK, 24)
+        msg2screen(player_name + str(game_score[temp]["Pocketed"]), 10, 540, BLACK, 34, False)
 
         mouse_current_pos = pygame.mouse.get_pos()
         lineStart = (white_ball.x, white_ball.y)
@@ -98,7 +104,7 @@ def gameLoop(mode_in="single"):
 
         while gameOver:
             gameDisplay.fill(GREEN)
-            msg2screen("Game over, press Q to quit or C to continue")
+            msg2screen("Game over, press Q to quit or R to restart")
             pygame.display.update()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -107,7 +113,7 @@ def gameLoop(mode_in="single"):
                     if event.key == pygame.K_q:
                         gameExit = True
                         gameOver = False
-                    if event.key == pygame.K_c:
+                    if event.key == pygame.K_r:
                         game_score = {1: {"Shots": 0, "Pocketed": 0},
                                       2: {"Shots": 0, "Pocketed": 0},
                                       3: {"Shots": 0, "Pocketed": 0}
@@ -119,6 +125,8 @@ def gameLoop(mode_in="single"):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     gameOver = True
+                elif event.key == K_m:
+                    SOUNDS = False if SOUNDS else True
 
         mouse_butt = pygame.mouse.get_pressed()
         # Comp Mode

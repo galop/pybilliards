@@ -82,7 +82,8 @@ class Balls:
             dist_of_separation = hypot(dx, dy)
 
             if dist_of_separation < (self.size + my_ball.size + 2):  # Collision
-                # Sound to play
+                if SOUNDS:
+                    hit.play()
                 my_ball.angle = get_angle((my_ball.x, my_ball.y), self)
                 dist_correction_angle = my_ball.angle - self.angle
                 self.angle = 2*tangent - self.angle
@@ -143,7 +144,8 @@ class Balls:
             if self.pocketed == 1:
                 self.dist = 0
                 self.speed = 0
-                # Sound to play
+                if SOUNDS:
+                    inpocketsound.play()
                 return
             self.boundary()
             # This is equivalent to one time movement

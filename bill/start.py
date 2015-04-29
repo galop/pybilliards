@@ -3,20 +3,18 @@ from math import *
 from pygame.locals import *
 from classes_and_modules.env_variables import *
 from classes_and_modules.all_functions import *
-from classes_and_modules.Balls_class import Balls
+# from classes_and_modules.Balls_class import Balls
 import adv_comp_mode as acm
 
-TITLE = "pyBilliards"
-SOUNDS = True
-# GAMEMODE = 1  # 1: sinle player, 2: Two player
 
 pygame.mixer.pre_init(44100, -16, 2, 2048)  # setup mixer to avoid sound lag
 pygame.init()  # initialize pygame
-font = pygame.font.SysFont("ubuntu", 24)
-font.set_bold(True)
+font = pygame.font.SysFont("ubuntu", 26)
+# font.set_bold(True)
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption(TITLE)
 clock = pygame.time.Clock()
+pygame.mixer.music.load("assets/arab.mp3")
 # scorecard = pygame.Surface((400, 80))
 # scorecard.fill(SCORECARDCOLOR)
 # settingpanel = pygame.Surface((400, 80))
@@ -28,12 +26,18 @@ pygame.display.update()
 try:
     # pygame.mixer.music.load("assets/levels.ogg")  # load music
     pocketed = pygame.mixer.Sound("assets/pocketed.ogg")  # load sound
-    hit = pygame.mixer.Sound("assets/wood2.ogg")  # load sound
+    # hit = pygame.mixer.Sound("assets/wood2.ogg")  # load sound
     splash_pic = pygame.image.load("assets/splash1.png").convert()
     splash_chime = None
 except:
     raise(UserWarning, "Could not load files in assets folder.")
 
+class SOUND(object):
+    def __init__(self):
+        self.SOUNDS = True
+
+    def toggle(self):
+        self.SOUNDS = False if self.SOUNDS else True
 
 # class GAMEMODE():
 #     def __init__(self):
@@ -46,7 +50,7 @@ except:
 #             self.state = 1
 
 
-class Gamer(object):
+class Game(object):
     """Main Game class
 
         Implements methods to produce menus and graphical
@@ -72,7 +76,9 @@ class Gamer(object):
     def show_splash(self):
         # splash_pic = pygame.image.load("assets/splash1.png").convert()
         oldt = pygame.time.get_ticks()
-        while(pygame.time.get_ticks() - oldt <= 1500):
+        if SOUNDS:
+            pygame.mixer.music.play()
+        while(pygame.time.get_ticks() - oldt <= 1000):
             screen.blit(splash_pic, (0, 0))
             clock.tick(FPS)
             pygame.display.update()
@@ -100,6 +106,8 @@ class Gamer(object):
                 if SOUNDS:
                     pocketed.play()
             if key[K_RETURN]:
+                if SOUNDS:
+                    pygame.mixer.music.stop()
                 if SOUNDS:
                     pocketed.play()
                 if self.b1.chose is True:
@@ -137,7 +145,7 @@ class Button(object):
         X, Y = self.opt.get_size()
         screen.blit(self.opt, (self.pos[0] - 50, self.pos[1]))
         if self.chose:
-            pygame.draw.circle(screen, WHITE, (self.pos[0]-70, self.pos[1]+10), 10)
+            pygame.draw.circle(screen, WHITE, (self.pos[0]-80, self.pos[1]+15), 10)
 
 # class Splash():
 #     def __init__(self):
@@ -148,7 +156,7 @@ class Button(object):
 #         screen.blit(self.splash_pic, (0, 0))
 
 
-myGame = Gamer()
+myGame = Game()
 # myGame.show_splash()
 # myGame.askmode()
 myGame.run()

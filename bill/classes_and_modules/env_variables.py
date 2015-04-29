@@ -27,10 +27,11 @@ dispSize = dispWidth, dispHeight = 800, 500
 TITLE = "pyBilliards"
 cue_limit = 20
 default_speed = 5
-no_of_balls = 7  # 3
+no_of_balls = 8  # 3
 my_ball_size = 14   # 25
 my_pocket_size = 2*my_ball_size
 
+pygame.mixer.pre_init(44100, -16, 2, 2048)
 pygame.init()
 font = pygame.font.SysFont("ubuntu", 34)
 gameDisplay = pygame.display.set_mode(dispSize)  # 1
@@ -38,7 +39,10 @@ tempTable = pygame.Surface(dispSize)
 tempTable.fill(GREEN)
 pygame.display.set_caption(TITLE)
 clock = pygame.time.Clock()
+hit = pygame.mixer.Sound("assets/wood17.aif")
+inpocketsound = pygame.mixer.Sound("assets/inpocket.aif")
 
+SOUNDS = True
 
 ball_num_col_dict = {1: YELLOW,
                      2: BLUE,
