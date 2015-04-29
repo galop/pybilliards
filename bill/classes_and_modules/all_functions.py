@@ -82,6 +82,7 @@ def move_my_all_balls(list_of_balls):
 
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
+        
         speed_sum_vect = [a_ball.speed for a_ball in list_of_balls]
         speed_sum = sum(speed_sum_vect)
 
