@@ -1,17 +1,22 @@
-WHITE = (255, 255, 255)
+ADV_MODE = 1
+RAND_MODE = 0
 
+WHITE = (255, 255, 255)
 GREEN = (0, 140, 0)
 
-
+# ini_score = {"Shots": 0, "Pocketed": 0}
+# game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
+# 1: User 1, 2: User 2, 3: Computer
 
 FPS = 60
-dispSize = dispWidth, dispHeight = 800, 500
+dispSize = dispWidth, dispHeight = 800, 600
 
 scorecardSize = scorecardWidth, scorecardHeight = 400, 100
-cue_limit = 200
-
-no_of_balls = 8  # 3
-my_ball_size = 15   # 25
+cue_limit = 20
+default_speed = 5
+no_of_balls = 3  # 3
+my_ball_size = 14   # 25
+my_pocket_size = 2*my_ball_size
 
 import pygame
 # import random
@@ -39,12 +44,12 @@ ball_loc = {}
 a, b = dispSize
 
 proc_balls = 1
-hori_disp = 2*my_ball_size*cos(pi/6)
+hori_disp = 2*(my_ball_size + 2)*cos(pi/6) + 0
 
 str_loc_placing = int(3*a/4)
 
 for i in xrange(1, int(sqrt(2*no_of_balls)) + 2) :
-	this_level_top_ball_centre = int(b/2) + (i-1)*my_ball_size
+	this_level_top_ball_centre = int(b/2) + (i-1)*(my_ball_size+1) 
 
 	t_x = str_loc_placing + (i-1)*hori_disp # Common to all balls at same level
 
@@ -53,6 +58,7 @@ for i in xrange(1, int(sqrt(2*no_of_balls)) + 2) :
 			break
 		# print j
 		
-		t_y = this_level_top_ball_centre - 2*(j - proc_balls)*my_ball_size
+		t_y = this_level_top_ball_centre - (2*(j - proc_balls)*(my_ball_size+1) + 0)
 		ball_loc[j] = (t_x, t_y)
 	proc_balls += i
+
