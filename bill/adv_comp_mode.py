@@ -19,46 +19,26 @@ Balls.shadow_img = pygame.image.load("2.png").convert_alpha()
 Balls.shading_img = pygame.image.load("1.png").convert_alpha()
 
 def gameLoop():
+
     gameExit = False
     gameOver = False
-    
     all_balls = []              # List of balls
-    # default_speed = 5
+    
     cue_speed = default_speed # This is initialization of cue distance 
     started = 0
+    game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
 
-    # The white cue ball positioning and initialization (random for now)
-    # for i in xrange(1):
-    #     x = random.randint(my_ball_size, dispWidth - my_ball_size)
-    #     y = random.randint(my_ball_size, dispHeight - my_ball_size)
-    #     white_ball = Balls((x, y), size=my_ball_size, thickness=6, color=WHITE)
-    #     white_ball.disp()
-    #
     a,b = dispSize
     white_ball = Balls((a/4, b/2), size=my_ball_size, thickness=0, color=WHITE, speed=default_speed)
-    # white_ball.disp() 
-    #
+    
     # Other balls initialization
     for i in xrange(1,no_of_balls+1):
         all_balls.append(Balls(ball_loc[i], size=my_ball_size, color=ball_num_col_dict[i], number=i))
-    # for i in xrange(no_of_balls):
-    #     x = random.randint(my_ball_size, dispWidth - my_ball_size)
-    #     y = random.randint(my_ball_size, dispHeight - my_ball_size)
-
-    #     c1 = random.randint(0, 255)
-    #     c2 = random.randint(0, 255)
-    #     c3 = random.randint(0, 255)
-
-    #     all_balls.append(Balls((x, y), size=my_ball_size, color=(c1, c2, c3)))
-    # screen = pygame.display.set_mode((dispHeight, dispWidth), 0, 32)
+    
     while not gameExit:
-        # print "================"
-        # print "In general loop"
-        # print "================"
         show_table()
         mouse_current_pos = pygame.mouse.get_pos()
-        # mouse_current_pos = [tt[0], tt[1]]
-
+        
         lineStart = (white_ball.x, white_ball.y)
         offset = tuple(map(sub, mouse_current_pos, lineStart))
         offset = Normalise_this(offset)
@@ -82,13 +62,11 @@ def gameLoop():
         
         #================================================================================
         for moving_ball in list_of_balls_with_white:
-            moving_ball.collision_2(list_of_balls_with_white)
+            moving_ball.collision(list_of_balls_with_white)
             moving_ball.boundary()
             if (moving_ball.speed > 0) & (moving_ball.dist > 0):
-                # reduced_speed = moving_ball.speed - moving_ball.offset_speed
-                moving_ball.collision_2(list_of_balls_with_white)
+                moving_ball.collision(list_of_balls_with_white)
                 moving_ball.boundary()
-                # moving_ball.dist -= 1
             else:
                 moving_ball.angle = 0
                 moving_ball.dist = 0
@@ -99,8 +77,9 @@ def gameLoop():
             white_ball = Balls((a/4, b/2), size=my_ball_size, thickness=0, color=WHITE)
 
         while gameOver:
+            
             gameDisplay.fill(GREEN)
-            msg2screen("Game over, press Q to quit or C to continue.")
+            msg2screen("Game over, press Q to quit or C to continue")
             pygame.display.update()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -110,6 +89,7 @@ def gameLoop():
                         gameExit = True
                         gameOver = False
                     if event.key == pygame.K_c:
+                        game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
                         gameLoop()
 
         for event in pygame.event.get():
@@ -123,9 +103,14 @@ def gameLoop():
 
         # Comp Mode
         if mouse_butt[1] == 1:
-            print "=========================="
-            print "Inside Advanced COMP MODE"
-            print "=========================="
+            user_id = 3
+
+            game_status_before = [temp_ball.pocketed for temp_ball in all_balls]
+            no_of_pocketed_balls_before = sum(game_status_before)
+
+            print "==================="
+            print "Advanced COMP MODE"
+            print "==================="
             # Pressed by the user manually, to start COMP to hit the right shot
             # Next shot placement, which ball to hit, is decided by the COMP,
             # depending on the some other factors (or may be randomly)
@@ -133,10 +118,10 @@ def gameLoop():
             show_pockets(my_pocket_size)
             pygame.display.update()
 
-            # Following loop will extract hittable balls from all_balls :D
-            # Then we will decide which one to hit from those :D
+            # Following loop will extract hittable balls from all_balls 
+            # Then we will decide which one to hit from those 
             for my_ball in all_balls:
-                # List of other ball except current ball :D
+                # List of other ball except current ball
                 list_of_other_balls = all_balls[:]
                 list_of_other_balls.remove(my_ball)
                 balls_to_be_tested = []
@@ -148,7 +133,7 @@ def gameLoop():
 
                     dist_my_white = hypot(white_ball.x - my_ball.x, white_ball.y - my_ball.y)
                     if (dist_my_white > dist_white_other) & (dist_my_white > dist_my_other):
-                        # then test this other_ball location, since it is in between my_ball and white_ball :D
+                        # then test this other_ball location, since it is in between my_ball and white_ball 
                         balls_to_be_tested.append(other_ball)
                 
                 if len(balls_to_be_tested) == 0:
@@ -157,19 +142,19 @@ def gameLoop():
                     x1, y1 = white_ball.x, white_ball.y
                     x2, y2 = my_ball.x, my_ball.y
 
-                    # Testing for balls and their distance :D
+                    # Testing for balls and their distance
                     for test_ball in balls_to_be_tested:
                         x3, y3 = test_ball.x, test_ball.y
 
                         # I will find of the perpendicular distance of point (x3, y3) from the line formed by the two points
-                        # (x2, y2), and (x1, y1) :D
+                        # (x2, y2), and (x1, y1)
 
                         # Line equation in the form of Ax+ By+ C = 0 formed by the two points
                         # (x2, y2), and (x1, y1) is
-                        A = tan(atan2(y2-y1, x2-x1))        # This is nothing but the slope of line :D
+                        A = tan(atan2(y2-y1, x2-x1))        # This is nothing but the slope of line 
                         B = -1
                         C = y1 - A*x1
-                        # Above formula is permutation from two point line equation :D
+                        # Above formula is permutation from two point line equation 
 
                         # Perpendicular distance is given by 
                         # Reference: goo.gl/mUFJSh 
@@ -177,14 +162,14 @@ def gameLoop():
 
                         seperation_factor = 1.5
                         if perp_dist > seperation_factor*(test_ball.size + white_ball.size): 
-                            # Here the multiplier 2 is taken, to be sure of distance :D
+                            # Here the multiplier 2 is taken, to be sure of distance 
                             my_ball.in_line_with_white_ball = 1
                         else:
                             my_ball.in_line_with_white_ball = 0
-                            # Why to break? Beacause this means that some comes in between line of sight, hence can't test, break it :D
+                            # Why to break? Beacause this means that some comes in between line of sight, hence can't test, break it 
                             break
 
-                    if my_ball.in_line_with_white_ball == 1:    # If that ball is hittable after testing will all balls :D
+                    if my_ball.in_line_with_white_ball == 1:    # If that ball is hittable after testing will all balls 
                         my_ball.ok_to_hit = 1
                     else:
                         my_ball.ok_to_hit = 0
@@ -193,11 +178,9 @@ def gameLoop():
             balls_ok_to_hit = [a_ball for a_ball in all_balls if a_ball.ok_to_hit == 1]
             
             # Advanced mode:
-            # print "len balls_ok_to_hit: %d" %(len(balls_ok_to_hit))
             if (len(balls_ok_to_hit) > 0) & ADV_MODE:
                 
                 a_ball = find_nearest_ball(balls_ok_to_hit, white_ball)
-                # a_ball = balls_ok_to_hit[rand_ball_choosen]
                 a_ball.pk_list = a_ball.give_me_pocket_angles(white_ball)
                 
                 adv_mode_used = 1
@@ -226,39 +209,39 @@ def gameLoop():
                     pk_loc_and_dist_from_white_dict[lineEnd] = hypot(lineEnd[0] - white_ball.x, lineEnd[1] - white_ball.y)
                 pygame.display.update()
 
-                # print "---"
-                # print pk_loc_and_dist_from_white_dict
-                # print "+++"
-
                 tt = min(pk_loc_and_dist_from_white_dict.items(), key=lambda x: x[1]) 
                 x, y = tt[0]
                 # (x, y) is point at which white ball should be hitted then
-                # the ball will be pocketed :D
+                # the ball will be pocketed 
                 ball_to_pocket_dist = tt[1]
                 # This is the distance between the ball and its nearest pocket
 
                 white_ball.angle = get_angle((x,y), white_ball)
                 white_ball.speed = 8
-                # white_ball.dist = random.randint(100, 200)
+                
                 white_ball.dist = 2*(ball_to_pocket_dist + hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y))
                 move_my_all_balls(list_of_balls_with_white)
+
+                game_status_after = [temp_ball.pocketed for temp_ball in all_balls]
+                no_of_pocketed_balls_after = sum(game_status_after)
+
+                game_score[user_id]["Shots"] += 1
+                game_score[user_id]["Pocketed"] += (no_of_pocketed_balls_after - no_of_pocketed_balls_before)
+
             else:
                 print "Sorry can't use Advanced mode"   
                 adv_mode_used = 0  
-                # pygame.display.update()
-            # #===============================
-            # Below is random hitting :D
-            
-            # To enable or disable below if condition "adv_mode_used"
-            if (adv_mode_used == 0) or RAND_MODE == 1 :                
                 
-                #============
+            # #===============================
+            # Below is random hitting 
+            # To enable or disable below if condition "adv_mode_used"
+            if (adv_mode_used == 0) or (RAND_MODE == 1) :                
+                
                 show_pockets(my_pocket_size)
                 pygame.display.update()
-                #============
-
+                
                 # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
-                # then, out of those balls_ok_to_hit, choose any one randomly and hit it :D
+                # then, out of those balls_ok_to_hit, choose any one randomly and hit it 
                 
                 print "Choosing ball randomly to hit"
                 temp_loc = random.randint(0,len(all_balls)-1)
@@ -267,7 +250,7 @@ def gameLoop():
                 temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
                 move_angle = temp_angle + pi
 
-                # Here I am giving dist between 50 and 150, it is high distance :D. Its required so that ball can be hit hard :D
+                # Here I am giving dist between 50 and 150, it is high distance . Its required so that ball can be hit hard 
                 # rand_dist = random.randint(50,150)
                 rand_dist = 100
 
@@ -282,22 +265,29 @@ def gameLoop():
                 a_ball.angle = 0
                 a_ball.dist = 0
         
-        # User mode
-        if mouse_butt[2] == 1:
-            print "================"
-            print "User Mode"
-            print "================"
+        # User modes
+        if (mouse_butt[2] == 1) or (mouse_butt[0] == 1):
+            if (mouse_butt[2] == 1) and (mouse_butt[0] == 1):
+                print "Please press one button at once"
+                break
+            elif (mouse_butt[2] != 1) & (mouse_butt[0] == 1):
+                user_id = 1
+            elif (mouse_butt[2] == 1) or (mouse_butt[0] != 1):
+                user_id = 2
+
+            game_status_before = [temp_ball.pocketed for temp_ball in all_balls]
+            no_of_pocketed_balls_before = sum(game_status_before)
+            print "======================================"
+            print "User Mode:: User Acive: %d" %user_id
+            print "======================================"
             started = 1
             # If pressed it acts as pulling the cue
             if cue_speed < cue_limit:
-                # print "I am still holding the right click"
                 cue_speed += 0.25 # If pressed I am increasing it
             else:
                 pass
-                # print "Please release the right click"
         else:
             if (cue_speed != white_ball.default_speed) & started:
-                # print "I have released the right click: Hit dist = %d" %cue_speed
                 white_ball.speed = cue_speed
 
                 mouse_current_pos = pygame.mouse.get_pos()
@@ -316,10 +306,15 @@ def gameLoop():
                 # and then I will assign the distance back to default_speed
                 cue_speed = white_ball.default_speed 
 
+                game_status_after = [temp_ball.pocketed for temp_ball in all_balls]
+                no_of_pocketed_balls_after = sum(game_status_after)
+
+                game_score[user_id]["Shots"] += 1
+                game_score[user_id]["Pocketed"] += (no_of_pocketed_balls_after - no_of_pocketed_balls_before)
+
         clock.tick(FPS)
 
     pygame.quit()
-    print "++++-----------------------------------++++"
     quit()
 
 if __name__ == '__main__':

@@ -1,10 +1,12 @@
 ADV_MODE = 1
 RAND_MODE = 0
-WHITE = (255, 255, 255)
 
+WHITE = (255, 255, 255)
 GREEN = (0, 140, 0)
 
-
+# ini_score = {"Shots": 0, "Pocketed": 0}
+# game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
+# 1: User 1, 2: User 2, 3: Computer
 
 FPS = 60
 dispSize = dispWidth, dispHeight = 800, 600
@@ -12,7 +14,7 @@ dispSize = dispWidth, dispHeight = 800, 600
 scorecardSize = scorecardWidth, scorecardHeight = 400, 100
 cue_limit = 20
 default_speed = 5
-no_of_balls = 8  # 3
+no_of_balls = 3  # 3
 my_ball_size = 14   # 25
 my_pocket_size = 2*my_ball_size
 
@@ -59,3 +61,4 @@ for i in xrange(1, int(sqrt(2*no_of_balls)) + 2) :
 		t_y = this_level_top_ball_centre - (2*(j - proc_balls)*(my_ball_size+1) + 0)
 		ball_loc[j] = (t_x, t_y)
 	proc_balls += i
+
