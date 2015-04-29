@@ -409,23 +409,26 @@ def move_my_all_balls(list_of_balls):
         if (a_ball.dist > 0) & (a_ball.speed > 0):
             a_ball.offset_speed = float(a_ball.speed - a_ball.default_speed) / a_ball.dist
 
+    fric = 1.05
     while (speed_sum > 0) & (dist_sum > 0):
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for a_ball in list_of_balls:
+            a_ball.offset_speed = fric * a_ball.offset_speed
             a_ball.disp()
+
         pygame.display.update()
 
-        for moving_ball in list_of_balls:
-            if (moving_ball.speed > 0) & (moving_ball.dist > 0):
-                # reduced_speed = moving_ball.speed - moving_ball.offset_speed
-                moving_ball.collision_2(list_of_balls)
-                moving_ball.boundary()
-                # moving_ball.dist -= 1
-            else:
-                moving_ball.angle = 0
-                moving_ball.dist = 0
-                moving_ball.speed = 0
+        # for moving_ball in list_of_balls:
+        #     if (moving_ball.speed > 0) & (moving_ball.dist > 0):
+        #         # reduced_speed = moving_ball.speed - moving_ball.offset_speed
+        #         moving_ball.collision_2(list_of_balls)
+        #         moving_ball.boundary()
+        #         # moving_ball.dist -= 1
+        #     else:
+        #         moving_ball.angle = 0
+        #         moving_ball.dist = 0
+        #         moving_ball.speed = 0
 
         for moving_ball in list_of_balls:
             if (moving_ball.speed > 0) & (moving_ball.dist > 0):
