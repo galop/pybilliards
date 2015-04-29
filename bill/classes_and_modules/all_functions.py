@@ -20,8 +20,8 @@ def show_pockets(pocket_size):
 
     for i in a:
         for j in b:
-            pygame.draw.circle(gameDisplay, (0, 0, 0), (i, j), pocket_size, 0)
-            pygame.display.update()
+            pygame.draw.circle(gameDisplay, BLACK, (i, j), pocket_size, 0)
+            # pygame.display.update()
 
 
 def stick(block_size, stickList):  # This will print our stick of finite length
@@ -355,9 +355,8 @@ def trace_for_rotated_white_ball_shot(my_ball, white_ball, list_of_ball_objects,
 
 
 def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects, move_dist=50, trace_angle=None, start_point=2):
-    elevation = get_elevation(my_ball_loc, white_ball_loc)
+    slope_angle = get_elevation(my_ball_loc, white_ball_loc)
 
-    # Balls(self,(x,y),size, thickness=0, color=(0,0,255)):
     if start_point == 2:
         ball_point = Balls(my_ball_loc, 3, color=(255,0,0))
     else:
@@ -365,14 +364,14 @@ def trace_for_while_ball_shot(my_ball_loc, white_ball_loc, list_of_ball_objects,
 
     # kkk = 2*pi/2
     kkk = pi
-    slope_angle = elevation
+    
     if trace_angle == None:
         trace_angle = kkk - (slope_angle)
 
     # Note: The method is used is different :D
     # Its detection only :D no correction is intended since its only trace :D
-    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed=8, smear=True, show_me=True)                            
-    pygame.display.update()
+    in_journey = ball_point.move_with_collision_detection(move_dist, trace_angle, list_of_ball_objects, speed=8, smear=True, show_me=False)                            
+    # pygame.display.update()
 
     will_it_be_pocketed = in_journey            # yes for 1, and no for 0 :D
 
@@ -399,28 +398,38 @@ def new_trace_the_shot(start_point, end_point, elevation, mouse_pos):
 
 
 def move_my_all_balls(list_of_balls):
+    speed_sum_vect = [a_ball.speed for a_ball in list_of_balls]
+    speed_sum = sum(speed_sum_vect)
+
     dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
     dist_sum = sum(dist_sum_vect)
 
     for a_ball in list_of_balls:
-        a_ball.speed = 15
+        # a_ball.speed = 10
+        if (a_ball.dist > 0) & (a_ball.speed > 0):
+            a_ball.offset_speed = float(a_ball.speed - a_ball.default_speed) / a_ball.dist
 
-    while dist_sum > 0:
+    while (speed_sum > 0) & (dist_sum > 0):
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
+        for a_ball in list_of_balls:
+            a_ball.disp()
+        pygame.display.update()
+
         for moving_ball in list_of_balls:
             
 
 
-            if moving_ball.dist > 0:
-                s = "D" + str(int(moving_ball.dist))
-                p = moving_ball.x + 10
-                q = moving_ball.y + 10
-                msg2screen(s, p, q)
+            if (moving_ball.speed > 0) & (moving_ball.dist > 0):
+                # s = "D" + str(int(moving_ball.dist))
+                # p = moving_ball.x + 10
+                # q = moving_ball.y + 10
+                # msg2screen(s, p, q)
                 # ====
                 # Adding friction here
-                friction_coefficient = .97
-                reduced_speed = moving_ball.speed * friction_coefficient
+                # friction_coefficient = .97
+                # reduced_speed = moving_ball.speed * friction_coefficient
+                reduced_speed = moving_ball.speed - moving_ball.offset_speed
                 # const_decrease = (moving_ball.speed - 1)/ moving_ball.dist
                 # const_decrease = (moving_ball.speed)/ moving_ball.dist
 
@@ -432,9 +441,12 @@ def move_my_all_balls(list_of_balls):
             else:
                 moving_ball.angle = 0
                 moving_ball.dist = 0
+                moving_ball.speed = 0
 
         dist_sum_vect = [a_ball.dist for a_ball in list_of_balls]
         dist_sum = sum(dist_sum_vect)
+        speed_sum_vect = [a_ball.speed for a_ball in list_of_balls]
+        speed_sum = sum(speed_sum_vect)
 
 def is_it_in_my_list(elem_to_search, in_list, pass_range):
     # This function will return 1, if elem_to_search is present in pass_range of in_list
@@ -445,11 +457,22 @@ def is_it_in_my_list(elem_to_search, in_list, pass_range):
             return 1
         else:
             return 0
+def Normalise_this(in_tup):
+    a, b = in_tup
+    t = hypot(a, b)
+    if t != 0:
+        return [float(a)/t, float(b)/t]
+    else:
+        return [0, 0]
 
 def show_my_balls(list_of_balls):
     for a_ball in list_of_balls:
         a_ball.disp()
 
+def show_table():
+    gameDisplay.fill(GREEN)
+    show_pockets(my_pocket_size)
+    # pygame.display.update()
 
 if __name__ == "__main__":
     print "This is running individually: all_functions"

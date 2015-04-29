@@ -1,3 +1,5 @@
+ADV_MODE = 1
+
 WHITE = (255, 255, 255)
 
 GREEN = (0, 140, 0)
@@ -5,13 +7,14 @@ GREEN = (0, 140, 0)
 
 
 FPS = 60
-dispSize = dispWidth, dispHeight = 800, 500
+dispSize = dispWidth, dispHeight = 800, 600
 
 scorecardSize = scorecardWidth, scorecardHeight = 400, 100
-cue_limit = 200
-
-no_of_balls = 8  # 3
-my_ball_size = 15   # 25
+cue_limit = 20
+default_speed = 5
+no_of_balls = 6  # 3
+my_ball_size = 14   # 25
+my_pocket_size = 2*my_ball_size
 
 import pygame
 # import random
