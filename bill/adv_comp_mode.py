@@ -1,8 +1,6 @@
-#!/usr/bin/python
-#
 # This is implementation of COMP mode.
-# Computer will play and pocket the balls available on screen, with some factor of intellengece (manually set)
-# ----------------------------------------------------------------------------------------------------------
+# Computer will play and pocket the balls available on screen
+# --------------------------------------------------------------------------
 import pygame
 import random
 from math import *
@@ -17,50 +15,78 @@ pygame.init()
 pygame.display.update()
 Balls.shadow_img = pygame.image.load("assets/2.png").convert_alpha()
 Balls.shading_img = pygame.image.load("assets/1.png").convert_alpha()
+scorecard = pygame.Surface((400, 80))
+scorecard.fill(WHITE)
+settingpanel = pygame.Surface((400, 80))
+settingpanel.fill(WHITE)
+powerbar = pygame.Surface((800, 20))
+powerbar.fill(BLACK)
+# lowerPanel = pygame.Surface((800, 100))
+# lowerPanel.fill(BLACK)
+# lowerPanel.blit(powerbar, (0, 500))
+# lowerPanel.blit(scorecard, (0, 520))
+# lowerPanel.blit(settingpanel, (400, 520))
 
-def gameLoop():
+
+def gameLoop(mode_in="single"):
+    from classes_and_modules.env_variables import *
+    gameDisplay.blit(powerbar, (0, 580))
+    gameDisplay.blit(scorecard, (0, 500))
+    soundcontrol = font.render("M: Mute", True, BLACK)
+    quitcontrol = font.render("Q: Quit", True, BLACK)
+    settingpanel.blit(soundcontrol, (0, 0))
+    settingpanel.blit(quitcontrol, (0, soundcontrol.get_size()[1]))
+    gameDisplay.blit(settingpanel, (400, 500))
 
     gameExit = False
     gameOver = False
-    all_balls = []              # List of balls
-    
-    cue_speed = default_speed # This is initialization of cue distance 
+    all_balls = []  # List of balls
+    cue_speed = default_speed  # Initial cue distance
     started = 0
-    game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
+    game_score = {1: {"Shots": 0, "Pocketed": 0},
+                  2: {"Shots": 0, "Pocketed": 0},
+                  3: {"Shots": 0, "Pocketed": 0}
+                  }
 
-    a,b = dispSize
+    a, b = dispSize
     white_ball = Balls((a/4, b/2), size=my_ball_size, thickness=0, color=WHITE, speed=default_speed)
-    
     # Other balls initialization
-    for i in xrange(1,no_of_balls+1):
+    for i in xrange(1, no_of_balls+1):
         all_balls.append(Balls(ball_loc[i], size=my_ball_size, color=ball_num_col_dict[i], number=i))
-    
+
     while not gameExit:
         show_table()
+        gameDisplay.blit(scorecard, (0, 500))
+        msg2screen("Player 1:  " + str(game_score[1]["Pocketed"]), 10, 500, BLACK, 34, False)
+        if mode_in == "single":
+            temp = 3
+            player_name = "Computer:  "
+        else:
+            temp = 2
+            player_name = "Player 2:  "
+        msg2screen(player_name + str(game_score[temp]["Pocketed"]), 10, 540, BLACK, 34, False)
+
         mouse_current_pos = pygame.mouse.get_pos()
-        
         lineStart = (white_ball.x, white_ball.y)
         offset = tuple(map(sub, mouse_current_pos, lineStart))
         offset = Normalise_this(offset)
-        kk = tuple([ a * dispWidth for a in offset])
+        kk = tuple([a * dispWidth for a in offset])
         lineEnd = tuple(map(add, lineStart, kk))
-        pk = tuple([a* 10 for a in offset])
+        pk = tuple([a*10 for a in offset])
         mm = tuple(map(add, lineStart, pk))
         lineStart = mm
 
-
-        pygame.draw.aaline(gameDisplay, WHITE, lineStart, lineEnd)
-
-        temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed==0]
+        pygame.draw.aaline(tempTable, WHITE, lineStart, lineEnd)
+        temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed == 0]
         all_balls = temp_all_balls
         if all_balls == []:
             gameOver = 1
 
         list_of_balls_with_white = all_balls + [white_ball]
         show_my_balls(list_of_balls_with_white)
+        gameDisplay.blit(tempTable, (0, 0))
         pygame.display.update()
-        
-        #================================================================================
+
         for moving_ball in list_of_balls_with_white:
             moving_ball.collision(list_of_balls_with_white)
             moving_ball.boundary()
@@ -71,16 +97,14 @@ def gameLoop():
                 moving_ball.angle = 0
                 moving_ball.dist = 0
                 moving_ball.speed = 0
-        #================================================================================
+
         if white_ball.pocketed == 1:
-            a,b = dispSize
+            a, b = dispSize
             white_ball = Balls((a/4, b/2), size=my_ball_size, thickness=0, color=WHITE)
 
         while gameOver:
-            
             gameDisplay.fill(GREEN)
-            msg2screen("Game over, press Q to quit or C to continue")
-            
+            msg2screen("Game over, press Q to quit or R to restart")
             pygame.display.update()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -89,29 +113,29 @@ def gameLoop():
                     if event.key == pygame.K_q:
                         gameExit = True
                         gameOver = False
-                    if event.key == pygame.K_c:
-                        game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
+                    if event.key == pygame.K_r:
+                        game_score = {1: {"Shots": 0, "Pocketed": 0},
+                                      2: {"Shots": 0, "Pocketed": 0},
+                                      3: {"Shots": 0, "Pocketed": 0}
+                                      }
                         gameLoop()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     gameOver = True
+                elif event.key == K_m:
+                    SOUNDS = False if SOUNDS else True
 
         mouse_butt = pygame.mouse.get_pressed()
-
         # Comp Mode
         if mouse_butt[1] == 1:
             user_id = 3
-
             game_status_before = [temp_ball.pocketed for temp_ball in all_balls]
             no_of_pocketed_balls_before = sum(game_status_before)
 
-            print "==================="
             print "Advanced COMP MODE"
-            print "==================="
             # Pressed by the user manually, to start COMP to hit the right shot
             # Next shot placement, which ball to hit, is decided by the COMP,
             # depending on the some other factors (or may be randomly)
@@ -136,7 +160,6 @@ def gameLoop():
                     if (dist_my_white > dist_white_other) & (dist_my_white > dist_my_other):
                         # then test this other_ball location, since it is in between my_ball and white_ball 
                         balls_to_be_tested.append(other_ball)
-                
                 if len(balls_to_be_tested) == 0:
                     my_ball.ok_to_hit = 1
                 else:
@@ -147,22 +170,22 @@ def gameLoop():
                     for test_ball in balls_to_be_tested:
                         x3, y3 = test_ball.x, test_ball.y
 
-                        # I will find of the perpendicular distance of point (x3, y3) from the line formed by the two points
+                        # I will find of the perpendicular distance of point
+                        # (x3, y3) from the line formed by the two points
                         # (x2, y2), and (x1, y1)
 
-                        # Line equation in the form of Ax+ By+ C = 0 formed by the two points
-                        # (x2, y2), and (x1, y1) is
-                        A = tan(atan2(y2-y1, x2-x1))        # This is nothing but the slope of line 
+                        # Line equation in the form of Ax+ By+ C = 0
+                        A = tan(atan2(y2-y1, x2-x1))  # slope of line
                         B = -1
                         C = y1 - A*x1
-                        # Above formula is permutation from two point line equation 
-
-                        # Perpendicular distance is given by 
-                        # Reference: goo.gl/mUFJSh 
-                        perp_dist = abs(A*x3 + B*y3 + C)/ hypot(A,B)
+                        # Above formula is permutation from two point 
+                        # line equation
+                        # Perpendicular distance is given by
+                        # Reference: goo.gl/mUFJSh
+                        perp_dist = abs(A*x3 + B*y3 + C) / hypot(A, B)
 
                         seperation_factor = 1.5
-                        if perp_dist > seperation_factor*(test_ball.size + white_ball.size): 
+                        if perp_dist > seperation_factor*(test_ball.size + white_ball.size):
                             # Here the multiplier 2 is taken, to be sure of distance 
                             my_ball.in_line_with_white_ball = 1
                         else:
@@ -174,52 +197,52 @@ def gameLoop():
                         my_ball.ok_to_hit = 1
                     else:
                         my_ball.ok_to_hit = 0
-                
-            
+
             balls_ok_to_hit = [a_ball for a_ball in all_balls if a_ball.ok_to_hit == 1]
-            
+
             # Advanced mode:
             if (len(balls_ok_to_hit) > 0) & ADV_MODE:
-                
+
                 a_ball = find_nearest_ball(balls_ok_to_hit, white_ball)
                 a_ball.pk_list = a_ball.give_me_pocket_angles(white_ball)
-                
+
                 adv_mode_used = 1
                 pk_loc_and_dist_from_white_dict = {}
 
                 all_pk_loc = give_me_pocket_locations()
                 for item in all_pk_loc:
-                    mouse_current_pos = (a_ball.x,a_ball.y)
+                    mouse_current_pos = (a_ball.x, a_ball.y)
                     lineStart = item
                     offset = tuple(map(sub, mouse_current_pos, lineStart))
                     offset = Normalise_this(offset)
 
                     factor = 2*a_ball.size + hypot(lineStart[0] - mouse_current_pos[0], lineStart[1] - mouse_current_pos[1])
-                    kk = tuple([ a * factor for a in offset])
+                    kk = tuple([a*factor for a in offset])
                     lineEnd = tuple(map(add, lineStart, kk))
-                    pk = tuple([a* 10 for a in offset])
+                    pk = tuple([a*10 for a in offset])
 
                     mm = tuple(map(add, lineStart, pk))
                     lineStart = mm
 
-                    lineEnd = tuple([ int(a) for a in list(lineEnd)])
-                    lineStart = tuple([ int(a) for a in list(lineStart)])
+                    lineEnd = tuple([int(a) for a in list(lineEnd)])
+                    lineStart = tuple([int(a) for a in list(lineStart)])
 
-                    pygame.draw.line(gameDisplay, RED, lineStart , lineEnd, 4)
+                    # pygame.draw.line(tempTable, RED, lineStart, lineEnd, 4)
 
                     pk_loc_and_dist_from_white_dict[lineEnd] = hypot(lineEnd[0] - white_ball.x, lineEnd[1] - white_ball.y)
+                gameDisplay.blit(tempTable, (0, 0))
                 pygame.display.update()
 
-                tt = min(pk_loc_and_dist_from_white_dict.items(), key=lambda x: x[1]) 
+                tt = min(pk_loc_and_dist_from_white_dict.items(), key=lambda x: x[1])
                 x, y = tt[0]
                 # (x, y) is point at which white ball should be hitted then
-                # the ball will be pocketed 
+                # the ball will be pocketed
                 ball_to_pocket_dist = tt[1]
                 # This is the distance between the ball and its nearest pocket
 
                 white_ball.angle = get_angle((x,y), white_ball)
                 white_ball.speed = 8
-                
+
                 white_ball.dist = 2*(ball_to_pocket_dist + hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y))
                 move_my_all_balls(list_of_balls_with_white)
 
@@ -230,28 +253,27 @@ def gameLoop():
                 game_score[user_id]["Pocketed"] += (no_of_pocketed_balls_after - no_of_pocketed_balls_before)
 
             else:
-                print "Sorry can't use Advanced mode"   
-                adv_mode_used = 0  
-                
+                print "Sorry can't use Advanced mode"
+                adv_mode_used = 0
             # #===============================
-            # Below is random hitting 
+            # Below is random hitting
             # To enable or disable below if condition "adv_mode_used"
-            if (adv_mode_used == 0) or (RAND_MODE == 1) :                
-                
+            if (adv_mode_used == 0) or (RAND_MODE == 1):
                 show_pockets(my_pocket_size)
                 pygame.display.update()
-                
-                # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
-                # then, out of those balls_ok_to_hit, choose any one randomly and hit it 
-                
+
+                # This means that, there is atleast one ball which
+                # can be hit, but cannot be pocketed, then out of those
+                # balls_ok_to_hit, choose any one randomly and hit it 
                 print "Choosing ball randomly to hit"
-                temp_loc = random.randint(0,len(all_balls)-1)
+                temp_loc = random.randint(0, len(all_balls)-1)
                 rand_ball_to_hit = all_balls[temp_loc]
 
-                temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+                temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)  # Passing the end point and Ball object to get the movement angle
                 move_angle = temp_angle + pi
 
-                # Here I am giving dist between 50 and 150, it is high distance . Its required so that ball can be hit hard 
+                # I am giving dist between 50 and 150, it is high distance.
+                # Its required so that ball can be hit hard
                 # rand_dist = random.randint(50,150)
                 rand_dist = 100
 
@@ -260,12 +282,10 @@ def gameLoop():
                 white_ball.angle = move_angle
 
                 move_my_all_balls(list_of_balls_with_white)
-            
         else:
             for a_ball in list_of_balls_with_white:
                 a_ball.angle = 0
                 a_ball.dist = 0
-        
         # User modes
         if (mouse_butt[2] == 1) or (mouse_butt[0] == 1):
             if (mouse_butt[2] == 1) and (mouse_butt[0] == 1):
@@ -276,47 +296,52 @@ def gameLoop():
             elif (mouse_butt[2] == 1) or (mouse_butt[0] != 1):
                 user_id = 2
 
+            if mode_in == "single":
+                user_id = 1
+
             game_status_before = [temp_ball.pocketed for temp_ball in all_balls]
             no_of_pocketed_balls_before = sum(game_status_before)
             print "======================================"
-            print "User Mode:: User Acive: %d" %user_id
+            print "User Mode:: User Acive: %d" % user_id
             print "======================================"
             started = 1
             # If pressed it acts as pulling the cue
             if cue_speed < cue_limit:
-                cue_speed += 0.25 # If pressed I am increasing it
+                cue_speed += 0.25  # If pressed I am increasing it
+                cuepower(cue_speed - white_ball.default_speed)
             else:
                 pass
         else:
             if (cue_speed != white_ball.default_speed) & started:
                 white_ball.speed = cue_speed
-
+                # cuepower(1)
+                pygame.draw.line(gameDisplay, BLACK, (0, 590), (800, 590), 8)
                 mouse_current_pos = pygame.mouse.get_pos()
-                a, b = white_ball.x, white_ball.y 
+                a, b = white_ball.x, white_ball.y
                 c, d = mouse_current_pos
 
                 white_ball.dist = 2*(hypot(a-c, b-d))
                 # I will hit the white ball with cue
-                
                 # Get mouse location, to hit
                 mouse_current_pos = pygame.mouse.get_pos()
                 white_ball.angle = get_angle(mouse_current_pos, white_ball)
 
                 move_my_all_balls(list_of_balls_with_white)
-                
                 # and then I will assign the distance back to default_speed
-                cue_speed = white_ball.default_speed 
+                cue_speed = white_ball.default_speed
 
                 game_status_after = [temp_ball.pocketed for temp_ball in all_balls]
                 no_of_pocketed_balls_after = sum(game_status_after)
-
                 game_score[user_id]["Shots"] += 1
                 game_score[user_id]["Pocketed"] += (no_of_pocketed_balls_after - no_of_pocketed_balls_before)
-
+                # gameDisplay.blit(scorecard, (0, 500))
+                # msg2screen("Player 1:" +str(game_score[1]["Pocketed"]) , 10, 510, BLACK, 24)
         clock.tick(FPS)
+    return game_score
+        # clock.tick(FPS)
 
-    pygame.quit()
-    quit()
+    # pygame.quit()
+    # quit()
 
 if __name__ == '__main__':
     gameLoop()

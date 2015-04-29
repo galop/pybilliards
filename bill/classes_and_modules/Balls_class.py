@@ -5,41 +5,41 @@ import random as rd
 
 
 class Balls:
+    """ Implements snooker ball object and related methods.
+    """
     def __init__(self, (x, y), size=20, thickness=0, color=(0, 0, 255), pocket_size=0, angle=0, number=0, speed=0):
         self.x = int(x)
         self.y = int(y)
         self.size = int(size)
-        self.thickness = int(thickness) # Default             
+        self.thickness = int(thickness)  # Default
         self.color = color
         self.c1 = color[0]
         self.c2 = color[1]
         self.c3 = color[2]
         self.speed = speed
-        self.angle = angle # This is in radian
-        self.dist = 0                        
+        self.angle = angle  # This is in radian
+        self.dist = 0
         if pocket_size == 0:
             pocket_size = 2*self.size
 
         self.pocket_size = pocket_size
 
-        self.pocketed = self.is_pocketed(self.pocket_size) # Depending on its initialization location :D
-        self.in_line_with_white_ball = 0 # Default is zero, but will be changed afterwards :D
-        self.ok_to_hit = 0 # This will be made equal to 1 for white_ball in line with this ball
+        self.pocketed = self.is_pocketed(self.pocket_size)  # Depending initialization location
+        self.in_line_with_white_ball = 0  # Default zero, but changed later
+        self.ok_to_hit = 0  # 1 for white_ball in line of sight
         self.correction_angle = 0
         self.number = number
         self.offset_speed = 0
         self.default_speed = 2
 
-
     def disp(self):
         """ This function draws a circle at self locations of Ball object only if its not pocketed.
         """
         if not self.pocketed:
-            gameDisplay.blit(Balls.shadow_img, (self.x - 14, self.y - 14))
-            pygame.draw.circle(gameDisplay, self.color, (self.x, self.y), self.size, self.thickness)
-            gameDisplay.blit(Balls.shading_img, (self.x - 15, self.y - 15))
+            tempTable.blit(Balls.shadow_img, (self.x - 14, self.y - 14))
+            pygame.draw.circle(tempTable, self.color, (self.x, self.y), self.size, self.thickness)
+            tempTable.blit(Balls.shading_img, (self.x - 15, self.y - 15))
         # pygame.display.update()
-
 
     def boundary(self):
         """ Tests self location of Ball object against boundary of walls of pool table.
@@ -64,7 +64,6 @@ class Balls:
             self.angle = pi - self.angle
             self.speed = 0.97*self.speed
 
-    
     def collision(self, all_balls):
         """ This function takes care of collision between Ball objects present in
             all_balls list. Each Ball object is tested against other objects, checking overlapping
@@ -80,21 +79,20 @@ class Balls:
             dx = self.x - my_ball.x
             dy = self.y - my_ball.y
             tangent = atan2(dy, dx)
-            dist_of_separation = hypot(dx,dy)
+            dist_of_separation = hypot(dx, dy)
 
-            if dist_of_separation < (self.size + my_ball.size + 2):             # Collision happened :D
-                # Sound to play
+            if dist_of_separation < (self.size + my_ball.size + 2):  # Collision
+                if SOUNDS:
+                    hit.play()
                 my_ball.angle = get_angle((my_ball.x, my_ball.y), self)
                 dist_correction_angle = my_ball.angle - self.angle
-
                 self.angle = 2*tangent - self.angle
-
-
                 self.angle = self.angle % (2*pi)
                 my_ball.angle = my_ball.angle % (2*pi)
 
-                # This is bouncing of balls before hitting each other, so they will not be trapped inside the 
-                # internal bouncing, and leanding nowhere :D
+                # This is bouncing of balls before hitting each other,
+                # so they will not be trapped inside the
+                # internal bouncing, and leanding nowhere
                 # NOTE: THIS IS VERY IMPORTANT NEVER REMOVE THIS
                 k = 10
                 self.x += int(round(k*sin(self.angle)))
@@ -104,7 +102,8 @@ class Balls:
                 my_ball.x += int(round(k*sin(my_ball.angle)))
                 my_ball.y -= int(round(k*cos(my_ball.angle)))
                 my_ball.boundary()
-                # I am saving this dist_correction_angle as object parameter. This has been initialized in the __init__ of Balls class :D
+                # I am saving this dist_correction_angle as object parameter.
+                # This has been initialized in the __init__ of Balls class
                 self.correction_angle = abs(dist_correction_angle*180/pi) % 360
 
                 sine_correction = sin(abs(dist_correction_angle))
@@ -128,28 +127,26 @@ class Balls:
                 if (my_ball.dist > 0) & (my_ball.speed > 0):
                     my_ball.offset_speed = float(my_ball.speed - my_ball.default_speed) / my_ball.dist
 
-
     def move(self, dist=None, angle=None, speed=None, smear=False):
         from all_functions import *
 
-        if dist != None:
+        if dist is not None:
             self.dist = dist
-        if angle != None:
+        if angle is not None:
             self.angle = angle
-        if speed != None:
+        if speed is not None:
             self.speed = speed
 
         if (self.speed > 0) & (self.dist > 0):
             if not smear:
                 show_table()
-            
             self.is_pocketed(self.pocket_size)
             if self.pocketed == 1:
                 self.dist = 0
                 self.speed = 0
-                # Sound to play
+                if SOUNDS:
+                    inpocketsound.play()
                 return
-            
             self.boundary()
             # This is equivalent to one time movement
             x_change = int(round(sin(self.angle) * self.speed))
@@ -160,16 +157,14 @@ class Balls:
 
             self.boundary()
 
-            self.dist -= hypot(x_change, y_change) 
+            self.dist -= hypot(x_change, y_change)
             # Movement of these units only :D
-
 
     def is_clicked(self, a, b):
         if hypot(self.x-a, self.y-b) <= self.size:
-            return 1 # If the point (a,b) is inside the ball then return 1
+            return 1  # If the point (a,b) is inside the ball then return 1
         else:
-            return 0 # Else return 0
-
+            return 0  # Else return 0
 
     def is_pocketed(self, pocket_size):
         x_limits = (0, dispWidth/2, dispWidth)
@@ -188,18 +183,18 @@ class Balls:
         # For a ball obj, this function returns a list containing movement
         # angles for all pockets
 
-        from all_functions import * # Required due usage of function "get_angle" from the file
+        from all_functions import *  # Required due usage of function get_angle
 
         a = [0, dispWidth/2, dispWidth]
         b = [0, dispHeight]
         rd.shuffle(a)
         rd.shuffle(b)
 
-        t = [] # Empty list for angles towards pockets
+        t = []  # Empty list for angles towards pockets
         for i in a:
             for j in b:
-                if self.am_I_near_to_pockets((i,j), white_ball):
-                    t.append(get_angle((i,j), self))
+                if self.am_I_near_to_pockets((i, j), white_ball):
+                    t.append(get_angle((i, j), self))
         return t
 
     def am_I_near_to_pockets(self, pk_loc, white_ball):
@@ -215,4 +210,4 @@ class Balls:
 if __name__ == "__main__":
     print "This is running individually: Balls_class"
 else:
-    print "This is running inside someone :d: Balls_class"
+    print "This is running inside someone: Balls_class"
