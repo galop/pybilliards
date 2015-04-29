@@ -14,12 +14,15 @@ pygame.mixer.pre_init(44100, -16, 2, 2048)  # setup mixer to avoid sound lag
 pygame.init()  # initialize pygame
 font = pygame.font.SysFont("ubuntu", 24)
 font.set_bold(True)
-screen = pygame.display.set_mode((dispWidth, dispHeight))
+screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption(TITLE)
 clock = pygame.time.Clock()
-table = pygame.Surface((800, 500))
-table.fill(GREEN)
-screen.blit(table, (0, 0))
+# scorecard = pygame.Surface((400, 80))
+# scorecard.fill(SCORECARDCOLOR)
+# settingpanel = pygame.Surface((400, 80))
+# settingpanel.fill(SCORECARDCOLOR)
+# powerbar = pygame.Surface((800, 20))
+# powerbar.fill(BLACK)
 pygame.display.update()
 
 try:
@@ -32,15 +35,15 @@ except:
     raise(UserWarning, "Could not load files in assets folder.")
 
 
-class GAMEMODE():
-    def __init__(self):
-        self.state = 1
+# class GAMEMODE():
+#     def __init__(self):
+#         self.state = 1
 
-    def toggle(self):
-        if self.state == 1:
-            self.state = 2
-        else:
-            self.state = 1
+#     def toggle(self):
+#         if self.state == 1:
+#             self.state = 2
+#         else:
+#             self.state = 1
 
 
 class Gamer(object):
@@ -53,7 +56,7 @@ class Gamer(object):
 
     """
     def __init__(self):
-        self.gamemode = GAMEMODE()
+        self.gamemode = 1
         self.decision = False
         self.b1 = Button("Single Player", (400, 400), True)
         self.b2 = Button("Two Player", (400, 450), False)
@@ -69,7 +72,7 @@ class Gamer(object):
     def show_splash(self):
         # splash_pic = pygame.image.load("assets/splash1.png").convert()
         oldt = pygame.time.get_ticks()
-        while(pygame.time.get_ticks() - oldt <= 1000):
+        while(pygame.time.get_ticks() - oldt <= 1500):
             screen.blit(splash_pic, (0, 0))
             clock.tick(FPS)
             pygame.display.update()
@@ -87,13 +90,13 @@ class Gamer(object):
             if key[K_DOWN]:
                 self.b1.setOFF()
                 self.b2.setON()
-                self.gamemode.state = 2
+                self.gamemode = 2
                 if SOUNDS:
                     pocketed.play()
             if key[K_UP]:
                 self.b1.setON()
                 self.b2.setOFF()
-                self.gamemode.state = 1
+                self.gamemode = 1
                 if SOUNDS:
                     pocketed.play()
             if key[K_RETURN]:
@@ -102,11 +105,11 @@ class Gamer(object):
                 if self.b1.chose is True:
                     print("User selected mode is Single Player.")
                     self.decision = True
-                    self.gamemode.state = 1
+                    self.gamemode = 1
                 else:
                     print("User selected mode is Two player.")
                     self.decision = True
-                    self.gamemode.state = 2
+                    self.gamemode = 2
             screen.blit(splash_pic, (0, 0))
             self.b1.show(), self.b2.show()
             pygame.display.update()

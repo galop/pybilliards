@@ -36,9 +36,9 @@ class Balls:
         """ This function draws a circle at self locations of Ball object only if its not pocketed.
         """
         if not self.pocketed:
-            gameDisplay.blit(Balls.shadow_img, (self.x - 14, self.y - 14))
-            pygame.draw.circle(gameDisplay, self.color, (self.x, self.y), self.size, self.thickness)
-            gameDisplay.blit(Balls.shading_img, (self.x - 15, self.y - 15))
+            tempTable.blit(Balls.shadow_img, (self.x - 14, self.y - 14))
+            pygame.draw.circle(tempTable, self.color, (self.x, self.y), self.size, self.thickness)
+            tempTable.blit(Balls.shading_img, (self.x - 15, self.y - 15))
         # pygame.display.update()
 
     def boundary(self):
@@ -90,7 +90,7 @@ class Balls:
                 my_ball.angle = my_ball.angle % (2*pi)
 
                 # This is bouncing of balls before hitting each other,
-                # so they will not be trapped inside the 
+                # so they will not be trapped inside the
                 # internal bouncing, and leanding nowhere
                 # NOTE: THIS IS VERY IMPORTANT NEVER REMOVE THIS
                 k = 10
@@ -126,15 +126,14 @@ class Balls:
                 if (my_ball.dist > 0) & (my_ball.speed > 0):
                     my_ball.offset_speed = float(my_ball.speed - my_ball.default_speed) / my_ball.dist
 
-
     def move(self, dist=None, angle=None, speed=None, smear=False):
         from all_functions import *
 
-        if dist != None:
+        if dist is not None:
             self.dist = dist
-        if angle != None:
+        if angle is not None:
             self.angle = angle
-        if speed != None:
+        if speed is not None:
             self.speed = speed
 
         if (self.speed > 0) & (self.dist > 0):

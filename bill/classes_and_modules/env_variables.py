@@ -10,22 +10,6 @@ RAND_MODE = 0
 # game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
 # 1: User 1, 2: User 2, 3: Computer
 
-FPS = 60
-dispSize = dispWidth, dispHeight = 800, 500
-TITLE = "pyBilliards"
-scorecardSize = scorecardWidth, scorecardHeight = 400, 100
-cue_limit = 20
-default_speed = 5
-no_of_balls = 7  # 3
-my_ball_size = 14   # 25
-my_pocket_size = 2*my_ball_size
-
-pygame.init()
-font = pygame.font.SysFont("ubuntu", 34)
-gameDisplay = pygame.display.set_mode(dispSize)
-pygame.display.set_caption(TITLE)
-clock = pygame.time.Clock()
-
 WHITE = (255, 255, 255)
 GREEN = (0, 140, 0)
 YELLOW = (255, 255, 0)
@@ -36,6 +20,25 @@ ORANGE = (255, 165, 0)
 DARK_GREEN = (0, 255, 0)
 MAROON = (128, 0, 0)
 BLACK = (0, 0, 0)
+SCORECARDCOLOR = (225, 145, 45)
+
+FPS = 60
+dispSize = dispWidth, dispHeight = 800, 500
+TITLE = "pyBilliards"
+cue_limit = 20
+default_speed = 5
+no_of_balls = 7  # 3
+my_ball_size = 14   # 25
+my_pocket_size = 2*my_ball_size
+
+pygame.init()
+font = pygame.font.SysFont("ubuntu", 34)
+gameDisplay = pygame.display.set_mode(dispSize)  # 1
+tempTable = pygame.Surface(dispSize)
+tempTable.fill(GREEN)
+pygame.display.set_caption(TITLE)
+clock = pygame.time.Clock()
+
 
 ball_num_col_dict = {1: YELLOW,
                      2: BLUE,

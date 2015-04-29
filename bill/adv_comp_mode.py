@@ -15,10 +15,22 @@ pygame.init()
 pygame.display.update()
 Balls.shadow_img = pygame.image.load("assets/2.png").convert_alpha()
 Balls.shading_img = pygame.image.load("assets/1.png").convert_alpha()
-
+scorecard = pygame.Surface((400, 80))
+scorecard.fill(SCORECARDCOLOR)
+settingpanel = pygame.Surface((400, 80))
+settingpanel.fill(SCORECARDCOLOR)
+powerbar = pygame.Surface((800, 20))
+powerbar.fill(BLACK)
+# lowerPanel = pygame.Surface((800, 100))
+# lowerPanel.fill(BLACK)
+# lowerPanel.blit(powerbar, (0, 500))
+# lowerPanel.blit(scorecard, (0, 520))
+# lowerPanel.blit(settingpanel, (400, 520))
 
 def gameLoop():
-
+    gameDisplay.blit(powerbar, (0, 580))
+    gameDisplay.blit(scorecard, (0, 500))
+    gameDisplay.blit(settingpanel, (400, 500))
     gameExit = False
     gameOver = False
     all_balls = []  # List of balls
@@ -47,7 +59,7 @@ def gameLoop():
         mm = tuple(map(add, lineStart, pk))
         lineStart = mm
 
-        pygame.draw.aaline(gameDisplay, WHITE, lineStart, lineEnd)
+        pygame.draw.aaline(tempTable, WHITE, lineStart, lineEnd)
         temp_all_balls = [my_ball for my_ball in all_balls if my_ball.pocketed == 0]
         all_balls = temp_all_balls
         if all_balls == []:
@@ -55,6 +67,7 @@ def gameLoop():
 
         list_of_balls_with_white = all_balls + [white_ball]
         show_my_balls(list_of_balls_with_white)
+        gameDisplay.blit(tempTable, (0, 0))
         pygame.display.update()
 
         for moving_ball in list_of_balls_with_white:
@@ -195,9 +208,10 @@ def gameLoop():
                     lineEnd = tuple([int(a) for a in list(lineEnd)])
                     lineStart = tuple([int(a) for a in list(lineStart)])
 
-                    pygame.draw.line(gameDisplay, RED, lineStart, lineEnd, 4)
+                    # pygame.draw.line(tempTable, RED, lineStart, lineEnd, 4)
 
                     pk_loc_and_dist_from_white_dict[lineEnd] = hypot(lineEnd[0] - white_ball.x, lineEnd[1] - white_ball.y)
+                gameDisplay.blit(tempTable, (0, 0))
                 pygame.display.update()
 
                 tt = min(pk_loc_and_dist_from_white_dict.items(), key=lambda x: x[1])
@@ -229,16 +243,18 @@ def gameLoop():
                 show_pockets(my_pocket_size)
                 pygame.display.update()
 
-                # This means that, there is atleast one ball which can be hit, but cannot be pocketed,
-                # then, out of those balls_ok_to_hit, choose any one randomly and hit it 
+                # This means that, there is atleast one ball which
+                # can be hit, but cannot be pocketed, then out of those
+                # balls_ok_to_hit, choose any one randomly and hit it 
                 print "Choosing ball randomly to hit"
                 temp_loc = random.randint(0, len(all_balls)-1)
                 rand_ball_to_hit = all_balls[temp_loc]
 
-                temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)   # Passing the end point and Ball object to get the movement angle
+                temp_angle = get_angle(white_ball_loc, rand_ball_to_hit)  # Passing the end point and Ball object to get the movement angle
                 move_angle = temp_angle + pi
 
-                # Here I am giving dist between 50 and 150, it is high distance . Its required so that ball can be hit hard 
+                # I am giving dist between 50 and 150, it is high distance.
+                # Its required so that ball can be hit hard
                 # rand_dist = random.randint(50,150)
                 rand_dist = 100
 
@@ -270,12 +286,14 @@ def gameLoop():
             # If pressed it acts as pulling the cue
             if cue_speed < cue_limit:
                 cue_speed += 0.25  # If pressed I am increasing it
+                cuepower(cue_speed - white_ball.default_speed)
             else:
                 pass
         else:
             if (cue_speed != white_ball.default_speed) & started:
                 white_ball.speed = cue_speed
-
+                # cuepower(1)
+                pygame.draw.line(gameDisplay, BLACK, (0, 590), (800, 590), 8)
                 mouse_current_pos = pygame.mouse.get_pos()
                 a, b = white_ball.x, white_ball.y
                 c, d = mouse_current_pos

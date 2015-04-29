@@ -20,7 +20,7 @@ def show_pockets(pocket_size):
 
     for i in a:
         for j in b:
-            pygame.draw.circle(gameDisplay, BLACK, (i, j), pocket_size, 0)
+            pygame.draw.circle(tempTable, BLACK, (i, j), pocket_size, 0)
 
 
 def get_angle(point_loc, Ball_obj):
@@ -59,6 +59,7 @@ def move_my_all_balls(list_of_balls):
             a_ball.offset_speed = fric * a_ball.offset_speed
             a_ball.disp()
 
+        gameDisplay.blit(tempTable, (0, 0))
         pygame.display.update()
 
         for moving_ball in list_of_balls:
@@ -123,7 +124,7 @@ def show_table():
         Fills screen with GREEN and then draws pockets over it using
         show_pockets() function.
     """
-    gameDisplay.fill(GREEN)
+    tempTable.fill(GREEN)
     show_pockets(my_pocket_size)
     # pygame.display.update()
 
@@ -155,6 +156,9 @@ def find_nearest_ball(list_of_balls, white_ball):
         dist_dict[temp_dist] = a_ball
     tt = min(dist_dict.items(), key=lambda x: x[0])
     return tt[1]
+
+def cuepower(power):
+    newLine = pygame.draw.line(gameDisplay, RED, (0, 590), (int(50*power), 590), 5)
 
 
 if __name__ == "__main__":
