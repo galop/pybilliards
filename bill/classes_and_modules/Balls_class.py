@@ -83,7 +83,7 @@ class Balls:
             dist_of_separation = hypot(dx,dy)
 
             if dist_of_separation < (self.size + my_ball.size + 2):             # Collision happened :D
-                
+                # Sound to play
                 my_ball.angle = get_angle((my_ball.x, my_ball.y), self)
                 dist_correction_angle = my_ball.angle - self.angle
 
@@ -147,6 +147,7 @@ class Balls:
             if self.pocketed == 1:
                 self.dist = 0
                 self.speed = 0
+                # Sound to play
                 return
             
             self.boundary()

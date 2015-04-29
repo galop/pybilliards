@@ -15,8 +15,8 @@ from pygame.locals import *
 
 pygame.init()
 pygame.display.update()
-Balls.shadow_img = pygame.image.load("2.png").convert_alpha()
-Balls.shading_img = pygame.image.load("1.png").convert_alpha()
+Balls.shadow_img = pygame.image.load("assets/2.png").convert_alpha()
+Balls.shading_img = pygame.image.load("assets/1.png").convert_alpha()
 
 def gameLoop():
 
@@ -80,6 +80,7 @@ def gameLoop():
             
             gameDisplay.fill(GREEN)
             msg2screen("Game over, press Q to quit or C to continue")
+            
             pygame.display.update()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
