@@ -27,7 +27,8 @@ powerbar.fill(BLACK)
 # lowerPanel.blit(scorecard, (0, 520))
 # lowerPanel.blit(settingpanel, (400, 520))
 
-def gameLoop():
+
+def gameLoop(mode_in="single"):
     gameDisplay.blit(powerbar, (0, 580))
     gameDisplay.blit(scorecard, (0, 500))
     gameDisplay.blit(settingpanel, (400, 500))
@@ -49,6 +50,16 @@ def gameLoop():
 
     while not gameExit:
         show_table()
+        gameDisplay.blit(scorecard, (0, 500))
+        msg2screen("Player 1:  " + str(game_score[1]["Pocketed"]), 10, 510, BLACK, 24)
+        if mode_in == "single":
+            temp = 3
+            player_name = "Computer:  "
+        else:
+            temp = 2
+            player_name = "Player 2:  "
+        msg2screen(player_name + str(game_score[temp]["Pocketed"]), 10, 545, BLACK, 24)
+
         mouse_current_pos = pygame.mouse.get_pos()
         lineStart = (white_ball.x, white_ball.y)
         offset = tuple(map(sub, mouse_current_pos, lineStart))
@@ -277,6 +288,9 @@ def gameLoop():
             elif (mouse_butt[2] == 1) or (mouse_butt[0] != 1):
                 user_id = 2
 
+            if mode_in == "single":
+                user_id = 1
+
             game_status_before = [temp_ball.pocketed for temp_ball in all_balls]
             no_of_pocketed_balls_before = sum(game_status_before)
             print "======================================"
@@ -310,11 +324,13 @@ def gameLoop():
 
                 game_status_after = [temp_ball.pocketed for temp_ball in all_balls]
                 no_of_pocketed_balls_after = sum(game_status_after)
-
                 game_score[user_id]["Shots"] += 1
                 game_score[user_id]["Pocketed"] += (no_of_pocketed_balls_after - no_of_pocketed_balls_before)
-
+                # gameDisplay.blit(scorecard, (0, 500))
+                # msg2screen("Player 1:" +str(game_score[1]["Pocketed"]) , 10, 510, BLACK, 24)
         clock.tick(FPS)
+    return game_score
+        # clock.tick(FPS)
 
     # pygame.quit()
     # quit()

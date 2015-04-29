@@ -3,10 +3,11 @@ from classes_and_modules.env_variables import *
 # from classes_and_modules.Balls_class import Balls
 
 
-def msg2screen(msg, x_loc=100, y_loc=dispHeight/2, color=WHITE):
+def msg2screen(msg, x_loc=100, y_loc=dispHeight/2, color=WHITE, fontsize=34):
     """ This function will print string msg to screen at
         respective location
     """
+    font = pygame.font.SysFont("ubuntu", fontsize)
     screen_text = font.render(msg, True, color)
     gameDisplay.blit(screen_text, [x_loc,  y_loc])
 

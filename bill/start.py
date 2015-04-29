@@ -65,9 +65,9 @@ class Gamer(object):
         self.show_splash()
         self.askmode()
         if self.gamemode == 1:
-            acm.gameLoop()
+            gameScore = acm.gameLoop("single")
         else:
-            acm.gameLoop()
+            gameScore = acm.gameLoop("double")
 
     def show_splash(self):
         # splash_pic = pygame.image.load("assets/splash1.png").convert()
