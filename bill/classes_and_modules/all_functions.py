@@ -409,33 +409,42 @@ def move_my_all_balls(list_of_balls):
         if (a_ball.dist > 0) & (a_ball.speed > 0):
             a_ball.offset_speed = float(a_ball.speed - a_ball.default_speed) / a_ball.dist
 
+    fric = 1.05
     while (speed_sum > 0) & (dist_sum > 0):
         # print "dist_sum: " + str(dist_sum)
         # show_my_balls(list_of_balls)
         for a_ball in list_of_balls:
+            a_ball.offset_speed = fric * a_ball.offset_speed
             a_ball.disp()
+
         pygame.display.update()
 
+        # for moving_ball in list_of_balls:
+        #     if (moving_ball.speed > 0) & (moving_ball.dist > 0):
+        #         # reduced_speed = moving_ball.speed - moving_ball.offset_speed
+        #         moving_ball.collision_2(list_of_balls)
+        #         moving_ball.boundary()
+        #         # moving_ball.dist -= 1
+        #     else:
+        #         moving_ball.angle = 0
+        #         moving_ball.dist = 0
+        #         moving_ball.speed = 0
+
         for moving_ball in list_of_balls:
-            
-
-
             if (moving_ball.speed > 0) & (moving_ball.dist > 0):
-                # s = "D" + str(int(moving_ball.dist))
-                # p = moving_ball.x + 10
-                # q = moving_ball.y + 10
-                # msg2screen(s, p, q)
-                # ====
-                # Adding friction here
-                # friction_coefficient = .97
-                # reduced_speed = moving_ball.speed * friction_coefficient
                 reduced_speed = moving_ball.speed - moving_ball.offset_speed
-                # const_decrease = (moving_ball.speed - 1)/ moving_ball.dist
-                # const_decrease = (moving_ball.speed)/ moving_ball.dist
-
-                # reduced_speed = moving_ball.speed - const_decrease
-                # ====
                 moving_ball.move_with_collision_correction_3(speed = reduced_speed, list_of_ball_objects = list_of_balls)
+                moving_ball.boundary()
+                # moving_ball.dist -= 1
+            else:
+                moving_ball.angle = 0
+                moving_ball.dist = 0
+                moving_ball.speed = 0
+
+        for moving_ball in list_of_balls:
+            if (moving_ball.speed > 0) & (moving_ball.dist > 0):
+                # reduced_speed = moving_ball.speed - moving_ball.offset_speed
+                moving_ball.collision_2(list_of_balls)
                 moving_ball.boundary()
                 # moving_ball.dist -= 1
             else:
@@ -453,7 +462,7 @@ def is_it_in_my_list(elem_to_search, in_list, pass_range):
     # i.e. pass_range = 20 => 20% difference is ok,
 
     for item in in_list:
-        if abs(item - elem_to_search)/item >= pass_range:
+        if (abs(item - elem_to_search)/item >= pass_range):
             return 1
         else:
             return 0
@@ -473,6 +482,28 @@ def show_table():
     gameDisplay.fill(GREEN)
     show_pockets(my_pocket_size)
     # pygame.display.update()
+
+def give_me_pocket_locations():
+    a = (0, dispWidth/2, dispWidth)
+    b = (0, dispHeight)
+    
+    t = []
+
+    for i in a:
+        for j in b:
+            t.append((i,j))
+    return t
+
+def find_nearest_ball(list_of_balls, white_ball):
+    if len(list_of_balls) == 1:
+        return list_of_balls[0]
+
+    dist_dict = {}
+    for a_ball in list_of_balls:
+        temp_dist = hypot(a_ball.x - white_ball.x, a_ball.y - white_ball.y)
+        dist_dict[temp_dist] = a_ball
+    tt = min(dist_dict.items(), key=lambda x: x[0])
+    return tt[1]
 
 if __name__ == "__main__":
     print "This is running individually: all_functions"
