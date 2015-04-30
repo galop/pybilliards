@@ -1,53 +1,50 @@
+"""A billiards game in pygame.
+
+.. moduleauthor:: Hardik, Rohan
+
+"""
+
 import pygame
 from math import *
 from pygame.locals import *
-from classes_and_modules.env_variables import *
-from classes_and_modules.all_functions import *
-# from classes_and_modules.Balls_class import Balls
+from modules.env_variables import *
+from modules.all_functions import *
 import adv_comp_mode as acm
 
 
 pygame.mixer.pre_init(44100, -16, 2, 2048)  # setup mixer to avoid sound lag
 pygame.init()  # initialize pygame
 font = pygame.font.SysFont("ubuntu", 26)
-# font.set_bold(True)
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption(TITLE)
 clock = pygame.time.Clock()
-pygame.mixer.music.load("assets/arab.mp3")
-# scorecard = pygame.Surface((400, 80))
-# scorecard.fill(SCORECARDCOLOR)
-# settingpanel = pygame.Surface((400, 80))
-# settingpanel.fill(SCORECARDCOLOR)
-# powerbar = pygame.Surface((800, 20))
-# powerbar.fill(BLACK)
 pygame.display.update()
 
 try:
-    # pygame.mixer.music.load("assets/levels.ogg")  # load music
+    pygame.mixer.music.load("assets/arab.mp3")
     pocketed = pygame.mixer.Sound("assets/pocketed.ogg")  # load sound
-    # hit = pygame.mixer.Sound("assets/wood2.ogg")  # load sound
     splash_pic = pygame.image.load("assets/splash1.png").convert()
-    splash_chime = None
 except:
     raise(UserWarning, "Could not load files in assets folder.")
 
+
 class SOUND(object):
+    """ Sound related settings.
+    Used to turn sounds on or off during game play.
+
+    """
     def __init__(self):
+        """ Initialize SOUNDS instance
+
+        SOUNDS = True implies sound is on.
+        SOUNDS = False implies sound is off.
+        """
         self.SOUNDS = True
 
     def toggle(self):
+        """ Toggle sound settings
+        """
         self.SOUNDS = False if self.SOUNDS else True
-
-# class GAMEMODE():
-#     def __init__(self):
-#         self.state = 1
-
-#     def toggle(self):
-#         if self.state == 1:
-#             self.state = 2
-#         else:
-#             self.state = 1
 
 
 class Game(object):
@@ -60,12 +57,22 @@ class Game(object):
 
     """
     def __init__(self):
+        """
+        Initial parameters
+
+        gamemode = 1 - single player vs computer mode
+        gamemode = 2 - two player mode
+        """
         self.gamemode = 1
         self.decision = False
         self.b1 = Button("Single Player", (400, 400), True)
         self.b2 = Button("Two Player", (400, 450), False)
 
     def run(self):
+        """ Starts the game.
+
+        Starts game by showing splash screen and asking user the gameplay mode.
+        """
         self.show_splash()
         self.askmode()
         if self.gamemode == 1:
@@ -74,6 +81,11 @@ class Game(object):
             gameScore = acm.gameLoop("double")
 
     def show_splash(self):
+        """ Show welcome screen
+
+        Shows welcome screen with game name while arabian night is jamming in the background.
+        Duration is fixed at 1 second.
+        """
         # splash_pic = pygame.image.load("assets/splash1.png").convert()
         oldt = pygame.time.get_ticks()
         if SOUNDS:
@@ -84,6 +96,14 @@ class Game(object):
             pygame.display.update()
 
     def askmode(self):
+        """ Game mode selector
+
+        Shows two options visually to select mode.
+        A white disc is shown against currently active selection.
+
+        .. note::
+            Press Q to quit now.
+        """
         self.b1.show()
         self.b2.show()
         while not self.decision:
@@ -125,49 +145,46 @@ class Game(object):
 
 
 class Button(object):
-    """Button class for selecting gameplay mode"""
+    """Button class for selecting gameplay mode
+
+    Puts visual display of gameplay mode text.
+    """
     def __init__(self, text, pos, choice=False):
+        """ Button object.
+
+        Args:
+            text (str): Text to be displayed on Button
+            pos (tuple): Position of button on screen
+            choice (bool): If currently selected amongst many.
+        """
         self.text = text
         self.pos = pos
         self.chose = choice
         self.opt = font.render(self.text, True, WHITE)
 
     def setON(self):
+        """ Select this button.
+        """
         self.chose = True
 
     def setOFF(self):
+        """ Do not select this button.
+        """
         self.chose = False
 
     def toggle(self):
+        """ Toggle slection status
+        """
         self.chose = False if self.chose else True
 
     def show(self):
+        """ Draw button on display
+        """
         X, Y = self.opt.get_size()
         screen.blit(self.opt, (self.pos[0] - 50, self.pos[1]))
         if self.chose:
             pygame.draw.circle(screen, WHITE, (self.pos[0]-80, self.pos[1]+15), 10)
 
-# class Splash():
-#     def __init__(self):
-#         self.createTime = pygame.time.get_ticks()
-#         self.splash_pic = pygame.image.load("assets/splash1.png").convert()
-
-#     def show(self):
-#         screen.blit(self.splash_pic, (0, 0))
-
-
-myGame = Game()
-# myGame.show_splash()
-# myGame.askmode()
-myGame.run()
-
-# gameOver = False
-# while not gameOver:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             gameOver = True
-
-#     # show_mode()
-#     # screen.fill(GREEN)
-#     pygame.display.update()
-#     clock.tick(FPS)
+if __name__ == "__main__":
+    myGame = Game()
+    myGame.run()

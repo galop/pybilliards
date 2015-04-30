@@ -5,9 +5,9 @@ import pygame
 import random
 from math import *
 
-from classes_and_modules.all_functions import *
-from classes_and_modules.env_variables import *
-from classes_and_modules.Balls_class import Balls
+from modules.all_functions import *
+from modules.env_variables import *
+from modules.Balls_class import Balls
 from operator import *
 from pygame.locals import *
 
@@ -29,7 +29,7 @@ powerbar.fill(BLACK)
 
 
 def gameLoop(mode_in="single"):
-    from classes_and_modules.env_variables import *
+    from modules.env_variables import *
     gameDisplay.blit(powerbar, (0, 580))
     gameDisplay.blit(scorecard, (0, 500))
     soundcontrol = font.render("M: Mute", True, BLACK)
@@ -227,8 +227,6 @@ def gameLoop(mode_in="single"):
                     lineEnd = tuple([int(a) for a in list(lineEnd)])
                     lineStart = tuple([int(a) for a in list(lineStart)])
 
-                    # pygame.draw.line(tempTable, RED, lineStart, lineEnd, 4)
-
                     pk_loc_and_dist_from_white_dict[lineEnd] = hypot(lineEnd[0] - white_ball.x, lineEnd[1] - white_ball.y)
                 gameDisplay.blit(tempTable, (0, 0))
                 pygame.display.update()
@@ -334,14 +332,9 @@ def gameLoop(mode_in="single"):
                 no_of_pocketed_balls_after = sum(game_status_after)
                 game_score[user_id]["Shots"] += 1
                 game_score[user_id]["Pocketed"] += (no_of_pocketed_balls_after - no_of_pocketed_balls_before)
-                # gameDisplay.blit(scorecard, (0, 500))
-                # msg2screen("Player 1:" +str(game_score[1]["Pocketed"]) , 10, 510, BLACK, 24)
         clock.tick(FPS)
     return game_score
-        # clock.tick(FPS)
 
-    # pygame.quit()
-    # quit()
 
 if __name__ == '__main__':
     gameLoop()

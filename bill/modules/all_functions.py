@@ -1,6 +1,5 @@
 
-from classes_and_modules.env_variables import *
-# from classes_and_modules.Balls_class import Balls
+from modules.env_variables import *
 
 
 def msg2screen(msg, x_loc=100, y_loc=dispHeight/2, color=WHITE, fontsize=34, _bold=False):

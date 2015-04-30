@@ -1,6 +1,5 @@
 # Hardik
 import pygame
-import random
 from math import *
 
 ADV_MODE = 1
