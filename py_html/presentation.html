@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<!--
+  Copyright 2010 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Original slides: Marcin Wichary (mwichary@google.com)
+  Modifications: Ernest Delgado (ernestd@google.com)
+                 Alex Russell (slightlyoff@chromium.org)
+
+  landslide modifications: Adam Zapletal (adamzap@gmail.com)
+                           Nicolas Perriault (nperriault@gmail.com)
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>1&nbsp;&nbsp;&nbsp;pyBilliards Game</title>
+    <!-- Styles -->
+    
+    <link rel="stylesheet" media="print" href="file:///usr/lib/python2.7/dist-packages/landslide/themes/default/css/print.css">
+    <link rel="stylesheet" media="screen, projection" href="file:///usr/lib/python2.7/dist-packages/landslide/themes/default/css/screen.css">
+    
+    
+    <!-- /Styles -->
+    <!-- Javascripts -->
+    
+    <script type="text/javascript" src="file:///usr/lib/python2.7/dist-packages/landslide/themes/default/js/slides.js"></script>
+    
+    
+    <!-- /Javascripts -->
+</head>
+<body>
+  <div id="blank"></div>
+  <div class="presentation">
+    <div id="current_presenter_notes">
+      <div id="presenter_note"></div>
+    </div>
+    <div class="slides">
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h1>1&nbsp;&nbsp;&nbsp;pyBilliards Game</h1></header>
+            
+            
+            <section><!-- A Billiards game developed in python using pygame -->
+<!-- bibliographic fields (which also require a transform): -->
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Course:</th><td class="field-body">AE: 663  Software Development Techniques for Engineering and Scientists</td>
+</tr>
+<tr class="field"><th class="field-name">Group No:</th><td class="field-body">16</td>
+</tr>
+<tr class="field"><th class="field-name">Authors:</th><td class="field-body">Hardik Jasani, Rohan Ghige</td>
+</tr>
+<tr class="field"><th class="field-name">Contact:</th><td class="field-body"><a class="reference external" href="mailto:hardikj&#64;iitb.ac.in">hardikj&#64;iitb.ac.in</a>, <a class="reference external" href="mailto:rohanghige&#64;iitb.ac.in">rohanghige&#64;iitb.ac.in</a></td>
+</tr>
+<tr class="field"><th class="field-name">organization:</th><td class="field-body">IIT Bombay</td>
+</tr>
+<tr class="field"><th class="field-name">date:</th><td class="field-body">30 April 2015</td>
+</tr>
+<tr class="field"><th class="field-name">github link:</th><td class="field-body"><a class="reference external" href="https://github.com/galop/pybilliards">https://github.com/galop/pybilliards</a></td>
+</tr>
+</tbody>
+</table>
+<p>This presentation gives a formal introduction to billiards game developed
+in pygame environment. We will put forth different methods and packages
+which we used on our way to achieve our goal.</p></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              1/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h1>2&nbsp;&nbsp;&nbsp;Game Structure</h1></header>
+            
+            
+            <section><p>Different modes:</p>
+<ul class="simple">
+<li>Single player mode (Vs Computer)</li>
+<li>Two player mode</li>
+</ul>
+<p>Features:</p>
+<ul class="simple">
+<li>Realtime ScoreBoard</li>
+<li>Sound ON/OFF toggle</li>
+<li>Cue ball speed bar</li>
+<li>Cue ball movement tracer</li>
+<li>Graphics Loading overlay surfaces</li>
+</ul></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              2/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h2>2.1&nbsp;&nbsp;&nbsp;Game Modules</h2></header>
+            
+            
+            <section><p>Models and classes:</p>
+<ul class="simple">
+<li>Game Class</li>
+<li>Button Class</li>
+<li>Gameloop</li>
+<li>Balls Class</li>
+<li>pygame.mixer</li>
+</ul>
+<p>Game Class:</p>
+<ul class="simple">
+<li>run()</li>
+<li>show_splash</li>
+<li>askmode()</li>
+</ul></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              3/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            
+            <section><p>Button Class:</p>
+<ul class="simple">
+<li>seton</li>
+<li>setoff</li>
+<li>toggle</li>
+<li>show</li>
+</ul></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              4/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h1>3&nbsp;&nbsp;&nbsp;Game Physics: Co-ordinate System</h1></header>
+            
+            
+            <section><img alt="alternate text" src="file:///home/rohanghige/Desktop/learn_rst/bal_2.png" style="width: 400px;" />
+
+
+<img alt="alternate text" src="col_2.jpg" style="width: 400px;" />
+
+<p>This describes a collision between two balls.</p></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              5/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h1>4&nbsp;&nbsp;&nbsp;Game Elements</h1></header>
+            
+            
+            <section><p>Cue ball movement:</p>
+<ul class="simple">
+<li>Cue trace-ball predctive co-ordinates taken</li>
+<li>Offset decrease in speed, to enhance gameplay.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>ball.disp()</li>
+<li>ball.boundary()</li>
+<li>ball.collision()</li>
+<li>ball.move()</li>
+<li>ball.is_pocketed()</li>
+<li>balls.give_me_pocket_angles()</li>
+</ul></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              6/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            
+            <section><p>Other functions:</p>
+<ul class="simple">
+<li>show_table()</li>
+<li>find_nearest_ball()</li>
+<li>get_angle()</li>
+<li>cuepower()</li>
+<li>move_my_all_balls()</li>
+</ul></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              7/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h1>5&nbsp;&nbsp;&nbsp;Game Opening and option choice</h1></header>
+            
+            
+            <section><img alt="file:///home/rohanghige/Desktop/learn_rst/new1.png" src="file:///home/rohanghige/Desktop/learn_rst/new1.png" /></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              8/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h1>6&nbsp;&nbsp;&nbsp;Game Console Display</h1></header>
+            
+            
+            <section><img alt="file:///home/rohanghige/Desktop/learn_rst/new2.png" src="file:///home/rohanghige/Desktop/learn_rst/new2.png" /></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              9/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: rohan.rst -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h1>7&nbsp;&nbsp;&nbsp;Thank You</h1></header>
+            
+            
+            <section><!-- No Idea --></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="rohan.rst">rohan.rst</a>
+            </aside>
+            
+            <aside class="page_number">
+              10/10
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div id="toc" class="sidebar hidden">
+    <h2>Table of Contents</h2>
+    <table>
+      <caption>Table of Contents</caption>
+      
+      <tr id="toc-row-1">
+        <th><a href="#slide1">1&nbsp;&nbsp;&nbsp;pyBilliards Game</a></th>
+        <td><a href="#slide1">1</a></td>
+      </tr>
+      
+      
+      <tr id="toc-row-2">
+        <th><a href="#slide2">2&nbsp;&nbsp;&nbsp;Game Structure</a></th>
+        <td><a href="#slide2">2</a></td>
+      </tr>
+      
+        
+        <tr id="toc-row-3" class="sub">
+          <th><a href="#slide3">2.1&nbsp;&nbsp;&nbsp;Game Modules</a></th>
+          <td><a href="#slide3">3</a></td>
+        </tr>
+        
+      
+      
+      <tr id="toc-row-4">
+        <th><a href="#slide4">-</a></th>
+        <td><a href="#slide4">4</a></td>
+      </tr>
+      
+      
+      <tr id="toc-row-5">
+        <th><a href="#slide5">3&nbsp;&nbsp;&nbsp;Game Physics: Co-ordinate System</a></th>
+        <td><a href="#slide5">5</a></td>
+      </tr>
+      
+      
+      <tr id="toc-row-6">
+        <th><a href="#slide6">4&nbsp;&nbsp;&nbsp;Game Elements</a></th>
+        <td><a href="#slide6">6</a></td>
+      </tr>
+      
+      
+      <tr id="toc-row-7">
+        <th><a href="#slide7">-</a></th>
+        <td><a href="#slide7">7</a></td>
+      </tr>
+      
+      
+      <tr id="toc-row-8">
+        <th><a href="#slide8">5&nbsp;&nbsp;&nbsp;Game Opening and option choice</a></th>
+        <td><a href="#slide8">8</a></td>
+      </tr>
+      
+      
+      <tr id="toc-row-9">
+        <th><a href="#slide9">6&nbsp;&nbsp;&nbsp;Game Console Display</a></th>
+        <td><a href="#slide9">9</a></td>
+      </tr>
+      
+      
+      <tr id="toc-row-10">
+        <th><a href="#slide10">7&nbsp;&nbsp;&nbsp;Thank You</a></th>
+        <td><a href="#slide10">10</a></td>
+      </tr>
+      
+      
+    </table>
+  </div>
+  
+  <div id="help" class="sidebar hidden">
+    <h2>Help</h2>
+    <table>
+      <caption>Help</caption>
+      <tr>
+        <th>Table of Contents</th>
+        <td>t</td>
+      </tr>
+      <tr>
+        <th>Exposé</th>
+        <td>ESC</td>
+      </tr>
+      <tr>
+        <th>Full screen slides</th>
+        <td>e</td>
+      </tr>
+      <tr>
+        <th>Presenter View</th>
+        <td>p</td>
+      </tr>
+      <tr>
+        <th>Source Files</th>
+        <td>s</td>
+      </tr>
+      <tr>
+        <th>Slide Numbers</th>
+        <td>n</td>
+      </tr>
+      <tr>
+        <th>Toggle screen blanking</th>
+        <td>b</td>
+      </tr>
+      <tr>
+        <th>Show/hide slide context</th>
+        <td>c</td>
+      </tr>
+      <tr>
+        <th>Notes</th>
+        <td>2</td>
+      </tr>
+      <tr>
+        <th>Help</th>
+        <td>h</td>
+      </tr>
+    </table>
+  </div>
+  <script>main()</script>
+</body>
+</html>
