@@ -5,10 +5,6 @@ from math import *
 ADV_MODE = 1
 RAND_MODE = 0
 
-# ini_score = {"Shots": 0, "Pocketed": 0}
-# game_score = {1:{"Shots": 0, "Pocketed": 0}, 2:{"Shots": 0, "Pocketed": 0}, 3:{"Shots": 0, "Pocketed": 0}}
-# 1: User 1, 2: User 2, 3: Computer
-
 WHITE = (255, 255, 255)
 GREEN = (0, 140, 0)
 YELLOW = (255, 255, 0)

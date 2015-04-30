@@ -127,12 +127,11 @@ def show_table():
     """
     tempTable.fill(GREEN)
     show_pockets(my_pocket_size)
-    # pygame.display.update()
 
 
 def give_me_pocket_locations():
-    """ This function return list containing pockets location, dynamically depending on
-        size of table.
+    """ This function return list containing pockets location,
+        dynamically depending on size of table.
     """
     a = (0, dispWidth/2, dispWidth)
     b = (0, dispHeight)
@@ -157,6 +156,7 @@ def find_nearest_ball(list_of_balls, white_ball):
         dist_dict[temp_dist] = a_ball
     tt = min(dist_dict.items(), key=lambda x: x[0])
     return tt[1]
+
 
 def cuepower(power):
     newLine = pygame.draw.line(gameDisplay, RED, (0, 590), (int(50*power), 590), 5)

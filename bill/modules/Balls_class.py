@@ -39,7 +39,6 @@ class Balls:
             tempTable.blit(Balls.shadow_img, (self.x - 14, self.y - 14))
             pygame.draw.circle(tempTable, self.color, (self.x, self.y), self.size, self.thickness)
             tempTable.blit(Balls.shading_img, (self.x - 15, self.y - 15))
-        # pygame.display.update()
 
     def boundary(self):
         """ Tests self location of Ball object against boundary of walls of pool table.

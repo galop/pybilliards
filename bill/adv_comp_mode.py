@@ -21,11 +21,6 @@ settingpanel = pygame.Surface((400, 80))
 settingpanel.fill(WHITE)
 powerbar = pygame.Surface((800, 20))
 powerbar.fill(BLACK)
-# lowerPanel = pygame.Surface((800, 100))
-# lowerPanel.fill(BLACK)
-# lowerPanel.blit(powerbar, (0, 500))
-# lowerPanel.blit(scorecard, (0, 520))
-# lowerPanel.blit(settingpanel, (400, 520))
 
 
 def gameLoop(mode_in="single"):
@@ -146,7 +141,6 @@ def gameLoop(mode_in="single"):
             # Following loop will extract hittable balls from all_balls 
             # Then we will decide which one to hit from those 
             for my_ball in all_balls:
-                # List of other ball except current ball
                 list_of_other_balls = all_balls[:]
                 list_of_other_balls.remove(my_ball)
                 balls_to_be_tested = []
@@ -312,7 +306,6 @@ def gameLoop(mode_in="single"):
         else:
             if (cue_speed != white_ball.default_speed) & started:
                 white_ball.speed = cue_speed
-                # cuepower(1)
                 pygame.draw.line(gameDisplay, BLACK, (0, 590), (800, 590), 8)
                 mouse_current_pos = pygame.mouse.get_pos()
                 a, b = white_ball.x, white_ball.y
