@@ -9,7 +9,7 @@ from math import *
 from pygame.locals import *
 from modules.env_variables import *
 from modules.all_functions import *
-import adv_comp_mode as acm
+import pool as acm
 
 
 pygame.mixer.pre_init(44100, -16, 2, 2048)  # setup mixer to avoid sound lag
