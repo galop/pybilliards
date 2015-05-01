@@ -109,12 +109,12 @@ Cue ball movement:
 
 Methods:
 
-- ball.disp()
-- ball.boundary()
-- ball.collision()
-- ball.move()
-- ball.is_pocketed()
-- balls.give_me_pocket_angles()
+- Balls.disp()
+- Balls.boundary()
+- Balls.collision()
+- Balls.move()
+- Balls.is_pocketed()
+- Balls.give_me_pocket_angles()
 
 ----------------
 
